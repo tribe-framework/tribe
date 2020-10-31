@@ -1,0 +1,31 @@
+{
+  "main": {
+    "logo": {
+      "name": "Tribe",
+      "href": "/"
+    },
+    "menu": [
+      {
+        "name": "Stories",
+        "href": "#",
+        "dropdown_class": "dropdown-menu-right",
+        "submenu": [
+          {
+            "name": "Story",
+            "href": "#"
+          },
+          {
+            "name": "Another story",
+            "href": "#"
+          }
+        ]
+      },
+      {
+        "name": "About",
+        "href": "#"
+      }
+    ]
+  },
+  "dash": {},
+  "minor": {}
+}
