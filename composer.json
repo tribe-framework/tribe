@@ -3,7 +3,8 @@
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/tribe-mysql.git" }
     ],
     "require": {
-        "tribe/mysql": "^0.1.0",
-        "vlucas/phpdotenv": "^5.2.0"
+    	"php" : "^7.4",
+        "vlucas/phpdotenv": "^5.2",
+        "tribe/mysql": "^0.1"
     }
 }
