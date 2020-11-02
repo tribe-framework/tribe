@@ -9,3 +9,8 @@ require __DIR__ . '/vendor/autoload.php';
 //dotenv for loading variables in tribe.var.env as $_ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__, 'tribe.var.env');
 $dotenv->load();
+
+//imported from wildfire-core
+$sql = new Tribe\MySQL();
+$dash = new Tribe\Dashboard();
+$theme = new Tribe\Theme();
