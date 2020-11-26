@@ -1,0 +1,28 @@
+<?php
+# things auto-inserted during installation
+define('THEME', 'xyz-domain-var');
+define('DB_NAME', 'xyz-db-name-var');
+define('DB_USER', 'xyz-db-name-var');
+define('DB_PASS', 'xyz-db-pass-var');
+define('DB_HOST', 'localhost');
+define('BARE_URL', THEME);
+define('ABSOLUTE_PATH', 'xyz-install-path/'.THEME);
+
+# things you can modify
+define('ENV', 'prod'); //use 'dev' to print all errors
+date_default_timezone_set('Asia/Kolkata');
+define('CONTACT_EMAIL', '');
+define('WEBSITE_NAME', '');
+define('CONTACT_NAME', '');
+define('UPLOAD_FILE_TYPES', '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|mov|mp4|vtt)$/i');
+define('S3_BKUP_HOST_BASE', 's3.wasabisys.com');
+define('S3_BKUP_HOST_BUCKET', '%(bucket)s.s3.wasabisys.com');
+define('S3_BKUP_ACCESS_KEY', '');
+define('S3_BKUP_SECRET_KEY', '');
+define('S3_BKUP_FOLDER_NAME', BARE_URL);
+
+# do not modify beyond this line
+define('BASE_URL', 'https://' . BARE_URL);
+define('THEME_URL', BASE_URL);
+define('THEME_PATH', ABSOLUTE_PATH);
+?>
