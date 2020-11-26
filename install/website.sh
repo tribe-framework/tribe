@@ -3,6 +3,7 @@ installpath1=$(echo "install_path" | sed 's/\//\\\//g');
 #--------CORE CHANGES BEGIN---------#
 
 sudo chown ubuntu:ubuntu install_path/xyz.com -R;
+sudo mkdir install_path/xyz.com/uploads;
 sudo chown www-data:www-data install_path/xyz.com/uploads -R;
 
 sudo cp install_path/xyz.com/install/nginx.conf /etc/nginx/sites-available/xyz.com;
