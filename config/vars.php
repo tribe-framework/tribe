@@ -21,6 +21,6 @@ define('S3_BKUP_ACCESS_KEY', $_ENV['S3_BKUP_ACCESS_KEY']);
 define('S3_BKUP_SECRET_KEY', $_ENV['S3_BKUP_SECRET_KEY']);
 define('S3_BKUP_FOLDER_NAME', BARE_URL);
 define('BASE_URL', 'https://' . BARE_URL);
-define('THEME_URL', BASE_URL);
-define('THEME_PATH', ABSOLUTE_PATH);
+define('THEME_URL', BASE_URL.'/theme');
+define('THEME_PATH', ABSOLUTE_PATH.'/theme');
 ?>
