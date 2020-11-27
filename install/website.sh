@@ -19,6 +19,7 @@ sudo sed -i 's/your_server_email/admin_email/g' /etc/apache2/sites-available/xyz
 sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/xyz.com.conf;
 a2ensite xyz.com;
 #sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
+sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
 
 if [ -v "$localport" ]
 then
