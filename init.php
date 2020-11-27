@@ -19,6 +19,12 @@ if (defined('ENV') && (ENV == 'dev')) {
     error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 }
 
+/*
+$sql = new Wildfire\Core\MySQL();
+$dash = new Wildfire\Core\Dash();
+$theme = new Wildfire\Core\Theme();
+$admin = new Wildfire\Core\Admin();
+
 //dotenv for loading variables in tribe.var.env as $_ENV
 //$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, 'tribe.var.env');
 //$dotenv->load();

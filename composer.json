@@ -1,10 +1,10 @@
 {
     "repositories": [
-        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/tribe-mysql.git" }
+        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/tribe-core.git" }
     ],
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "tribe/mysql": "^0.1"
+        "wildfire/core": "dev-master"
     }
 }
