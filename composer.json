@@ -7,7 +7,7 @@
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "^2.0.0",
+        "wildfire/core": "dev-master",
         "wildfire/auth": "dev-master",
         "wildfire/admin": "dev-master"
     }
