@@ -2,9 +2,9 @@ sftp-config.json
 .vscode
 tribe.var.env
 uploads
-theme
-pages
 node_modules
 vendor
 composer.phar
 composer.lock
+tribe.init.php
+index.php
