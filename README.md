@@ -7,9 +7,9 @@ sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/0.1.0/inst
 ### A web project management system by wildfire.
 
 At the core of a Tribe installation, there are 4 files:
+- tribe.var.env - variables like db connection, third-party APIs
 - tribe.conf.json - root folder structure, file management
-- tribe.ia.json - project's information architecture (earlier types.json)
-- tribe.nav.json - navigation menus (earlier menus.json)
-- tribe.var.env - variables like db connection, third-party APIs (earlier vars.php)
+- types.json - project's information architecture
+- menus.json - navigation menus
 
-Install folder contains all installation scripts.
+Install folder contains all installation scripts. Gets deleted on installation.

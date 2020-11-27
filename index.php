@@ -1,4 +1,4 @@
 <?php
-include_once 'init.php';
-echo 'hello, wildfire!'
+include_once 'tribe.init.php';
+echo 'hello, wildfire!';
 ?>
