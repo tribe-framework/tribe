@@ -5,7 +5,7 @@ session_start();
 $session_user = $_SESSION['user'] ?? NULL;
 
 //dotenv for loading variables in tribe.var.env as $_ENV
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, 'config/tribe.var.env');
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 include_once __DIR__ . '/config/vars.php';
