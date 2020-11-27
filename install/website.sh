@@ -20,7 +20,7 @@ sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/xy
 a2ensite xyz.com;
 #sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
 
-if [ -z "$localport" ]
+if [ -v "$localport" ]
 then
 	sudo cp install_path/xyz.com/install/nginx.app.conf /etc/nginx/sites-available/app.xyz.com;
 	sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/app.xyz.com;
