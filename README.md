@@ -4,6 +4,17 @@
 ```
 sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/0.1.0/install/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
 ```
+
+### for vue-nuxt app
+```
+sudo yarn dev
+```
+
+### for php
+```
+sudo php composer.phar dump-autoload
+```
+
 ### A web project management system by wildfire.
 
 At the core of a Tribe installation, there are 4 files:
