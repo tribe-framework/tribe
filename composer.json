@@ -5,6 +5,6 @@
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "dev-develop/2.0.0"
+        "wildfire/core": "^2.0.0"
     }
 }
