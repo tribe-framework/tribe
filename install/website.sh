@@ -35,8 +35,6 @@ then
 	sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/app.xyz.com.conf;
 	a2ensite app.xyz.com;
 	#sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
-else
-	
 fi
 
 sudo systemctl reload nginx;
