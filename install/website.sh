@@ -37,15 +37,12 @@ then
 	#sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
 fi
 
-sudo cp install_path/xyz.com/config/vars.php.sample install_path/xyz.com/config/vars.php;
-sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/config/vars.php;
-sudo sed -i 's/xyz-db-name-var/mysql_w_user/g' install_path/xyz.com/config/vars.php;
-sudo sed -i 's/xyz-db-pass-var/mysql_w_pass/g' install_path/xyz.com/config/vars.php;
-sudo sed -i "s/xyz-install-path/$installpath1/g" install_path/xyz.com/config/vars.php;
-sudo sed -i 's/xyz-db-pass-var/mysql_w_pass/g' install_path/xyz.com/install/install.php;
-sudo sed -i 's/your_server_email/admin_email/g' install_path/xyz.com/install/install.php;
-sudo sed -i "s/xyz-install-path/$installpath1/g" install_path/xyz.com/install/install.php;
-sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/install/install.php;
+sudo cp install_path/xyz.com/config/tribe.var.env.sample install_path/xyz.com/config/tribe.var.env;
+sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/config/tribe.var.env;
+sudo sed -i 's/xyz-db-name-var/mysql_w_user/g' install_path/xyz.com/config/tribe.var.env;
+sudo sed -i 's/xyz-db-pass-var/mysql_w_pass/g' install_path/xyz.com/config/tribe.var.env;
+sudo sed -i 's/your_server_email/admin_email/g' install_path/xyz.com/config/tribe.var.env;
+sudo sed -i "s/xyz-install-path/$installpath1/g" install_path/xyz.com/config/tribe.var.env;
 echo "CREATE USER 'mysql_w_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_w_pass'; FLUSH PRIVILEGES;" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 echo "CREATE DATABASE mysql_w_user CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 echo "GRANT ALL PRIVILEGES on mysql_w_user.* to 'mysql_w_user'@'localhost';" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
@@ -53,7 +50,6 @@ sudo mysql -umysql_w_user -pmysql_w_pass mysql_w_user < install_path/xyz.com/ins
 sudo bash install/composer.sh;
 php composer.phar install;
 php composer.phar dump-autoload;
-sudo php install_path/xyz.com/install/install.php;
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/config/*.sample;
 
