@@ -1,7 +1,10 @@
 sftp-config.json
+.vscode
 tribe.var.env
 uploads
-vendor
 theme
-node_modules
 pages
+node_modules
+vendor
+composer.phar
+composer.lock
