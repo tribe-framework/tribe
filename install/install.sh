@@ -9,6 +9,7 @@ read -p "Website Password: " mysqlwpass;
 read -p "IP Address: " ipv4address;
 read -p "Localhost Port (leave blank if not using NodeJS): " localport;
 sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
+sudo git clone https://github.com/wil-ldf-ire/theme.git $installpath/$websitedomain/theme;
 cd $installpath/$websitedomain;
 sudo git pull origin develop/0.1.0;
 sudo sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
