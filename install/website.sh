@@ -18,7 +18,7 @@ sudo sed -i 's/your_server_domain/xyz.com/g' /etc/apache2/sites-available/xyz.co
 sudo sed -i 's/your_server_email/admin_email/g' /etc/apache2/sites-available/xyz.com.conf;
 sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/xyz.com.conf;
 a2ensite xyz.com;
-#sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
+sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
 
 if [ -v "$localport" ]
@@ -36,7 +36,7 @@ then
 	sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/app.xyz.com.conf;
 	a2ensite app.xyz.com;
 	sudo yarn add nuxt;
-	#sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
+	sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
 fi
 
 sudo cp install_path/xyz.com/tribe.var.env.sample install_path/xyz.com/tribe.var.env;
