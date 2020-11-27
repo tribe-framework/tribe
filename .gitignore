@@ -1,4 +1,4 @@
-sftp-config.json
-tribe.var.env
-vars.php
-uploads
+*sftp-config.json
+*tribe.var.env
+*vars.php
+*uploads
