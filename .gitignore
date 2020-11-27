@@ -6,5 +6,5 @@ node_modules
 vendor
 composer.phar
 composer.lock
-/tribe.init.php
+tribe.init.php
 index.php
