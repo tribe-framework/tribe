@@ -3,3 +3,5 @@ tribe.var.env
 uploads
 vendor
 theme
+node_modules
+pages
