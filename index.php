@@ -131,4 +131,3 @@ else:
 	include_once (THEME_PATH.'/index.php');
 endif;
 ?>
-?>
