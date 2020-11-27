@@ -1,4 +1,0 @@
-{
-  "project": ["tribe.root.json", "tribe.ia.json", "tribe.nav.json", "README.md", ".gitignore"],
-  "data": ["tribe.var.env"]
-}
