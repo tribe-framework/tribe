@@ -37,9 +37,6 @@ then
 	#sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
 fi
 
-sudo systemctl reload nginx;
-sudo service apache2 restart;
-
 sudo cp install_path/xyz.com/config/vars.php.sample install_path/xyz.com/config/vars.php;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/config/vars.php;
 sudo sed -i 's/xyz-db-name-var/mysql_w_user/g' install_path/xyz.com/config/vars.php;
@@ -64,6 +61,7 @@ sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
 sudo /sbin/swapon /var/swap.1;
 
+sudo service apache2 restart;
 sudo service nginx restart;
 
 #--------CORE CHANGES END---------#
