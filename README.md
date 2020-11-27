@@ -8,7 +8,8 @@ sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/0.1.0/inst
 ### for vue-nuxt app
 ```
 sudo yarn dev
-pm2 --name app.domain.tld start "sudo yarn dev --port 3003"
+pm2 --name app.domain.tld start "sudo yarn dev --port port_num"
+sudo lsof -i tcp:port_num
 ```
 to change server port, edit in file /etc/nginx/sites-enabled/<app.domain.tld>
 
