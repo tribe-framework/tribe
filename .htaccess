@@ -3,6 +3,9 @@ RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule (.*) $1\.php [L,QSA]
+RewriteRule ^admin/(.*)$ /vendor/wildfire/admin/$1 [L]
+RewriteRule ^user/(.*)$ /vendor/wildfire/auth/$1 [L]
+RewriteRule ^auth/(.*)$ /vendor/wildfire/auth/$1 [L]
 RewriteRule	(.*)/scss.css $1/scss.php [L]
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteCond %{REQUEST_FILENAME} !-f
