@@ -9,6 +9,7 @@ sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/0.1.0/inst
 ```
 sudo yarn dev
 ```
+to change server port, edit in file /etc/nginx/sites-enabled/<app.domain.tld>
 
 ### for php
 ```
