@@ -1,4 +1,5 @@
 installpath1=$(echo "install_path" | sed 's/\//\\\//g');
+localport1="xyz_port";
 
 #--------CORE CHANGES BEGIN---------#
 
@@ -21,7 +22,7 @@ a2ensite xyz.com;
 sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
 
-if [ -n "$localport" ]
+if [ -n "$localport1" ]
 then
 	sudo cp install_path/xyz.com/install/nginx.app.conf /etc/nginx/sites-available/app.xyz.com;
 	sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/app.xyz.com;
