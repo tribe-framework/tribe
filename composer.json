@@ -1,10 +1,10 @@
 {
     "repositories": [
-        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/tribe-core.git" }
+        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/core.git" }
     ],
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "dev-master"
+        "wildfire/core": "dev-develop/2.0.0"
     }
 }
