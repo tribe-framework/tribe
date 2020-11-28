@@ -12,6 +12,7 @@ sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedom
 sudo git clone https://github.com/wil-ldf-ire/theme.git $installpath/$websitedomain/theme;
 cd $installpath/$websitedomain;
 sudo git pull origin develop/0.1.0;
+sudo rm .git -R;
 sudo sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
 sudo sed -i "s/xyz_port/$localport/g" $installpath/$websitedomain/install/website.sh;
 sudo sed -i "s/ipv4_address/$ipv4address/g" $installpath/$websitedomain/install/website.sh;
