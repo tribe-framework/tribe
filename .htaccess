@@ -1,13 +1,27 @@
 Options +FollowSymLinks -Indexes 
 RewriteEngine On
 RewriteBase /
-RewriteCond %{REQUEST_FILENAME}\.php -f
-RewriteRule (.*) $1\.php [L,QSA]
+
+#redirect auth and admin to composer packages
 RewriteRule ^admin/(.*)$ /vendor/wildfire/admin/$1 [L]
 RewriteRule ^user/(.*)$ /vendor/wildfire/auth/$1 [L]
 RewriteRule ^auth/(.*)$ /vendor/wildfire/auth/$1 [L]
+
+#add .php and see if files exist
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^/]+)/$ $1.php
+
+#if files don't exist add trailing slash
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*[^/])$ /$1/ [L]
+
+#redirect .scss to new autogenerating ones
 RewriteRule	(.*)/scss.css $1/scss.php [L]
-RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+#redirect to sitemap.xml to composer package
+RewriteRule ^sitemap\.xml$ /vendor/wildfire/sitemap/index.php [L]
+
+#if file and dir don't exist pass it on to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule (.*)$ index.php?ext=$1 [L,QSA]
