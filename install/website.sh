@@ -5,7 +5,7 @@ localport1="xyz_port";
 
 sudo chown ubuntu:ubuntu install_path/xyz.com -R;
 sudo mkdir install_path/xyz.com/uploads;
-sudo chown www-data:www-data install_path/xyz.com/uploads -R;
+sudo chown www-data: install_path/xyz.com/uploads -R;
 
 sudo cp install_path/xyz.com/install/nginx.conf /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/xyz.com;
@@ -55,6 +55,7 @@ php composer.phar install;
 php composer.phar dump-autoload;
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/*.sample;
+sudo chown ubuntu: install_path/xyz.com -R;
 
 sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
