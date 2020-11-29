@@ -5,7 +5,6 @@ localport1="xyz_port";
 
 sudo chown ubuntu:ubuntu install_path/xyz.com -R;
 sudo mkdir install_path/xyz.com/uploads;
-sudo chown www-data: install_path/xyz.com/uploads -R;
 
 sudo cp install_path/xyz.com/install/nginx.conf /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/xyz.com;
@@ -44,8 +43,10 @@ sudo cp install_path/xyz.com/tribe.var.env.sample install_path/xyz.com/tribe.var
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/tribe.var.env;
 sudo sed -i 's/xyz-db-name-var/mysql_w_user/g' install_path/xyz.com/tribe.var.env;
 sudo sed -i 's/xyz-db-pass-var/mysql_w_pass/g' install_path/xyz.com/tribe.var.env;
+sudo sed -i 's/xyz-port-var/xyz_port/g' install_path/xyz.com/tribe.var.env;
 sudo sed -i 's/your_server_email/admin_email/g' install_path/xyz.com/tribe.var.env;
 sudo sed -i "s/xyz-install-path/$installpath1/g" install_path/xyz.com/tribe.var.env;
+sudo sed -i 's/port_num/xyz_port/g' install_path/xyz.com/README.md;
 echo "CREATE USER 'mysql_w_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_w_pass'; FLUSH PRIVILEGES;" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 echo "CREATE DATABASE mysql_w_user CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 echo "GRANT ALL PRIVILEGES on mysql_w_user.* to 'mysql_w_user'@'localhost';" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
@@ -56,6 +57,7 @@ php composer.phar dump-autoload;
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/*.sample;
 sudo chown ubuntu: install_path/xyz.com -R;
+sudo chown www-data: install_path/xyz.com/uploads -R;
 
 sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
