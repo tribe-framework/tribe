@@ -8,8 +8,8 @@ RewriteRule ^user/(.*)$ /vendor/wildfire/auth/$1 [L]
 RewriteRule ^auth/(.*)$ /vendor/wildfire/auth/$1 [L]
 
 #add .php and see if files exist
-RewriteCond %{REQUEST_FILENAME}\.php -f
-RewriteRule ^([^/]+)/$ $1.php
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*[^/])$ /$1.php [L]
 
 #if files don't exist add trailing slash
 RewriteCond %{REQUEST_FILENAME} !-f
