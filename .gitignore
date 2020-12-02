@@ -1,9 +1,6 @@
-sftp-config.json
-.vscode
-tribe.var.env
-uploads
-node_modules
-vendor
-composer.phar
-tribe.init.php
-index.php
+/.vscode
+/.env
+/uploads
+/node_modules
+/vendor
+/composer.phar
