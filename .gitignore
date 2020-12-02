@@ -5,6 +5,5 @@ uploads
 node_modules
 vendor
 composer.phar
-composer.lock
 tribe.init.php
 index.php
