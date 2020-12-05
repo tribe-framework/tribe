@@ -2,13 +2,17 @@
     "repositories": [
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/core.git" },
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/auth.git" },
-        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/admin.git" }
+        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/admin.git" },
+        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/sitemap.git" },
+        { "type": "vcs", "url": "https://github.com/wil-ldf-ire/backup.git" }
     ],
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
         "wildfire/core": "dev-develop/2.0.0",
         "wildfire/auth": "dev-master",
-        "wildfire/admin": "dev-master"
+        "wildfire/admin": "dev-master",
+        "wildfire/sitemap": "dev-master",
+        "wildfire/backup": "dev-master"
     }
 }
