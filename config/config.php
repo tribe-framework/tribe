@@ -1,17 +1,30 @@
 <?php
-# things you can modify
-define('ENV', 'prod'); //use 'dev' to print all errors
-define('UPLOAD_FILE_TYPES', '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|mov|mp4|vtt)$/i');
-date_default_timezone_set('Asia/Kolkata');
+/**
+ * DO NOT MANUALLY MODIFY THIS FILE
+ * THIS FILE EXISTS FOR BACKWARD COMPATIBILITY REASONS ONLY, TRY TO USE ".env"
+ *
+ * add custom variables to ".env" in project root or create a "vars.php"
+ * in this directory if you want to add your own variables
+ */
 
-# do not modify beyond this line
+if (file_exists('./vars.php')) {
+    include_once './vars.php';
+}
+
+if (!defined('VAR_NAME')) {
+    define(
+        'UPLOAD_FILE_TYPES',
+        '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|mov|mp4|vtt)$/i'
+    );
+}
+
+define('ENV', $_ENV['ENV']);
 define('THEME', $_ENV['WEB_URL']);
 define('DB_NAME', $_ENV['DB_NAME']);
 define('DB_USER', $_ENV['DB_USER']);
 define('DB_PASS', $_ENV['DB_PASS']);
 define('DB_HOST', $_ENV['DB_HOST']);
 define('BARE_URL', THEME);
-define('ABSOLUTE_PATH', $_ENV['ABSOLUTE_PATH']);
 define('CONTACT_EMAIL', $_ENV['CONTACT_EMAIL']);
 define('WEBSITE_NAME', $_ENV['WEBSITE_NAME']);
 define('CONTACT_NAME', $_ENV['CONTACT_NAME']);

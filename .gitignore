@@ -5,3 +5,5 @@
 /vendor
 /composer.phar
 /config/vars.php
+.nuxt
+/plugins
