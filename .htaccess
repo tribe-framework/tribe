@@ -19,7 +19,7 @@ RewriteRule ^(.*[^/])$ /$1/ [L]
 RewriteRule	(.*)/scss.css $1/scss.php [L]
 
 #redirect to sitemap.xml to composer package
-RewriteRule ^sitemap\.xml$ /vendor/wildfire/sitemap/index.php [L]
+RewriteRule ^sitemap.xml$ /vendor/wildfire/sitemap/index.php [L]
 
 #if file and dir don't exist pass it on to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
