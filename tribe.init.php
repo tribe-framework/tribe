@@ -2,7 +2,7 @@
 //composer autoload
 require __DIR__ . '/vendor/autoload.php';
 
-define('ABSOLUTE_PATH', __DIR__);
+define('ROOT', __DIR__);
 
 //dotenv for loading variables in tribe.var.env as $_ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__, '.env');
