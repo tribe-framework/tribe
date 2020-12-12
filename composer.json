@@ -1,4 +1,6 @@
 {
+    "name": "def/india75",
+    "description": "india75 - education platform",
     "repositories": [
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/core.git" },
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/auth.git" },
@@ -14,5 +16,10 @@
         "wildfire/admin": "dev-master",
         "wildfire/sitemap": "dev-master",
         "wildfire/backup": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "DEF\\": "src/"
+        }
     }
 }

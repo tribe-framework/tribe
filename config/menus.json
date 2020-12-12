@@ -1,28 +1,16 @@
 {
   "main": {
     "logo": {
-      "name": "Tribe",
+      "name": "India@75",
       "href": "/"
     },
     "menu": [
       {
-        "name": "Stories",
+        "title": "Components",
+        "name": "Components",
         "href": "#",
-        "dropdown_class": "dropdown-menu-right",
-        "submenu": [
-          {
-            "name": "Story",
-            "href": "#"
-          },
-          {
-            "name": "Another story",
-            "href": "#"
-          }
-        ]
-      },
-      {
-        "name": "About",
-        "href": "#"
+        "dropdown_class": "dropdown-menu-left",
+        "submenu": "component"
       }
     ]
   },

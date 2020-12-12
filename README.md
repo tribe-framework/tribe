@@ -1,29 +1,24 @@
-# Tribe
+# India@75
 
-### quick install
+## Nuxt App
+### Installing Node Dependencies
 ```
-sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/0.1.0/install/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
-```
-
-### for vue-nuxt app
-```
-sudo yarn dev
-pm2 --name app.domain.tld start "sudo yarn dev --port port_num"
-sudo lsof -i tcp:port_num
-```
-to change server port, edit in file /etc/nginx/sites-enabled/<app.domain.tld>
-
-### for php
-```
-sudo php composer.phar dump-autoload
+$ yarn
 ```
 
-### A web project management system by wildfire.
+### Starting Dev Server
+```
+$ yarn dev
+```
 
-At the core of a Tribe installation, there are 4 files:
-- tribe.var.env - variables like db connection, third-party APIs
-- tribe.conf.json - root folder structure, file management
-- types.json - project's information architecture
-- menus.json - navigation menus
+### Building and Running Production Server
+```
+$ yarn build
+$ yarn start
+```
 
-Install folder contains all installation scripts. Gets deleted on installation.
+### Hosting project with PM2
+```
+$ yarn build
+$ pm2 start npm --name india75-vue -- start
+```

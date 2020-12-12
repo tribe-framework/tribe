@@ -18,6 +18,7 @@ if (!defined('VAR_NAME')) {
     );
 }
 
+define('ABSOLUTE_PATH', ROOT_DIR);
 define('ENV', $_ENV['ENV']);
 define('THEME', $_ENV['WEB_URL']);
 define('DB_NAME', $_ENV['DB_NAME']);
@@ -30,11 +31,11 @@ define('WEBSITE_NAME', $_ENV['WEBSITE_NAME']);
 define('CONTACT_NAME', $_ENV['CONTACT_NAME']);
 define('S3_BKUP_HOST_BASE', $_ENV['S3_BKUP_HOST_BASE']);
 define('S3_BKUP_HOST_BUCKET', $_ENV['S3_BKUP_HOST_BUCKET']);
-define('S3_BKUP_ACCESS_KEY', ($_ENV['S3_BKUP_ACCESS_KEY']??''));
-define('S3_BKUP_SECRET_KEY', ($_ENV['S3_BKUP_SECRET_KEY']??''));
+define('S3_BKUP_ACCESS_KEY', ($_ENV['S3_BKUP_ACCESS_KEY'] ?? ''));
+define('S3_BKUP_SECRET_KEY', ($_ENV['S3_BKUP_SECRET_KEY'] ?? ''));
 define('S3_BKUP_FOLDER_NAME', BARE_URL);
 define('BASE_URL', 'https://' . BARE_URL);
-define('ABSOLUTE_PATH', ROOT);
-define('THEME_URL', BASE_URL.'/theme');
-define('THEME_PATH', ABSOLUTE_PATH.'/theme');
-?>
+define('THEME_URL', BASE_URL . '/theme');
+define('THEME_PATH', ABSOLUTE_PATH . '/theme');
+define('UI_URL', BASE_URL . '/theme');
+define('UI_PATH', ABSOLUTE_PATH . '/theme');

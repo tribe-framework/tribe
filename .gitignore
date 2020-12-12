@@ -7,3 +7,5 @@
 /config/vars.php
 .nuxt
 /plugins
+/nuxtjs-app/static/sw.js
+*.code-workspace
