@@ -7,35 +7,34 @@
  * in this directory if you want to add your own variables
  */
 
+date_default_timezone_set($_ENV['DEFAULT_TIMEZONE']);
+
 if (file_exists('./vars.php')) {
-    include_once './vars.php';
+	include_once './vars.php';
 }
 
 if (!defined('VAR_NAME')) {
-    define(
-        'UPLOAD_FILE_TYPES',
-        '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|mov|mp4|vtt|csv)$/i'
-    );
+	define(
+		'UPLOAD_FILE_TYPES',
+		'/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
+	);
 }
 
-define('ABSOLUTE_PATH', ROOT_DIR);
+define('ABSOLUTE_PATH', __DIR__);
 define('ENV', $_ENV['ENV']);
-define('THEME', $_ENV['WEB_URL']);
 define('DB_NAME', $_ENV['DB_NAME']);
 define('DB_USER', $_ENV['DB_USER']);
 define('DB_PASS', $_ENV['DB_PASS']);
 define('DB_HOST', $_ENV['DB_HOST']);
-define('BARE_URL', THEME);
+define('BARE_URL', $_ENV['WEB_URL']);
 define('CONTACT_EMAIL', $_ENV['CONTACT_EMAIL']);
 define('WEBSITE_NAME', $_ENV['WEBSITE_NAME']);
 define('CONTACT_NAME', $_ENV['CONTACT_NAME']);
-define('S3_BKUP_HOST_BASE', $_ENV['S3_BKUP_HOST_BASE']);
-define('S3_BKUP_HOST_BUCKET', $_ENV['S3_BKUP_HOST_BUCKET']);
+define('S3_BKUP_HOST_BASE', ($_ENV['S3_BKUP_HOST_BASE'] ?? ''));
+define('S3_BKUP_HOST_BUCKET', ($_ENV['S3_BKUP_HOST_BUCKET'] ?? ''));
 define('S3_BKUP_ACCESS_KEY', ($_ENV['S3_BKUP_ACCESS_KEY'] ?? ''));
 define('S3_BKUP_SECRET_KEY', ($_ENV['S3_BKUP_SECRET_KEY'] ?? ''));
-define('S3_BKUP_FOLDER_NAME', BARE_URL);
+define('S3_BKUP_FOLDER_NAME', ($_ENV['S3_BKUP_FOLDER_NAME'] ?? ''));
 define('BASE_URL', 'https://' . BARE_URL);
 define('THEME_URL', BASE_URL . '/theme');
 define('THEME_PATH', ABSOLUTE_PATH . '/theme');
-define('UI_URL', BASE_URL . '/theme');
-define('UI_PATH', ABSOLUTE_PATH . '/theme');
