@@ -20,7 +20,7 @@ if (!defined('VAR_NAME')) {
 	);
 }
 
-define('ABSOLUTE_PATH', __DIR__);
+define('ABSOLUTE_PATH', dirname(__DIR__, 1));
 define('ENV', $_ENV['ENV']);
 define('DB_NAME', $_ENV['DB_NAME']);
 define('DB_USER', $_ENV['DB_USER']);
