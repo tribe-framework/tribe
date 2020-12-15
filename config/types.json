@@ -1,7 +1,7 @@
 {
   "webapp": {
-    "headmeta_title": "India@75",
-    "headmeta_description": "A literacy initiative by CII.",
+    "headmeta_title": "Tribe",
+    "headmeta_description": "A web project management system by wildfire.",
     "headmeta_image_url": "",
     "allow_type_change": false,
     "searchable_types": ["page"],
@@ -14,7 +14,9 @@
     "plural": "users",
     "roles": {
       "admin": {"role":"admin","slug":"admin","title":"Admin"},
-      "learner": {"role":"member","slug":"learner","title":"Learner"}
+      "editor": {"role":"crew","slug":"editor","title":"Editor"},
+      "guest_writer": {"role":"member","slug":"guest_writer","title":"Guest writer"},
+      "subscriber": {"role":"visitor","slug":"subscriber","title":"Newsletter subscriber"}
     },
     "modules": [
       {
@@ -28,32 +30,12 @@
         "list_sortable": false
       },
       {
-        "input_slug": "uname",
-        "input_type": "text",
-        "input_unique": true,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "contact",
+        "input_slug": "email",
         "input_type": "email",
         "input_unique": true,
         "list_field": true,
         "list_searchable": true,
         "list_sortable": true
-      },
-      {
-        "input_slug": "name",
-        "input_type": "text"
-      },
-      {
-        "input_slug": "age",
-        "input_type": "text"
-      },
-      {
-        "input_slug": "gst_state",
-        "input_type": "text"
       },
       {
         "input_slug": "password",
@@ -67,33 +49,82 @@
       }
     ]
   },
-  "component": {
+  "section": {
     "type": "content",
-    "slug": "component",
+    "slug": "section",
     "headmeta_title_prepend": "",
     "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
     "headmeta_title_glue": "&mdash;",
     "headmeta_title": "title",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "component",
-    "plural": "components",
-    "description": "List of components.",
+    "name": "section",
+    "plural": "sections",
     "disallow_editing": false,
     "modules": [
       {
         "input_slug": "title",
         "input_primary": true,
         "input_type": "text",
-        "input_placeholder": "Enter component name",
+        "input_placeholder": "Enter section title",
         "input_unique": true,
         "list_field": true,
         "list_searchable": true,
         "list_sortable": true
+      }
+    ]
+  },
+  "page": {
+    "type": "content",
+    "slug": "page",
+    "headmeta_title_prepend": "",
+    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
+    "headmeta_title_glue": "&mdash;",
+    "headmeta_title": "title",
+    "headmeta_description": "body",
+    "headmeta_image_url": "cover_media",
+    "name": "page",
+    "plural": "pages",
+    "description": "List of pages.",
+    "disallow_editing": false,
+    "modules": [
+      {
+        "input_slug": "title",
+        "input_primary": true,
+        "input_type": "text",
+        "input_placeholder": "Enter page title",
+        "input_unique": false,
+        "list_field": true,
+        "list_search": true,
+        "list_sort": true
       },
       {
-        "input_slug": "pre_response_matrix_csv",
-        "input_placeholder": "CSV file for pre-assessment response matrix",
+        "input_slug": "body",
+        "input_type": "typeout",
+        "input_options": [
+          "undo",
+          "insertParagraph",
+          "bold",
+          "italic",
+          "createLink",
+          "unlink",
+          "insertImage"
+        ],
+        "input_unique": false
+      },
+      {
+        "input_slug": "section",
+        "input_type": "select",
+        "input_unique": false
+      },
+      {
+        "input_slug": "publishing_date",
+        "input_type": "date",
+        "input_unique": false,
+        "list_field": true,
+        "list_search": true,
+        "list_sort": true
+      },
+      {
+        "input_slug": "cover_media",
         "input_type": "url",
         "input_unique": false
       },
@@ -101,239 +132,6 @@
         "input_slug": "files",
         "input_type": "file_uploader",
         "input_unique": false
-      }
-    ]
-  },
-  "level": {
-    "type": "content",
-    "slug": "level",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "title",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "level",
-    "plural": "levels",
-    "description": "List of levels.",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "title",
-        "input_primary": true,
-        "input_type": "text",
-        "input_placeholder": "Enter level name (with component)",
-        "input_unique": true,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "post_response_matrix_csv",
-        "input_placeholder": "CSV file for post-assessment response matrix",
-        "input_type": "url",
-        "input_unique": false
-      },
-      {
-        "input_slug": "component",
-        "input_placeholder": "Select component",
-        "input_type": "select",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "files",
-        "input_type": "file_uploader",
-        "input_unique": false
-      }
-    ]
-  },
-  "module": {
-    "type": "content",
-    "slug": "module",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "description",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "module",
-    "plural": "modules",
-    "description": "List of modules.",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "description",
-        "input_primary": true,
-        "input_type": "text",
-        "input_placeholder": "Enter module description text",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "level",
-        "input_placeholder": "Select level",
-        "input_type": "select",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "slides",
-        "input_placeholder": "Insert text, image links or video links",
-        "input_type": "multi-text",
-        "input_unique": false
-      },
-      {
-        "input_slug": "files",
-        "input_type": "file_uploader",
-        "input_unique": false
-      }
-    ]
-  },
-  "pre_assessment_question": {
-    "type": "content",
-    "slug": "pre_assessment_question",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "description",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "pre-assessment question",
-    "plural": "pre-assessment questions",
-    "description": "List of pre-assessment questions.",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "description",
-        "input_primary": true,
-        "input_type": "textarea",
-        "input_placeholder": "Enter question text",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "response_option",
-        "input_placeholder": "Response option",
-        "input_type": "multi-text",
-        "input_unique": false
-      },
-      {
-        "input_slug": "component",
-        "input_placeholder": "Select component",
-        "input_type": "select",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      }
-    ]
-  },
-  "post_assessment_question": {
-    "type": "content",
-    "slug": "post_assessment_question",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "description",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "post-assessment question",
-    "plural": "post-assessment questions",
-    "description": "List of post-assessment questions.",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "description",
-        "input_primary": true,
-        "input_type": "textarea",
-        "input_placeholder": "Enter question text",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "response_option",
-        "input_placeholder": "Response option",
-        "input_type": "multi-text",
-        "input_unique": false
-      },
-      {
-        "input_slug": "level",
-        "input_placeholder": "Select level",
-        "input_type": "select",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      }
-    ]
-  },
-  "response": {
-    "type": "content",
-    "slug": "response",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "description",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "response",
-    "plural": "responses",
-    "description": "List of responses.",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "response_unique_id",
-        "input_primary": true,
-        "input_type": "text",
-        "input_unique": false,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
-      },
-      {
-        "input_slug": "question_id",
-        "input_type": "text"
-      },
-      {
-        "input_slug": "user_id",
-        "input_type": "text"
-      }
-    ]
-  },
-  "api": {
-    "type": "content",
-    "slug": "api",
-    "headmeta_title_prepend": "",
-    "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
-    "headmeta_title_glue": "&mdash;",
-    "headmeta_title": "title",
-    "headmeta_description": "body",
-    "headmeta_image_url": "cover_media",
-    "name": "api",
-    "plural": "apis",
-    "description": "APIs",
-    "disallow_editing": false,
-    "modules": [
-      {
-        "input_slug": "url",
-        "input_primary": true,
-        "input_type": "text",
-        "input_placeholder": "API Route",
-        "input_unique": true,
-        "list_field": true,
-        "list_searchable": true,
-        "list_sortable": true
       }
     ]
   }
