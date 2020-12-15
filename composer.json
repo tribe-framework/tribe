@@ -12,14 +12,14 @@
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
         "wildfire/core": "dev-develop/2.0.0",
-        "wildfire/auth": "dev-master",
-        "wildfire/admin": "dev-master",
-        "wildfire/sitemap": "dev-master",
-        "wildfire/backup": "dev-master"
+        "wildfire/auth": "dev-develop/1.0.0",
+        "wildfire/admin": "dev-develop/1.0.0",
+        "wildfire/sitemap": "dev-develop/1.0.0",
+        "wildfire/backup": "dev-develop/1.0.0"
     },
     "autoload": {
         "psr-4": {
-            
+
         }
     }
 }
