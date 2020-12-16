@@ -20,6 +20,7 @@ if (!defined('VAR_NAME')) {
 	);
 }
 
+define('TRIBE_ROOT', dirname(__DIR__, 1));
 define('ABSOLUTE_PATH', dirname(__DIR__, 1));
 define('ENV', $_ENV['ENV']);
 define('DB_NAME', $_ENV['DB_NAME']);
