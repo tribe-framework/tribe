@@ -2,11 +2,6 @@ Options +FollowSymLinks -Indexes
 RewriteEngine On
 RewriteBase /
 
-#redirect admin, auth and user to composer packages
-RewriteRule ^admin/(.*)$ /vendor/wildfire/admin/$1 [L]
-RewriteRule ^user/(.*)$ /vendor/wildfire/auth/$1 [L]
-RewriteRule ^auth/(.*)$ /vendor/wildfire/auth/$1 [L]
-
 #add .php and see if files exist
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.*[^/])$ /$1.php [L]
