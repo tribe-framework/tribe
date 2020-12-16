@@ -10,14 +10,14 @@
 date_default_timezone_set($_ENV['DEFAULT_TIMEZONE']);
 
 if (file_exists('./vars.php')) {
-	include_once './vars.php';
+    include_once './vars.php';
 }
 
 if (!defined('VAR_NAME')) {
-	define(
-		'UPLOAD_FILE_TYPES',
-		'/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
-	);
+    define(
+        'UPLOAD_FILE_TYPES',
+        '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
+    );
 }
 
 define('TRIBE_ROOT', dirname(__DIR__, 1));
