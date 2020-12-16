@@ -1,6 +1,6 @@
 {
-    "name": "def/india75",
-    "description": "india75 - education platform",
+    "name": "wildfire/tribe",
+    "description": "a web project management system by wildfire.",
     "repositories": [
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/core.git" },
         { "type": "vcs", "url": "https://github.com/wil-ldf-ire/auth.git" },
