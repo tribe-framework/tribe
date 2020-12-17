@@ -93,8 +93,8 @@
         "input_placeholder": "Enter page title",
         "input_unique": false,
         "list_field": true,
-        "list_search": true,
-        "list_sort": true
+        "list_searchable": true,
+        "list_sortable": true
       },
       {
         "input_slug": "body",
@@ -120,8 +120,8 @@
         "input_type": "date",
         "input_unique": false,
         "list_field": true,
-        "list_search": true,
-        "list_sort": true
+        "list_searchable": true,
+        "list_sortable": true
       },
       {
         "input_slug": "cover_media",
