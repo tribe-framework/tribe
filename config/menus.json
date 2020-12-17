@@ -27,5 +27,68 @@
     ]
   },
   "dash": {},
-  "minor": {}
+  "minor": {},
+  "admin_menu": {
+    "logo": {
+      "name": "Tribe",
+      "href": "/"
+    },
+    "menu": [
+      {
+        "name": "Users",
+        "href": "#",
+        "dropdown_class": "dropdown-menu-right",
+        "submenu": "user",
+        "admin_access_only": 1
+      },
+      {
+        "name": "Insights",
+        "href": "/admin/insights",
+        "admin_access_only": 1
+      },
+      {
+        "name": "Settings",
+        "href": "#",
+        "dropdown_class": "dropdown-menu-right",
+        "submenu": [
+          {
+            "name": "Change password",
+            "href": "/user/change-password"
+          }
+        ]
+      },
+      {
+        "name": "<span class='fas fa-sign-out-alt'></span>&nbsp;Exit",
+        "href": "/user/login?action=exit"
+      }
+    ]
+  },
+  "admin_footer_1": {
+    "menu": [
+      {
+        "name": "Report a bug",
+        "href": "mailto:tech@wildfire.world"
+      },
+      {
+        "name": "Feature suggestion",
+        "href": "mailto:hq@wildfire.world"
+      },
+      {
+        "name": "Get in touch",
+        "href": "mailto:info@wildfire.world"
+      }
+    ]
+  },
+  "admin_footer_2": {
+    "menu": [
+      {
+        "name": "Data privacy",
+        "href": "https://wildfire.world"
+      },
+      {
+        "name": "Energy policy",
+        "href": "https://wildfire.world"
+      }
+    ]
+  }
 }
