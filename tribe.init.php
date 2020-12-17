@@ -10,5 +10,4 @@ $dotenv->load();
 include_once __DIR__ . '/config/config.php';
 
 //wildfire core classes
-$init = new Wildfire\Core\Init();
-$init->init();
+$tribe_init = new Wildfire\Core\Init();
