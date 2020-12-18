@@ -20,6 +20,16 @@ if (!defined('VAR_NAME')) {
     );
 }
 
+// set cors headers for APP_URL if PHP dev server
+$pattern = "/PHP \d{1,2}(\.\d{1,2}){0,2} Development Server/";
+preg_match($pattern, $_SERVER['SERVER_SOFTWARE'], $matches);
+
+if (count($matches)) {
+    $cross_origin_url = $_ENV['APP_URL'];
+    header("Access-Control-Allow-Origin: $cross_origin_url");
+}
+unset($pattern, $matches);
+
 define('TRIBE_ROOT', dirname(__DIR__, 1));
 define('ABSOLUTE_PATH', dirname(__DIR__, 1));
 define('ENV', $_ENV['ENV']);
