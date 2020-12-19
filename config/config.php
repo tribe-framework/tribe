@@ -21,14 +21,11 @@ if (!defined('VAR_NAME')) {
 }
 
 // set cors headers for APP_URL if PHP dev server
-$pattern = "/PHP \d{1,2}(\.\d{1,2}){0,2} Development Server/";
-preg_match($pattern, $_SERVER['SERVER_SOFTWARE'], $matches);
-
-if (count($matches)) {
+if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
     $cross_origin_url = $_ENV['APP_URL'];
     header("Access-Control-Allow-Origin: $cross_origin_url");
+    unset($cross_origin_url);
 }
-unset($pattern, $matches);
 
 define('TRIBE_ROOT', dirname(__DIR__, 1));
 define('ABSOLUTE_PATH', dirname(__DIR__, 1));
@@ -37,7 +34,7 @@ define('DB_NAME', $_ENV['DB_NAME']);
 define('DB_USER', $_ENV['DB_USER']);
 define('DB_PASS', $_ENV['DB_PASS']);
 define('DB_HOST', $_ENV['DB_HOST']);
-define('BARE_URL', preg_filter('/http.*:\/\//', '', $_ENV['WEB_URL']) ?? $_ENV['WEB_URL']);
+define('BARE_URL', $_ENV['WEB_BARE_URL']);
 define('CONTACT_EMAIL', $_ENV['CONTACT_EMAIL']);
 define('WEBSITE_NAME', $_ENV['WEBSITE_NAME']);
 define('CONTACT_NAME', $_ENV['CONTACT_NAME']);
