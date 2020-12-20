@@ -35,7 +35,10 @@ then
 	sudo sed -i 's/your_server_email/admin_email/g' /etc/apache2/sites-available/app.xyz.com.conf;
 	sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/app.xyz.com.conf;
 	a2ensite app.xyz.com;
-	sudo yarn add nuxt;
+	cd install_path/xyz.com/;
+	sudo yarn create nuxt-app nuxt-app;
+	sudo mv install_path/xyz.com/nuxt-app/node_modules install_path/xyz.com/;
+	sudo mv install_path/xyz.com/nuxt-app/package.json install_path/xyz.com/;
 	sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
 fi
 
