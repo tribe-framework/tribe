@@ -2,7 +2,7 @@
 
 ### quick install
 ```
-sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/1.0.0/install/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
+sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
 ```
 
 ### for vue-nuxt app
