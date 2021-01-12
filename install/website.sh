@@ -54,7 +54,7 @@ sudo bash install/composer.sh;
 php composer.phar install;
 php composer.phar dump-autoload;
 sudo rm install_path/xyz.com/install -R;
-sudo rm install_path/xyz.com/*.sample;
+sudo rm install_path/xyz.com/.env.sample;
 sudo chown ubuntu: install_path/xyz.com -R;
 sudo chown www-data: install_path/xyz.com/uploads -R;
 
