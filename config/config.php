@@ -9,22 +9,22 @@
 
 date_default_timezone_set($_ENV['DEFAULT_TIMEZONE']);
 
-if (file_exists('./vars.php')) {
-    include_once './vars.php';
+if (file_exists(__DIR__ . '/vars.php')) {
+	include_once __DIR__ . '/vars.php';
 }
 
 if (!defined('VAR_NAME')) {
-    define(
-        'UPLOAD_FILE_TYPES',
-        '/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
-    );
+	define(
+		'UPLOAD_FILE_TYPES',
+		'/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
+	);
 }
 
 // set cors headers for APP_URL if PHP dev server
 if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
-    $cross_origin_url = $_ENV['APP_URL'];
-    header("Access-Control-Allow-Origin: $cross_origin_url");
-    unset($cross_origin_url);
+	$cross_origin_url = $_ENV['APP_URL'];
+	header("Access-Control-Allow-Origin: $cross_origin_url");
+	unset($cross_origin_url);
 }
 
 define('TRIBE_ROOT', dirname(__DIR__, 1));
@@ -43,6 +43,6 @@ define('S3_BKUP_HOST_BUCKET', ($_ENV['S3_BKUP_HOST_BUCKET'] ?? ''));
 define('S3_BKUP_ACCESS_KEY', ($_ENV['S3_BKUP_ACCESS_KEY'] ?? ''));
 define('S3_BKUP_SECRET_KEY', ($_ENV['S3_BKUP_SECRET_KEY'] ?? ''));
 define('S3_BKUP_FOLDER_NAME', ($_ENV['S3_BKUP_FOLDER_NAME'] ?? ''));
-define('BASE_URL', ($_ENV['SSL'] !== 'false' ? 'https' : 'http').'://'.BARE_URL);
-define('THEME_URL', BASE_URL.'/theme');
-define('THEME_PATH', ABSOLUTE_PATH.'/theme');
+define('BASE_URL', ($_ENV['SSL'] !== 'false' ? 'https' : 'http') . '://' . BARE_URL);
+define('THEME_URL', BASE_URL . '/theme');
+define('THEME_PATH', ABSOLUTE_PATH . '/theme');
