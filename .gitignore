@@ -8,3 +8,4 @@
 .nuxt
 *.code-workspace
 sftp-config.json
+/theme/dist

@@ -13,14 +13,10 @@ sudo composer update
 ### for ember app installation
 In local dev machine
 ```
-ember init;
+ember init --skip-git;
 ember install ember-auto-import;
 ember install ember-cli-sass;
-ember install ember-cli-deploy;
-ember install ember-cli-deploy-build;
-
 ember serve;
-ember deploy;
 ```
 To upload to remove prod server, create build in local machine
 ```
