@@ -2,7 +2,7 @@
 
 ### quick install
 ```
-sudo wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
+sh -c "$(wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
 ```
 
 ### updating tribe
