@@ -30,7 +30,8 @@
         "wildfire/auth": "^1.0",
         "wildfire/admin": "^1.0",
         "wildfire/sitemap": "^1.0",
-        "wildfire/backup": "^1.0"
+        "wildfire/backup": "^1.0",
+        "web-token/jwt-framework": "^2.2"
     },
     "autoload": {
         "psr-4": {}
