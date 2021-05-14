@@ -1,5 +1,4 @@
 installpath1=$(echo "install_path" | sed 's/\//\\\//g');
-localport1="xyz_port";
 
 #--------CORE CHANGES BEGIN---------#
 
@@ -12,31 +11,9 @@ sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.co
 sudo sed -i 's/your_server_domain/xyz.com/g' /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/xyz-port-var/xyz_port/g' /etc/nginx/sites-available/xyz.com;
 sudo ln -s /etc/nginx/sites-available/xyz.com /etc/nginx/sites-enabled/xyz.com;
-sudo cp install_path/xyz.com/install/apache2.conf /etc/apache2/sites-available/xyz.com.conf;
-sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/apache2/sites-available/xyz.com.conf;
-sudo sed -i 's/your_server_domain/xyz.com/g' /etc/apache2/sites-available/xyz.com.conf;
-sudo sed -i 's/your_server_email/admin_email/g' /etc/apache2/sites-available/xyz.com.conf;
-sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/xyz.com.conf;
 a2ensite xyz.com;
 sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
-
-if [ -n "$localport1" ]
-then
-	sudo cp install_path/xyz.com/install/nginx.app.conf /etc/nginx/sites-available/app.xyz.com;
-	sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/app.xyz.com;
-	sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/app.xyz.com;
-	sudo sed -i 's/your_server_domain/app.xyz.com/g' /etc/nginx/sites-available/app.xyz.com;
-	sudo sed -i 's/xyz-port-var/xyz_port/g' /etc/nginx/sites-available/app.xyz.com;
-	sudo ln -s /etc/nginx/sites-available/app.xyz.com /etc/nginx/sites-enabled/app.xyz.com;
-	sudo cp install_path/xyz.com/install/apache2.conf /etc/apache2/sites-available/app.xyz.com.conf;
-	sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/apache2/sites-available/app.xyz.com.conf;
-	sudo sed -i 's/your_server_domain/app.xyz.com/g' /etc/apache2/sites-available/app.xyz.com.conf;
-	sudo sed -i 's/your_server_email/admin_email/g' /etc/apache2/sites-available/app.xyz.com.conf;
-	sudo sed -i "s/your_server_path/$installpath1/g" /etc/apache2/sites-available/app.xyz.com.conf;
-	a2ensite app.xyz.com;
-	sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d app.xyz.com -d www.app.xyz.com;
-fi
 
 sudo cp install_path/xyz.com/.env.sample install_path/xyz.com/.env;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/.env;
@@ -57,12 +34,12 @@ sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/.env.sample;
 sudo chown ubuntu: install_path/xyz.com -R;
 sudo chown www-data: install_path/xyz.com/uploads -R;
+sudo chown root: install_path/xyz.com/logs -R
 
 sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
 sudo /sbin/swapon /var/swap.1;
 
-sudo service apache2 restart;
 sudo service nginx restart;
 
 #--------CORE CHANGES END---------#
