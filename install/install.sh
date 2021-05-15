@@ -1,33 +1,78 @@
-#Initialising install path
+#Initialising install path and IP address of host
 installpath="/var/www/html";
 installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
+ipv4address=$(hostname -I);
 
 #user input for directory details
 read -p "Website Domain: " websitedomain;
 read -p "MySQL Root Username: " mysqluser;
-read -p "MySQL Root Password: " mysqlpass;
+read -s -p "MySQL Root Password: " mysqlpass;
 read -p "Website Database Name: " mysqlwuser;
 read -p "Website Admin Email: " adminemail;
-read -p "Website Password: " mysqlwpass;
-read -p "IP Address: " ipv4address;
+read -s -p "Website Password: " mysqlwpass;
 
-#get tribe from github
-sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
+#ARE YOU SURE prompt
+#yes, no or cancel
+read -rp "You're about to create a folder, NginX config and MySQL database for $websitedomain at location $installpath/$websitedomain. Are you sure you wish to proceed [y/n/c]?";
 
-#remove .git folder
-cd $installpath/$websitedomain;
-sudo rm -rf .git;
+#choosing cancelled in ARE YOU SURE prompt
+[[ ${REPLY,,} =~ ^(c|cancel|C|CANCEL|Cancel)$ ]] && {
+	echo "Website not created. Action cancelled.";
+	exit 1;
+}
 
-#prepare website.sh for execution
-#replace placeholders with user inputs in website.sh file
-sudo sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/ipv4_address/$ipv4address/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/mysql_root_user/$mysqluser/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/admin_email/$adminemail/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/install_path/$installpath1/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/mysql_w_user/$mysqlwuser/g" $installpath/$websitedomain/install/website.sh;
-sudo sed -i "s/mysql_w_pass/$mysqlwpass/g" $installpath/$websitedomain/install/website.sh;
+#choosing yes in ARE YOU SURE prompt
+if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 
-#run website.sh
-sudo bash $installpath/$websitedomain/install/website.sh;
+	if [ -n "$websitedomain" ] && [ -n "$mysqlwuser" ]
+	then
+		#get tribe from github
+		sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
+
+		#remove .git folder
+		cd $installpath/$websitedomain;
+		sudo rm -rf .git;
+
+		#prepare website.sh for execution
+		#replace placeholders with user inputs in website.sh file
+		sudo sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/ipv4_address/$ipv4address/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/mysql_root_user/$mysqluser/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/admin_email/$adminemail/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/install_path/$installpath1/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/mysql_w_user/$mysqlwuser/g" $installpath/$websitedomain/install/website.sh;
+		sudo sed -i "s/mysql_w_pass/$mysqlwpass/g" $installpath/$websitedomain/install/website.sh;
+
+		#run website.sh
+		sudo bash $installpath/$websitedomain/install/website.sh;
+
+		#display domain details
+		echo -e "\r\n-----------------\r\n";
+		echo "Website successfully created. Make sure you save the password. Save the following details for future reference:";
+		echo -e "\r\n----COPY BELOW----\r\n";
+		echo "Website Domain: $websitedomain";
+		echo -e "\r\n";
+		echo "MySQL Database: $mysqlwuser";
+		echo "MySQL User: $mysqlwuser";
+		echo "MySQL Host: localhost";
+		echo "MySQL Port: 3306";
+		echo "Tribe Root: $installpath/$websitedomain";
+		echo "NginX Logs: $installpath/$websitedomain/logs/";
+		echo "NginX Config: /etc/nginx/sites-available/$websitedomain";
+		echo "URL to phpMyAdmin: $websitedomain/vendor/wildfire/admin/plugins/phpmyadmin";
+		echo -e "\r\nInstructions for NodeJS:\r\n";
+		echo "To add an Ember app, create a sub-folder in /applications. The sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules'. The 'dist' folder's index.html will be executed when you visit the URL $websitedomain/app/<sub-folder>.";
+		echo -e "\r\n";
+		echo "To add any other NodeJS app based on Vue or Svelte or React, create a sub-folder in /applications. Then modify the '/app' location block in the NginX config file to make sure the application is executed when you visit the URL $websitedomain/app/<sub-folder>.";
+		echo -e "\r\n----/END COPY----\r\n";
+		echo -e "\r\n-----------------\r\n";
+	
+	else
+		echo "Website Domain or MySQL database not defined.";
+	fi
+
+#choosing no or invalid input in ARE YOU SURE prompt
+else
+	echo "Website not created.";
+fi
