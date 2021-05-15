@@ -31,7 +31,7 @@ read -rp "You're about to create a folder, NginX config and MySQL database for $
 #choosing yes in ARE YOU SURE prompt
 if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 
-	if [ -n "$websitedomain" ] && [ -n "$mysqlwuser" ]
+	if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$adminemail" ] && [ -n "$mysqlwpass" ]
 	then
 		#get tribe from github
 		sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
@@ -75,7 +75,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		echo -e "\r\n### -----------------\r\n";
 	
 	else
-		echo "${red}ERROR:${reset} Website Domain or MySQL database not defined.";
+		echo "${red}ERROR:${reset} Website details not defined. All fields are compulsory. Please try again.";
 	fi
 
 #choosing no or invalid input in ARE YOU SURE prompt
