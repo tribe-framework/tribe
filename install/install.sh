@@ -3,6 +3,11 @@ installpath="/var/www/html";
 installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
 ipv4address=$(hostname -I);
 
+#Initialising colours
+red=`tput setaf 1`;
+green=`tput setaf 2`;
+reset=`tput sgr0`;
+
 #user input for directory details
 read -p "Website Domain: " websitedomain;
 read -p "MySQL Root Username: " mysqluser;
@@ -51,7 +56,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 
 		#display domain details
 		echo -e "\r\n### -----------------\r\n";
-		echo "Website successfully created. Make sure you save the password. The following details have been saved in README.md for future reference:";
+		echo "${green}Website successfully created.${reset} Make sure you save the password. The following details have been saved in README.md for future reference:";
 		echo -e "\r\n\r\n### Tribe config details:\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo "Website Domain: $websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo -e "\n";
@@ -70,10 +75,10 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		echo -e "\r\n### -----------------\r\n";
 	
 	else
-		echo "Website Domain or MySQL database not defined.";
+		echo "${red}ERROR:${reset} Website Domain or MySQL database not defined.";
 	fi
 
 #choosing no or invalid input in ARE YOU SURE prompt
 else
-	echo "Website not created.";
+	echo "${red}Website not created.${reset}";
 fi
