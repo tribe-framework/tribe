@@ -24,7 +24,12 @@ sudo composer update
 
 ## Advanced instructions
 
-### Terminology
+### Config files
+1. use /.env for defining environment variables you need to use, like db connection, third-party APIs
+2. use /config/types.json to update post-type and user-role details
+3. have a look at /config/config.php, you might need it for advanced usage
+
+### Terminology, ideas and definitions
 
 #### Variables available
 1. $\_ENV['BASE_URL'] - the website url
@@ -46,10 +51,20 @@ sudo composer update
 6. types.json is a config file that can be used to configure data-types, once configured those data-types are available in junction and you can start adding data and users from there
 7. assets are things that developers add themselves to the app, like images and fonts. dependencies are resources that come from third-party libraries. more on assets and dependencies in section below.
 
-### Config files
-1. use /.env for defining environment variables you need to use, like db connection, third-party APIs
-2. use /config/types.json to update post-type and user-role details
-3. have a look at /config/config.php, you might need it for advanced usage
+#### Post types in detail
+1. single.php is general post layout
+2. create single-&lt;ID&gt;.php for layout for specific post
+3. archive.php is general multiple-stories list layout for any post-type
+4. archive-&lt;type-name&gt;.php is list layout of a particular type
+5. single-&lt;type-name&gt;.php is layout for individual post of a particular post-type
+
+#### User roles in detail
+1. there are 4 broad user-roles
+2. admin users have access to everything
+3. crew users have access to junction at /admin, but do not have ability to make things public
+4. member users and visitor users do not have access to dashboard
+5. member and visitor user roles can be differentiated in the theme usage
+6. user interface for member users can be modified by including php files in theme folder with these names: user-header.php, user-footer.php, user-index.php, user-dashboard.php and so on. file name references from github.com/wil-ldf-ire/auth repository.
 
 ### Tribe utilities
 1. most important functions from core features are $dash->push_content(array) and $dash->get_content($id)
@@ -64,7 +79,7 @@ sudo composer update
 2. includes/\_init.php makes wildfire/core functions available to the theme.
 3. functions.php offers a Functions class that can be used for theme-specific use.
 
-## Database structure
+### Database structure
 1. there are 2 tables - data and trac. both tables have same table structure
 2. tribe uses json heavily, the need for creating new tables is eleminated by use of json
 3. the column 'content' uses json, example usage:
@@ -72,37 +87,28 @@ sudo composer update
 4. data table stores all posts', post-types' and users' data
 5. trac table is for plugins to use as the developers deem fit, it can be used for web analytics data, to store user sessions or any other developer-defined use-case directly using mysql class available as $sql
 
-## Post types in detail
-1. single.php is general post layout
-2. create single-&lt;ID&gt;.php for layout for specific post
-3. archive.php is general multiple-stories list layout for any post-type
-4. archive-&lt;type-name&gt;.php is list layout of a particular type
-5. single-&lt;type-name&gt;.php is layout for individual post of a particular post-type
-
-## User roles in detail
-1. there are 4 broad user-roles
-2. admin users have access to everything
-3. crew users have access to junction at /admin, but do not have ability to make things public
-4. member users and visitor users do not have access to dashboard
-5. member and visitor user roles can be differentiated in the theme usage
-6. user interface for member users can be modified by including php files in theme folder with these names: user-header.php, user-footer.php, user-index.php, user-dashboard.php and so on. file name references from github.com/wil-ldf-ire/auth repository.
-
-## Project docs
+### Project docs
 all documentation of the project, client references, presentations, design files etc. to be maintained in docs/ folder of the theme.
 
-## Assets and dependencies
+### Assets and dependencies
 1. theme assets are available at /theme/assets/
 2. any dependency available with composer should use /composer.json
 3. any dependency not available in composer, like a theme, plugin etc. to be added to /theme/assets/ folder manually.
 
-## Applications
-1. in tribe, any nodejs front-end framework is called application
-2. to add an application all you have to do is upload the 'dist', 'assets', 'package.json' to /applications/&lt;sub-folder&gt;
-3. install package.json using
+### Applications in NodeJS
+1. in tribe, any nodejs front-end framework is called an app
+2. to add an ember app, create a sub-folder in /applications/, the sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules', the 'dist' folder's index.html will be executed when you visit the url &lt;domain.tld&gt;/app/&lt;sub-folder&gt;
+3. to add any other nodejs app based on vue or svelte or react, create a sub-folder in /applications/, then modify the '/app' location block in the nginx config file to make sure the application is executed when you visit the url &lt;domain.tld&gt;/app/&lt;sub-folder&gt;
+4. install or update package.json using
 ```sudo npm install```
-4. visit the url /app/&lt;sub-folder&gt; in your browser
-5. emberjs applications can run without any nginx configuration, for vue, react or svelte applications you'll need to modify /etc/nginx/sites-available/&lt;domain.tld&gt; file
-6. to know more about emberjs visit emberjs.com
+5. for accessing the json-api to our database from the front-end application, you'll need to add the api url in your app, for which host is the BASE_URL and namespace is 'api', basically the adaptor must fetch json results from BASE_URL/api
+5. we highly recommend emberjs, to know more visit emberjs.com
+
+### NginX config
+1. nginx config is available at /etc/nginx/sites-available/&lt;domain.tld&gt;
+
+### phpMyAdmin access
+URL to phpMyAdmin: &lt;domain.tld&gt;/vendor/wildfire/admin/plugins/phpmyadmin
 
 ### More info and contact
 wildfiretech.co/page/our-approach
