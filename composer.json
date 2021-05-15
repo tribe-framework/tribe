@@ -26,6 +26,7 @@
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
+        "phpmyadmin/phpmyadmin": "^5.1",
         "wildfire/core": "^2.0",
         "wildfire/auth": "^1.0",
         "wildfire/admin": "^1.0",
