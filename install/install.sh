@@ -48,25 +48,24 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		sudo bash $installpath/$websitedomain/install/website.sh;
 
 		#display domain details
-		echo -e "\r\n-----------------\r\n";
-		echo "Website successfully created. Make sure you save the password. Save the following details for future reference:";
-		echo -e "\r\n----COPY BELOW----\r\n";
-		echo "Website Domain: $websitedomain";
+		echo -e "\r\n### -----------------\r\n";
+		echo "Website successfully created. Make sure you save the password. The following details have been saved in README.md for future reference:";
+		echo -e "\r\n\r\n### Tribe config details:\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "Website Domain: $websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo -e "\r\n";
-		echo "MySQL Database: $mysqlwuser";
-		echo "MySQL User: $mysqlwuser";
-		echo "MySQL Host: localhost";
-		echo "MySQL Port: 3306";
-		echo "Tribe Root: $installpath/$websitedomain";
-		echo "NginX Logs: $installpath/$websitedomain/logs/";
-		echo "NginX Config: /etc/nginx/sites-available/$websitedomain";
-		echo "URL to phpMyAdmin: $websitedomain/vendor/wildfire/admin/plugins/phpmyadmin";
-		echo -e "\r\nInstructions for NodeJS:\r\n";
+		echo "MySQL Database: $mysqlwuser" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "MySQL User: $mysqlwuser" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "MySQL Host: localhost" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "MySQL Port: 3306" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "Tribe Root: $installpath/$websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "NginX Logs: $installpath/$websitedomain/logs/" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "NginX Config: /etc/nginx/sites-available/$websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "URL to phpMyAdmin: $websitedomain/vendor/wildfire/admin/plugins/phpmyadmin" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo -e "\r\nInstructions for NodeJS:\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo "To add an Ember app, create a sub-folder in /applications. The sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules'. The 'dist' folder's index.html will be executed when you visit the URL $websitedomain/app/<sub-folder>.";
-		echo -e "\r\n";
-		echo "To add any other NodeJS app based on Vue or Svelte or React, create a sub-folder in /applications. Then modify the '/app' location block in the NginX config file to make sure the application is executed when you visit the URL $websitedomain/app/<sub-folder>.";
-		echo -e "\r\n----/END COPY----\r\n";
-		echo -e "\r\n-----------------\r\n";
+		echo -e "\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
+		echo "To add any other NodeJS app based on Vue or Svelte or React, create a sub-folder in /applications. Then modify the '/app' location block in the NginX config file to make sure the application is executed when you visit the URL $websitedomain/app/<sub-folder>." | sudo tee -a $installpath/$websitedomain/README.md;
+		echo -e "\r\n### -----------------\r\n";
 	
 	else
 		echo "Website Domain or MySQL database not defined.";
