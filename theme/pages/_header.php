@@ -11,9 +11,10 @@
 	<meta property="og:description" content="<?=$meta_description?>">
 	<meta property="og:image" content="<?=$meta_image_url?>">
 
-	<link href="<?=THEME_URL;?>/assets/scss/init?file=bootstrap" rel="stylesheet">
+	<link href="/node_modules/bootstrap/dist/bootstrap.min.css" rel="stylesheet">
+
 	<link href="/admin/plugins/fontawesome/css/all.min.css" rel="stylesheet">
-	<link href="<?=THEME_URL;?>/assets/css/custom.css" rel="stylesheet">
+	<link href="/theme/assets/css/custom.css" rel="stylesheet">
 </head>
 
 <body>

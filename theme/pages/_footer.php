@@ -1,6 +1,5 @@
 
-	<script src="<?=THEME_URL?>/assets/js/popper.min.js"></script>
-	<script src="<?=THEME_URL?>/assets/bootstrap/js/bootstrap.min.js"></script>
-	<script src="<?=THEME_URL?>/assets/js/custom.js"></script>
+	<script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="/theme/assets/js/custom.js"></script>
 </body>
 </html>
