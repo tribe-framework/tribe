@@ -20,7 +20,7 @@ read -s mysqlwpass;
 
 #ARE YOU SURE prompt
 #yes, no or cancel
-read -rp "You're about to create a folder, NginX config and MySQL database for $websitedomain at location $installpath/$websitedomain. Are you sure you wish to proceed [y/n/c]?";
+read -rp "You're about to create a folder, NginX config and MySQL database for $websitedomain at location $installpath/$websitedomain. Are you sure you wish to proceed [y/n/c]: ";
 
 #choosing cancelled in ARE YOU SURE prompt
 [[ ${REPLY,,} =~ ^(c|cancel|C|CANCEL|Cancel)$ ]] && {
@@ -80,5 +80,5 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 
 #choosing no or invalid input in ARE YOU SURE prompt
 else
-	echo "${red}Website not created.${reset}";
+	echo "Website not created. Action cancelled.";
 fi
