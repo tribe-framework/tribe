@@ -64,7 +64,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		echo "NginX Config: /etc/nginx/sites-available/$websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo "URL to phpMyAdmin: $websitedomain/vendor/wildfire/admin/plugins/phpmyadmin" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo -e "\r\nInstructions for NodeJS:\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
-		echo "To add an Ember app, create a sub-folder in /applications. The sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules'. The 'dist' folder's index.html will be executed when you visit the URL $websitedomain/app/<sub-folder>.";
+		echo "To add an Ember app, create a sub-folder in /applications. The sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules'. The 'dist' folder's index.html will be executed when you visit the URL $websitedomain/app/<sub-folder>." | sudo tee -a $installpath/$websitedomain/README.md;
 		echo -e "\n" | sudo tee -a $installpath/$websitedomain/README.md;
 		echo "To add any other NodeJS app based on Vue or Svelte or React, create a sub-folder in /applications. Then modify the '/app' location block in the NginX config file to make sure the application is executed when you visit the URL $websitedomain/app/<sub-folder>." | sudo tee -a $installpath/$websitedomain/README.md;
 		echo -e "\r\n### -----------------\r\n";
