@@ -2,8 +2,6 @@ installpath1=$(echo "install_path" | sed 's/\//\\\//g');
 
 #--------CORE CHANGES BEGIN---------#
 
-sudo chown ubuntu:ubuntu install_path/xyz.com -R;
-
 sudo cp install_path/xyz.com/install/nginx.conf /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.com;
