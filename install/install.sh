@@ -6,10 +6,12 @@ ipv4address=$(hostname -I);
 #user input for directory details
 read -p "Website Domain: " websitedomain;
 read -p "MySQL Root Username: " mysqluser;
-read -s -p "MySQL Root Password: " mysqlpass;
+read -n "MySQL Root Password: ";
+read -s mysqlpass;
 read -p "Website Database Name: " mysqlwuser;
 read -p "Website Admin Email: " adminemail;
-read -s -p "Website Password: " mysqlwpass;
+read -n "Website Password: ";
+read -s mysqlwpass;
 
 #ARE YOU SURE prompt
 #yes, no or cancel
