@@ -20,16 +20,21 @@ if (!defined('VAR_NAME')) {
 	);
 }
 
-// set cors headers for APP_URL if PHP dev server
+// set cors headers in PHP server
 if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
-	$cross_origin_url = $_ENV['APP_URL'];
 
 	//in dev environment, allowing cross origin * for localhost
 	if ($_ENV['ENV'] == 'dev') {
 		header("Access-Control-Allow-Origin: *");
-	} else {
+	}
+
+	//in prod environment, if cross origin access is required, uncomment the following and modify cross_origin_url
+	/*
+	if ($_ENV['ENV'] == 'prod') {
+		$cross_origin_url = 'domain.tld';
 		header("Access-Control-Allow-Origin: $cross_origin_url");
 	}
+	*/
 
 	unset($cross_origin_url);
 }
