@@ -24,18 +24,16 @@ echo "CREATE USER 'mysql_w_user'@'localhost' IDENTIFIED WITH mysql_native_passwo
 echo "CREATE DATABASE mysql_w_user CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 echo "GRANT ALL PRIVILEGES on mysql_w_user.* to 'mysql_w_user'@'localhost';" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 sudo mysql -umysql_w_user -pmysql_w_pass mysql_w_user < install_path/xyz.com/install/install.sql;
-sudo bash install/composer.sh;
-php composer.phar install;
-php composer.phar dump-autoload;
+
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/.env.sample;
 sudo chown ubuntu: install_path/xyz.com -R;
 sudo chown www-data: install_path/xyz.com/uploads -R;
 sudo chown root: install_path/xyz.com/logs -R
 
-sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
-sudo /sbin/mkswap /var/swap.1;
-sudo /sbin/swapon /var/swap.1;
+composer update;
+npm install bootstrap;
+npm install popper;
 
 sudo service nginx restart;
 
