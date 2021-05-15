@@ -24,6 +24,7 @@ if (!defined('VAR_NAME')) {
 if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 	$cross_origin_url = $_ENV['APP_URL'];
 
+	//in dev environment, allowing cross origin * for localhost
 	if ($_ENV['ENV'] == 'dev') {
 		header("Access-Control-Allow-Origin: *");
 	} else {
