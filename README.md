@@ -110,6 +110,6 @@ all documentation of the project, client references, presentations, design files
 ### phpMyAdmin access
 URL to phpMyAdmin: &lt;domain.tld&gt;/vendor/wildfire/admin/plugins/phpmyadmin
 
-### More info and contact
+## More info and contact
 wildfiretech.co/page/our-approach
 github.com/wil-ldf-ire
