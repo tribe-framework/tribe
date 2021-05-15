@@ -2,7 +2,7 @@
 
 ### quick install
 ```
-sh -c "$(wget https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
 ```
 
 ### Tribe - a web project management system by wildfire.
