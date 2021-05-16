@@ -1,4 +1,4 @@
-<img src="https://wildfiretech.co/theme/assets/img/logo.png" alt="Wildfire logo" width="200"/>
+![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo.png "Our approach" =250x)
 
 # Tribe - a web project management framework by wildfire.
 
