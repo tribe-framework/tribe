@@ -1,3 +1,5 @@
+<img src="https://wildfiretech.co/theme/assets/img/logo.png" alt="Wildfire logo" width="200"/>
+
 # Tribe - a web project management framework by wildfire.
 
 ## Install instructions
@@ -19,7 +21,7 @@ sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wi
 
 ## Advanced usage
 
-### Architecture
+### Architecture overview
 ![Tribe architecture](https://wildfiretech.co/theme/assets/img/tribe.png "Our approach")
 
 ### Config files
