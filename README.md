@@ -1,4 +1,4 @@
-![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo.png "Our approach" =250x)
+![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo.png "Our approach"){ width=250px }
 
 # Tribe - a web project management framework by wildfire.
 
