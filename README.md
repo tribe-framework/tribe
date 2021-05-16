@@ -1,5 +1,3 @@
-![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo-bg.png "Our approach")
-
 # Tribe - a web project management framework by wildfire.
 
 ## Install instructions
@@ -139,3 +137,5 @@ packages built by us for tribe will be available in 3 ways:
 ## More info and contact
 https://wildfiretech.co/page/our-approach<br>
 https://github.com/wil-ldf-ire
+
+![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo-bg.png "Our approach")
