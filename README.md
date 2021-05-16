@@ -17,7 +17,10 @@ sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wi
 - modify types.json to define content data types and user roles
 - modify /assets/css/custom.css and /assets/js/custom.js
 
-## Advanced instructions
+## Advanced usage
+
+### Architecture
+![Tribe architecture](https://wildfiretech.co/theme/assets/img/tribe.png "Our approach")
 
 ### Config files
 1. use /.env for defining environment variables you need to use, like db connection, third-party APIs
