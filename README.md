@@ -1,5 +1,7 @@
 # Tribe - a web project management framework by wildfire.
 
+Tribe is a project management framework that allows us to build our clients' vision using a modular approach that is friendly to various tech stacks (php, nodejs and python) and provides a coherent language for UX and design collaborations. Currently powering 30+ projects in production.
+
 ## Install instructions
 ```
 sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
