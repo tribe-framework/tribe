@@ -146,4 +146,4 @@ more info on uninstall - https://github.com/wil-ldf-ire/tribe-uninstall
 https://wildfiretech.co/page/our-approach<br>
 https://github.com/wil-ldf-ire
 
-![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo-bg.png "Our approach")
+![Wildfire logo](https://wildfiretech.co/theme/assets/img/logo-bg.png "Wildfire logo")
