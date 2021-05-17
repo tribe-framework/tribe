@@ -2,6 +2,13 @@
 
 Tribe is a project management framework that allows us to build our clients' vision using a modular approach that is friendly to various tech stacks (php, nodejs and python) and provides a coherent language for UX and design collaborations. Currently powering 30+ projects in production.
 
+## Minimum system requirements
+- independent cloud or dedicated server
+- 1gb ram
+- 1 core
+- ubuntu 20.04
+- make your server ready for tribe using - https://github.com/wil-ldf-ire/server-wildfire
+
 ## Install instructions
 ```
 sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
@@ -141,6 +148,12 @@ packages built by us for tribe will be available in 3 ways:
 sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe-uninstall/master/uninstall.sh -O -)"
 ```
 more info on uninstall - https://github.com/wil-ldf-ire/tribe-uninstall
+
+## Versioning and Release cycle management
+- versioning is based on semvar - https://semver.org/
+- we're starting to follow a 6-week release cycle, releasing a new version every 6th monday
+- latest releases - https://github.com/wil-ldf-ire/tribe/releases
+- we have 2 types of releases - beta and production
 
 ## More info and contact
 https://wildfiretech.co/page/our-approach<br>
