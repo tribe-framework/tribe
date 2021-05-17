@@ -136,6 +136,12 @@ packages built by us for tribe will be available in 3 ways:
 2. npm package, available in /node_modules/ folder
 3. as front-end apps that can be saved to /applications/ folder
 
+## Uninstall
+```
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe-uninstall/master/uninstall.sh -O -)"
+```
+more info on uninstall - https://github.com/wil-ldf-ire/tribe-uninstall
+
 ## More info and contact
 https://wildfiretech.co/page/our-approach<br>
 https://github.com/wil-ldf-ire
