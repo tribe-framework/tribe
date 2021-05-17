@@ -25,10 +25,6 @@ echo "CREATE DATABASE mysql_w_user CHARACTER SET utf8mb4 COLLATE utf8mb4_general
 echo "GRANT ALL PRIVILEGES on mysql_w_user.* to 'mysql_w_user'@'localhost';" | mysql -umysql_root_user -pmysql_root_pass -hlocalhost;
 sudo mysql -umysql_w_user -pmysql_w_pass mysql_w_user < install_path/xyz.com/install/install.sql;
 
-sudo bash install/composer.sh;
-php composer.phar install;
-php composer.phar dump-autoload;
-
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/.env.sample;
 sudo chown ubuntu: install_path/xyz.com -R;

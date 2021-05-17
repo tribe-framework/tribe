@@ -1,6 +1,7 @@
 /.vscode
 /.env
-/uploads
+/uploads/*
+!/uploads/.gitkeep
 /node_modules
 /vendor
 /composer.phar
