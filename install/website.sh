@@ -32,8 +32,12 @@ sudo chown www-data: install_path/xyz.com/uploads -R;
 sudo chown root: install_path/xyz.com/logs -R
 
 composer update;
+
+cd install_path/xyz.com/theme;
 npm install bootstrap;
 npm install popper;
+
+cd ..;
 
 sudo service nginx restart;
 
