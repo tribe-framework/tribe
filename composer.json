@@ -30,13 +30,13 @@
     "require": {
     	"php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
+        "firebase/php-jwt": "^5.2",
         "wildfire/core": "^2.0",
         "wildfire/auth": "^1.0",
         "wildfire/admin": "^1.0",
         "wildfire/sitemap": "^1.0",
         "wildfire/backup": "^1.0",
-        "wildfire/api": "dev-master",
-        "firebase/php-jwt": "^5.2"
+        "wildfire/api": "^0.1"
     },
     "autoload": {
         "psr-4": {}
