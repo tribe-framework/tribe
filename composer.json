@@ -28,14 +28,14 @@
         }
     },
     "require": {
-    	"php" : "^7.4",
+        "php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
         "wildfire/core": "^2.1",
         "wildfire/auth": "^1.1",
         "wildfire/admin": "^1.1",
-        "wildfire/sitemap": "^1.1",
+        "wildfire/api": "^0.1",
         "wildfire/backup": "^1.1",
-        "wildfire/api": "^0.1"
+        "wildfire/sitemap": "^1.1"
     },
     "autoload": {
         "psr-4": {}
