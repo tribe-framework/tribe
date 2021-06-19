@@ -49,6 +49,7 @@
     ]
   },
   "section": {
+    "type": "content",
     "slug": "section",
     "headmeta_title_prepend": "",
     "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
@@ -71,6 +72,7 @@
     ]
   },
   "page": {
+    "type": "content",
     "slug": "page",
     "headmeta_title_prepend": "",
     "headmeta_title_append": [{"type": "webapp", "slug": "headmeta_title"}],
