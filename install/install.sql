@@ -11,6 +11,9 @@ CREATE TABLE `data` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `data`
+  ADD INDEX(`id`); 
+
+ALTER TABLE `data`
   ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `data`
@@ -21,6 +24,9 @@ CREATE TABLE `trac` (
   `visit` json DEFAULT NULL,
   `created_on` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `trac`
+  ADD INDEX(`id`); 
 
 ALTER TABLE `trac`
   ADD PRIMARY KEY (`id`);
