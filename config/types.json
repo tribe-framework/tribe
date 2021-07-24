@@ -8,7 +8,6 @@
     "user_theme": true
   },
   "user": {
-    "type": "entity",
     "slug": "user",
     "name": "user",
     "plural": "users",

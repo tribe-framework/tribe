@@ -21,16 +21,21 @@
         "wildfire/core": {
             "type": "git",
             "url": "https://github.com/wil-ldf-ire/core.git"
+        },
+        "wildfire/api": {
+            "type": "git",
+            "url": "https://github.com/wil-ldf-ire/api.git"
         }
     },
     "require": {
-    	"php" : "^7.4",
+        "php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "^2.0",
-        "wildfire/auth": "^1.0",
-        "wildfire/admin": "^1.0",
-        "wildfire/sitemap": "^1.0",
-        "wildfire/backup": "^1.0"
+        "wildfire/core": "^2.1",
+        "wildfire/auth": "^1.1",
+        "wildfire/admin": "^1.1",
+        "wildfire/api": "^0.1",
+        "wildfire/backup": "^1.1",
+        "wildfire/sitemap": "^1.1"
     },
     "autoload": {
         "psr-4": {}
