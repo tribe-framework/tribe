@@ -16,6 +16,12 @@ ALTER TABLE `data`
 ALTER TABLE `data`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `data` ADD `user_id` VARCHAR(6) AS (`content`->>'$.user_id') VIRTUAL NULL AFTER `created_on`, ADD INDEX (`user_id`);
+ALTER TABLE `data` ADD `role_slug` VARCHAR(100) AS (`content`->>'$.role_slug') VIRTUAL NULL AFTER `user_id`;
+ALTER TABLE `data` ADD `slug` VARCHAR(255) AS (`content`->>'$.slug') VIRTUAL NULL AFTER `role_slug`, ADD INDEX (`slug`);
+ALTER TABLE `data` ADD `content_privacy` VARCHAR(100) AS (`content`->>'$.content_privacy') VIRTUAL NULL AFTER `slug`;
+ALTER TABLE `data` ADD `type` VARCHAR(100) AS (`content`->>'$.type') VIRTUAL NULL AFTER `content_privacy`;
+
 CREATE TABLE `trac` (
   `id` bigint(20) NOT NULL,
   `visit` json DEFAULT NULL,
