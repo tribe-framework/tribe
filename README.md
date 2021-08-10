@@ -13,7 +13,14 @@ Tribe is a project management framework that allows us to build our clients' vis
 ```
 sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
 ```
-
+#### Export instructions
+```
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/export.sh -O -)"
+```
+#### Import instructions
+```
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/import.sh -O -)"
+```
 ## Quick config
 
 1. install folder contains all installation scripts, gets deleted on installation. make sure it is not available in your host's folder structure.

@@ -1,12 +1,15 @@
 <?php
-include_once 'xyz-install-path/xyz-domain-var/init.php';
-
-//create first user
-$usr=array();
-$usr['type']='user';
-$usr['role_slug']='admin';
-$usr['email']='your_server_email';
-$usr['password']='xyz-db-pass-var';
-$usr['user_id']=$dash->get_unique_user_id();
-$dash->push_content($usr);
+namespace Wildfire;
+$dash = new Core\Dash();
+$sql = new Core\MySQL();
+$q = $sql->executeSQL("SELECT `id` FROM `data` WHERE `content`->'$.type'='user'");
+if (!$q[0]['id']) {
+    $usr = array();
+    $usr['type'] = 'user';
+    $usr['role_slug'] = 'admin';
+    $usr['email'] = $_ENV['CONTACT_EMAIL'];
+    $usr['password'] = md5($_ENV['DB_PASS']);
+    $usr['user_id'] = $dash->get_unique_user_id();
+    $dash->push_content($usr);
+}
 ?>

@@ -1,7 +1,5 @@
 #Initialising install path and IP address of host
 installpath="/var/www/html";
-installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
-ipv4address=$(hostname -I);
 
 #Initialising colours
 red=`tput setaf 1`;
