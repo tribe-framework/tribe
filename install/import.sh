@@ -7,6 +7,7 @@ green=`tput setaf 2`;
 reset=`tput sgr0`;
 
 #user input for directory details
+read -p "Zip File URL: " zipurl;
 read -p "Website Domain: " websitedomain;
 read -p "MySQL Root Username: " mysqluser;
 echo "MySQL Root Password:";
@@ -36,7 +37,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$mysqlwpass" ]
 		then
 			#replace placeholders with user inputs
-			sudo wget https://$websitedomain/$websitedomain.zip -P $installpath/;
+			sudo wget --no-check-certificate $zipurl -P $installpath/;
 			cd $installpath/;
 			sudo unzip $installpath/$websitedomain.zip;
 			sudo chown ubuntu: $installpath/$websitedomain -R;
