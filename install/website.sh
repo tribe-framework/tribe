@@ -8,7 +8,6 @@ sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.co
 sudo sed -i 's/your_server_domain/xyz.com/g' /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/xyz-port-var/xyz_port/g' /etc/nginx/sites-available/xyz.com;
 sudo ln -s /etc/nginx/sites-available/xyz.com /etc/nginx/sites-enabled/xyz.com;
-a2ensite xyz.com;
 sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
 
