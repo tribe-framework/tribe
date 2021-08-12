@@ -7,7 +7,7 @@ green=`tput setaf 2`;
 reset=`tput sgr0`;
 
 #user input for directory details
-read -p "Zip File URL: " zipurl;
+read -p "Tar File URL: " zipurl;
 read -p "Website Domain: " websitedomain;
 read -p "MySQL Root Username: " mysqluser;
 echo "MySQL Root Password:";
@@ -39,7 +39,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			#replace placeholders with user inputs
 			sudo wget --no-check-certificate $zipurl -P $installpath/;
 			cd $installpath/;
-			sudo unzip $installpath/$websitedomain.zip;
+			sudo tar -xvf $installpath/$websitedomain.tar;
 			sudo chown ubuntu: $installpath/$websitedomain -R;
 			sudo chown www-data: $installpath/$websitedomain/uploads -R;
 			sudo chown root: $installpath/$websitedomain/logs -R;
@@ -58,7 +58,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			sudo cp $installpath/$websitedomain/export/letsencrypt/archive/* /etc/letsencrypt/archive/$websitedomain/ -R;
 			sudo service nginx restart;
 			sudo rm $installpath/$websitedomain/export -R;
-			sudo rm $installpath/$websitedomain.zip;
+			sudo rm $installpath/$websitedomain.tar;
 
 			#display domain details
 			echo -e "\r\n### -----------------\r\n";
