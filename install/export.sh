@@ -17,7 +17,7 @@ read -s mysqlwpass;
 
 #ARE YOU SURE prompt
 #yes, no or cancel
-read -rp "You're about to compress and export the folder, NginX config, Letsencrypt config and MySQL database of $websitedomain at location $installpath/$websitedomain/$websitedomain.zip. Are you sure you wish to proceed [y/n/c]: ";
+read -rp "You're about to compress and export the folder, NginX config, Letsencrypt config and MySQL database of $websitedomain at location $installpath/$websitedomain/$websitedomain.tar. Are you sure you wish to proceed [y/n/c]: ";
 
 #choosing cancelled in ARE YOU SURE prompt
 [[ ${REPLY,,} =~ ^(c|cancel|C|CANCEL|Cancel)$ ]] && {
@@ -28,9 +28,9 @@ read -rp "You're about to compress and export the folder, NginX config, Letsencr
 #choosing yes in ARE YOU SURE prompt
 if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 
-	if [ -f "$installpath/$websitedomain/$websitedomain.zip" ];
+	if [ -f "$installpath/$websitedomain/$websitedomain.tar" ];
 	then
-		echo "${red}ERROR:${reset} A file already exists on the path $installpath/$websitedomain/$websitedomain.zip.";
+		echo "${red}ERROR:${reset} A file already exists on the path $installpath/$websitedomain/$websitedomain.tar.";
 	else
 	
 		if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$mysqlwpass" ]
@@ -44,7 +44,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			sudo cp /etc/letsencrypt/options-ssl-nginx.conf $installpath/$websitedomain/export/;
 			sudo cp /etc/letsencrypt/ssl-dhparams.pem $installpath/$websitedomain/export/;
 			cd $installpath/;
-			sudo zip --symlinks -r $installpath/$websitedomain/$websitedomain.zip $websitedomain;
+			tar -cvf $installpath/$websitedomain/$websitedomain.tar $websitedomain;
 
 			#display domain details
 			echo -e "\r\n### -----------------\r\n";
