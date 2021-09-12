@@ -7,31 +7,9 @@ Uncomment MySQL or Admin classes if you use their functions.
  */
 //use Wildfire\Core\MySQL as MySQL;
 //use Wildfire\Core\Admin as Admin;
-use Wildfire\Core\Dash as Dash;
+//use Wildfire\Core\Dash as Dash;
 
 class Functions {
-    public function get_cover_media_html($postdata, $css_class = '') {
-        $dash = new Dash();
-
-        $op = '';
-        if (is_array($postdata['cover_media'])) {
-            if (count($postdata['cover_media']) == 1) {
-                $op .= '<img src="' . $postdata['cover_media'][0] . '" class="w-100 ' . $css_class . '">';
-            } else {
-                $op .= '<div class="w-100 ' . $css_class . '" data-flickity=\'{"imagesLoaded": true, "percentPosition": false, "adaptiveHeight": true, "setGallerySize": true}\'>';
-                foreach ($postdata['cover_media'] as $cover_media) {
-                    if ($cover_media) {
-                        $op .= '<img src="' . $cover_media . '">';
-                    }
-                }
-                $op .= '</div>';
-            }
-        } else {
-            $op .= '<img src="' . $postdata['cover_media'] . '" class="w-100 ' . $css_class . '">';
-        }
-
-        return $op;
-    }
 
     public static function gst_states() {
         $gst_state = array();
@@ -91,4 +69,80 @@ class Functions {
         }
         return $rowsWithKeys;
     }
+
+
+    public function get_video_embed_url($url) {
+        if ($vid = $this->get_youtube_id($url)) {
+            return 'https://www.youtube.com/embed/' . $vid . '?autoplay=1&cc_load_policy=1';
+        } else if ($vid = $this->get_vimeo_id($url)) {
+            return 'https://player.vimeo.com/video/' . $vid . '?autoplay=1&cc_load_policy=1';
+        } else {
+            return 0;
+        }
+
+    }
+
+    public function get_youtube_id($link) {
+
+        $regexstr = '~
+            # Match Youtube link and embed code
+            (?:                             # Group to match embed codes
+                (?:<iframe [^>]*src=")?     # If iframe match up to first quote of src
+                |(?:                        # Group to match if older embed
+                    (?:<object .*>)?        # Match opening Object tag
+                    (?:<param .*</param>)*  # Match all param tags
+                    (?:<embed [^>]*src=")?  # Match embed tag to the first quote of src
+                )?                          # End older embed code group
+            )?                              # End embed code groups
+            (?:                             # Group youtube url
+                https?:\/\/                 # Either http or https
+                (?:[\w]+\.)*                # Optional subdomains
+                (?:                         # Group host alternatives.
+                youtu\.be/                  # Either youtu.be,
+                | youtube\.com              # or youtube.com
+                | youtube-nocookie\.com     # or youtube-nocookie.com
+                )                           # End Host Group
+                (?:\S*[^\w\-\s])?           # Extra stuff up to VIDEO_ID
+                ([\w\-]{11})                # $1: VIDEO_ID is numeric
+                [^\s]*                      # Not a space
+            )                               # End group
+            "?                              # Match end quote if part of src
+            (?:[^>]*>)?                     # Match any extra stuff up to close brace
+            (?:                             # Group to match last embed code
+                </iframe>                   # Match the end of the iframe
+                |</embed></object>          # or Match the end of the older embed
+            )?                              # End Group of last bit of embed code
+            ~ix';
+
+        preg_match($regexstr, $link, $matches);
+
+        return $matches[1];
+
+    }
+
+    public function get_vimeo_id($link) {
+
+        $regexstr = '~
+            # Match Vimeo link and embed code
+            (?:<iframe [^>]*src=")?     # If iframe match up to first quote of src
+            (?:                         # Group vimeo url
+                https?:\/\/             # Either http or https
+                (?:[\w]+\.)*            # Optional subdomains
+                vimeo\.com              # Match vimeo.com
+                (?:[\/\w]*\/videos?)?   # Optional video sub directory this handles groups links also
+                \/                      # Slash before Id
+                ([0-9]+)                # $1: VIDEO_ID is numeric
+                [^\s]*                  # Not a space
+            )                           # End group
+            "?                          # Match end quote if part of src
+            (?:[^>]*></iframe>)?        # Match the end of the iframe
+            (?:<p>.*</p>)?              # Match any title information stuff
+            ~ix';
+
+        preg_match($regexstr, $link, $matches);
+
+        return $matches[1];
+
+    }
+
 }
