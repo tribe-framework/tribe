@@ -4,13 +4,10 @@
 
   <div class="row align-items-center"><div class="mx-auto col-12">
 
-	<?php if ($postdata['content_privacy'] != 'draft'): ?>
-
-	<?php echo Functions::get_cover_media_html($postdata); ?>
-
-	<?php echo (trim($postdata['body']) ? '<div class="mx-auto post-body w-100">' . $postdata['body'] . '</div>' : ''); ?>
-
-	<?php endif;?>
+		<h1>Single page layout</h1>
+		<div class="col-12 replace_body_on_load single-post-body" data-id="<?=$postdata['id']?>">
+			<?php print_r($postdata) ?>
+		</div>
 
 	</div></div>
 </div>
