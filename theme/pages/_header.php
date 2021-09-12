@@ -13,7 +13,7 @@
 
 	<link href="/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
-	<link href="/admin/plugins/fontawesome/css/all.min.css" rel="stylesheet">
+	<link href="/vendor/wildfire/admin/plugins/fontawesome/css/all.min.css" rel="stylesheet">
 	<link href="/theme/assets/css/custom.css" rel="stylesheet">
 </head>
 
