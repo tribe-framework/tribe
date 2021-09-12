@@ -1,5 +1,5 @@
 <?php
-namespace Wildfire;
+include_once __DIR__ . '/../theme/includes/_init.php';
 $dash = new Core\Dash();
 $sql = new Core\MySQL();
 $q = $sql->executeSQL("SELECT `id` FROM `data` WHERE `content`->'$.type'='user'");
