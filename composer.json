@@ -30,9 +30,9 @@
     "require": {
         "php" : "^7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "^2.1",
-        "wildfire/auth": "^1.1",
-        "wildfire/admin": "^1.1",
+        "wildfire/core": "^3.0",
+        "wildfire/auth": "^2.0",
+        "wildfire/admin": "^2.0",
         "wildfire/api": "^0.1",
         "wildfire/backup": "^1.1",
         "wildfire/sitemap": "^1.1"
