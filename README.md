@@ -21,6 +21,17 @@ sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wi
 ```
 sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/import.sh -O -)"
 ```
+#### Upgrade instructions
+- In composer.json use latest versions of admin (2.x), auth (2.x) and core (3.x)
+- In MySQL database, using the following code:
+```
+ALTER TABLE `data` ADD `user_id` VARCHAR(6) AS (`content`->>'$.user_id') VIRTUAL NULL AFTER `created_on`, ADD INDEX (`user_id`);
+ALTER TABLE `data` ADD `role_slug` VARCHAR(100) AS (`content`->>'$.role_slug') VIRTUAL NULL AFTER `user_id`;
+ALTER TABLE `data` ADD `slug` VARCHAR(255) AS (`content`->>'$.slug') VIRTUAL NULL AFTER `role_slug`, ADD INDEX (`slug`);
+ALTER TABLE `data` ADD `content_privacy` VARCHAR(100) AS (`content`->>'$.content_privacy') VIRTUAL NULL AFTER `slug`;
+ALTER TABLE `data` ADD `type` VARCHAR(100) AS (`content`->>'$.type') VIRTUAL NULL AFTER `content_privacy`;
+```
+
 ## Quick config
 
 1. install folder contains all installation scripts, gets deleted on installation. make sure it is not available in your host's folder structure.
