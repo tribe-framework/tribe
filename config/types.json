@@ -8,6 +8,7 @@
     "user_theme": true
   },
   "user": {
+    "type": "user",
     "slug": "user",
     "name": "user",
     "plural": "users",
