@@ -101,12 +101,21 @@
         "input_type": "typeout",
         "input_options": [
           "undo",
+          "blockquote",
           "insertParagraph",
+          "insertorderedlist",
+          "insertunorderedlist",
+          "justifyCenter",
+          "justifyLeft",
+          "justifyRight",
+          "justifyFull",
+          "heading",
           "bold",
           "italic",
           "createLink",
           "unlink",
-          "insertImage"
+          "insertImage",
+          "removeFormat"
         ],
         "input_unique": false
       },
