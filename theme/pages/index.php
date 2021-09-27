@@ -8,7 +8,7 @@ if (!$q[0]['id']) {
     $usr['type'] = 'user';
     $usr['role_slug'] = 'admin';
     $usr['email'] = $_ENV['CONTACT_EMAIL'];
-    $usr['password'] = md5($_ENV['DB_PASS']);
+    $usr['password'] = $_ENV['DB_PASS'];
     $usr['user_id'] = $dash->get_unique_user_id();
     $dash->push_content($usr);
 }
