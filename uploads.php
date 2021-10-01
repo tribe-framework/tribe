@@ -28,3 +28,5 @@ function getMimeType($r, $t='file') {
 	$finfo = new finfo(FILEINFO_MIME_TYPE);
 	return ($t =='str') ? $finfo->buffer($r) : $finfo->file($r);
 }
+
+////echo 'sudo s3cmd setacl -r --acl-public --host="' . $_ENV['S3_UPLOADS_HOST_BASE'] . '" --access_key="' . $_ENV['S3_UPLOADS_ACCESS_KEY'] . '" --secret_key="' . $_ENV['S3_UPLOADS_SECRET_KEY'] . '" --host-bucket="' . $_ENV['S3_UPLOADS_HOST_BUCKET'] . '" s3://' . $_ENV['S3_UPLOADS_BUCKET_NAME'] . ' ;';
