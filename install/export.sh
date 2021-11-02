@@ -44,7 +44,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			sudo cp /etc/letsencrypt/options-ssl-nginx.conf $installpath/$websitedomain/export/;
 			sudo cp /etc/letsencrypt/ssl-dhparams.pem $installpath/$websitedomain/export/;
 			cd $installpath/;
-			sudo tar -cvf $installpath/$websitedomain.tar $installpath/$websitedomain;
+			sudo tar -vf $installpath/$websitedomain.tar $websitedomain;
 
 			#display domain details
 			echo -e "\r\n### -----------------\r\n";
