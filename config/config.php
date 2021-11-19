@@ -16,7 +16,7 @@ if (file_exists(__DIR__ . '/vars.php')) {
 if (!defined('VAR_NAME')) {
 	define(
 		'UPLOAD_FILE_TYPES',
-		'/\.(zip|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
+		'/\.(zip|svg|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
 	);
 }
 
