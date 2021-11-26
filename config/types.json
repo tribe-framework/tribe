@@ -9,8 +9,8 @@
         ],
         "user_theme": true,
         "display_activity_log": false,
-        "soft_delete": false,
-        "wildfire_branding": true
+        "soft_delete_records": false,
+        "hide_wildfire_logo": false
     },
     "user": {
         "type": "user",
