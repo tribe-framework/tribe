@@ -1,13 +1,5 @@
 <?php
-//composer autoload
-require __DIR__ . '/vendor/autoload.php';
-
-//dotenv for loading variables in tribe.var.env as $_ENV
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, '.env');
-$dotenv->load();
-
-//php vars file
-include_once __DIR__ . '/config/config.php';
+require __DIR__ . '/_init.php';
 
 if ($_ENV['S3_UPLOADS_BUCKET_CDN_URL'] ?? false) {
 	$url = $_ENV['S3_UPLOADS_BUCKET_CDN_URL'].'/'.explode('/uploads/', $_SERVER['REQUEST_URI'])[1];

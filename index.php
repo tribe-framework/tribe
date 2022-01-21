@@ -1,13 +1,5 @@
 <?php
-//composer autoload
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/_init.php';
 
-//dotenv for loading variables in tribe.var.env as $_ENV
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, '.env');
-$dotenv->load();
-
-//php vars file
-include_once __DIR__ . '/config/config.php';
-
-//wildfire core classes
+//Analyse URL route and initiate
 $tribe_init = new Wildfire\Core\Init();
