@@ -1,9 +1,4 @@
 <?php
-/**
- * Warning:
- * Do not mess with this file if you don't know what you're dealing with
- */
-
 //composer autoload
 require __DIR__ . '/vendor/autoload.php';
 
