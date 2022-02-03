@@ -28,7 +28,6 @@
         }
     },
     "require": {
-        "php" : ">=7.4",
         "vlucas/phpdotenv": "^5.2",
         "wildfire/core": "^3.0",
         "wildfire/auth": "^2.0",
@@ -38,8 +37,6 @@
         "wildfire/sitemap": "^1.1"
     },
     "autoload": {
-        "psr-4": {
-            "Wildfire\\Theme\\": "src/"
-        }
+        "psr-4": {}
     }
 }
