@@ -1,5 +1,5 @@
 /.vscode
-/.env
+/.env*
 /uploads/*
 !/uploads/.gitkeep
 /node_modules
@@ -10,3 +10,6 @@
 *.code-workspace
 sftp-config.json
 /theme/dist
+/db
+/logs
+/dist
