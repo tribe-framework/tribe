@@ -8,5 +8,5 @@ $types = $dash->getTypes();
 $menus = $dash->getMenus();
 $currentUser = $auth->getCurrentUser();
 
-include_once __DIR__ . '/functions.php';
-$functions = new Theme\Functions();
+include_once __DIR__ . '/includes/functions.php';
+$functions = new \Wildfire\Theme\Functions();
