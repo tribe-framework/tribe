@@ -1,7 +1,7 @@
 <?php
 //tribe init
 include_once __DIR__ . '/../../_init.php';
-include_once __DIR__ . '/../includes/_init.php';
+include_once __DIR__ . '/../_init.php';
 
 /* ANTHING THAT PRINTS JSON */
 header('Content-Type: application/json');

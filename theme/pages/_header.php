@@ -1,4 +1,4 @@
-<?php include_once __DIR__ . '/../includes/_init.php';?>
+<?php include_once __DIR__ . '/../_init.php';?>
 <!doctype html>
 <html lang="<?=$types['webapp']['lang']?>">
 <head>
