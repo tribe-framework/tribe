@@ -26,9 +26,7 @@ sudo mysql -umysql_w_user -pmysql_w_pass mysql_w_user < install_path/xyz.com/ins
 
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/.env.sample;
-sudo chown ubuntu: install_path/xyz.com -R;
 sudo chown www-data: install_path/xyz.com/uploads -R;
-sudo chown root: install_path/xyz.com/logs -R
 
 composer update;
 npm install bootstrap;
