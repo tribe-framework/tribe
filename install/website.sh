@@ -1,4 +1,5 @@
 installpath1=$(echo "install_path" | sed 's/\//\\\//g');
+wwwssl1="www_ssl";
 
 #--------CORE CHANGES BEGIN---------#
 
@@ -8,7 +9,13 @@ sudo sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.co
 sudo sed -i 's/your_server_domain/xyz.com/g' /etc/nginx/sites-available/xyz.com;
 sudo sed -i 's/xyz-port-var/xyz_port/g' /etc/nginx/sites-available/xyz.com;
 sudo ln -s /etc/nginx/sites-available/xyz.com /etc/nginx/sites-enabled/xyz.com;
-sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
+
+if [[ ${wwwssl1} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
+	sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
+else
+	sudo certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com;
+fi
+
 sudo sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/package.json;
 
 sudo cp install_path/xyz.com/.env.sample install_path/xyz.com/.env;

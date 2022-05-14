@@ -17,6 +17,7 @@ read -p "Website Database Name: " mysqlwuser;
 read -p "Website Admin Email: " adminemail;
 echo "Website Password:";
 read -s mysqlwpass;
+read -p "Include SSL for www extension [y/n]: " wwwssl;
 
 #ARE YOU SURE prompt
 #yes, no or cancel
@@ -55,6 +56,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			sudo sed -i "s/install_path/$installpath1/g" $installpath/$websitedomain/install/website.sh;
 			sudo sed -i "s/mysql_w_user/$mysqlwuser/g" $installpath/$websitedomain/install/website.sh;
 			sudo sed -i "s/mysql_w_pass/$mysqlwpass/g" $installpath/$websitedomain/install/website.sh;
+			sudo sed -i "s/www_ssl/$wwwssl/g" $installpath/$websitedomain/install/website.sh;
 
 			#run website.sh
 			sudo bash $installpath/$websitedomain/install/website.sh;
