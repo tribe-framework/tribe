@@ -37,13 +37,10 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$mysqlwpass" ]
 		then
 			#replace placeholders with user inputs
-			sudo wget --no-check-certificate $zipurl -P $installpath/;
 			cd $installpath/;
-			sudo tar -xvf $installpath/$websitedomain.tar;
-			sudo chown ubuntu: $installpath/$websitedomain -R;
+			sudo wget --no-check-certificate $zipurl;
+			sudo tar -xvf $websitedomain.tar;
 			sudo chown www-data: $installpath/$websitedomain/uploads -R;
-			sudo chown root: $installpath/$websitedomain/logs -R;
-			sudo chown root: $installpath/$websitedomain/export -R;
 			sudo cp $installpath/$websitedomain/export/nginx /etc/nginx/sites-available/$websitedomain;
 			mysql -u root -p$mysqlpass -e "CREATE DATABASE $mysqlwuser;
 			CREATE USER '$mysqlwuser'@'%' IDENTIFIED BY '$mysqlwpass';
