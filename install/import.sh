@@ -40,6 +40,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			cd $installpath/;
 			sudo wget --no-check-certificate $zipurl;
 			sudo tar -xvf $websitedomain.tar;
+			sudo chown root: $installpath/$websitedomain -R;
 			sudo chown www-data: $installpath/$websitedomain/uploads -R;
 			sudo cp $installpath/$websitedomain/export/nginx /etc/nginx/sites-available/$websitedomain;
 			mysql -u root -p$mysqlpass -e "CREATE DATABASE $mysqlwuser;
