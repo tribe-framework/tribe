@@ -16,7 +16,7 @@ if (!$q[0]['id']) {
 
 <section class="flame-bg d-flex align-items-center justify-content-center">
   <div class="py-6 container px-0 text-center text-dark">
-    <img src="https://brand.wf/theme/img/flame.png" width="200">
+    <img src="/theme/assets/img/flame.png" width="200">
   </div>
 </section>
 
