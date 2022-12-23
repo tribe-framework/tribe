@@ -11,16 +11,9 @@ Tribe is a project management framework that allows us to build platforms, produ
 
 ## Install instructions
 ```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/3.0/install/install.sh -O -)"
 ```
-#### Export instructions
-```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/export.sh -O -)"
-```
-#### Import instructions
-```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/import.sh -O -)"
-```
+
 #### Upgrade instructions
 - To upgrade from exiting tribe projects, update composer.json and copy files auth.php, api.php, uploads.php and index.php to the root folder of the existing project
 
