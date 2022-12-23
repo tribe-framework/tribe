@@ -5,8 +5,5 @@
 /node_modules
 /vendor
 /composer.phar
-/config/vars.php
-.nuxt
 *.code-workspace
 sftp-config.json
-/theme/dist

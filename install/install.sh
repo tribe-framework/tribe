@@ -61,22 +61,9 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 			#run website.sh
 			sudo bash $installpath/$websitedomain/install/website.sh;
 
-			#display domain details
+			#display success message
 			echo -e "\r\n### -----------------\r\n";
-			echo "${green}Website successfully created.${reset} Make sure you save the website password. Please save the following details for future reference and pass them on to your collaborators:";
-			echo -e "\r\n\r\n### Tribe config details:\r\n" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "Website Domain: $websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "MySQL Database: $mysqlwuser" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "MySQL User: $mysqlwuser" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "MySQL Host: localhost" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "MySQL Port: 3306" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "Tribe Root: $installpath/$websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "NginX Logs: $installpath/$websitedomain/logs/" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "NginX Config: /etc/nginx/sites-available/$websitedomain" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "URL to phpMyAdmin: $websitedomain/vendor/wildfire/admin/plugins/phpmyadmin" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo -e "\r\nInstructions for NodeJS:" | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "To add an Ember app, create a sub-folder in /applications. The sub-folder must have 'dist', 'assets', 'package.json' and 'node_modules'. The 'dist' folder's index.html will be executed when you visit the URL $websitedomain/app/<sub-folder>." | sudo tee -a $installpath/$websitedomain/README.md;
-			echo "To add any other NodeJS app based on Vue or Svelte or React, create a sub-folder in /applications. Then modify the '/app' location block in the NginX config file to make sure the application is executed when you visit the URL $websitedomain/app/<sub-folder>." | sudo tee -a $installpath/$websitedomain/README.md;
+			echo "${green}Website successfully created.${reset}";
 			echo -e "\r\n### -----------------\r\n";
 		
 		else

@@ -25,19 +25,20 @@ ALTER TABLE `data` ADD `slug` VARCHAR(255) AS (`content`->>'$.slug') VIRTUAL NUL
 ALTER TABLE `data` ADD `content_privacy` VARCHAR(100) AS (`content`->>'$.content_privacy') VIRTUAL NULL AFTER `slug`;
 ALTER TABLE `data` ADD `type` VARCHAR(100) AS (`content`->>'$.type') VIRTUAL NULL AFTER `content_privacy`;
 
-CREATE TABLE `trac` (
+CREATE TABLE `meta` (
   `id` bigint(20) NOT NULL,
-  `visit` json DEFAULT NULL,
+  `content` json DEFAULT NULL,
+  `updated_on` bigint(20) DEFAULT NULL,
   `created_on` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE `trac`
+ALTER TABLE `meta`
   ADD INDEX(`id`); 
 
-ALTER TABLE `trac`
+ALTER TABLE `meta`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `trac`
+ALTER TABLE `meta`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 COMMIT;
