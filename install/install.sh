@@ -40,7 +40,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$adminemail" ] && [ -n "$mysqlwpass" ]
 		then
 			#get tribe from github
-			sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
+			sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain -b develop/3.0;
 
 			#remove .git folder
 			cd $installpath/$websitedomain;
