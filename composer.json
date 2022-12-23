@@ -1,45 +1,30 @@
 {
-    "name": "wildfire/tribe",
-    "description": "a web project management system by wildfire.",
+    "name": "tribe",
+    "description": "tribe - a project management framework.",
     "repositories": {
-        "wildfire/backup": {
+        "tribe/core": {
             "type": "git",
-            "url": "https://github.com/wil-ldf-ire/backup.git"
+            "url": "https://github.com/wil-ldf-ire/tribe-core.git"
         },
-        "wildfire/sitemap": {
+        "tribe/auth": {
             "type": "git",
-            "url": "https://github.com/wil-ldf-ire/sitemap.git"
+            "url": "https://github.com/wil-ldf-ire/tribe-auth.git"
         },
-        "wildfire/admin": {
+        "tribe/api": {
             "type": "git",
-            "url": "https://github.com/wil-ldf-ire/admin.git"
+            "url": "https://github.com/wil-ldf-ire/tribe-api.git"
         },
-        "wildfire/auth": {
+        "tribe/backup": {
             "type": "git",
-            "url": "https://github.com/wil-ldf-ire/auth.git"
-        },
-        "wildfire/core": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/core.git"
-        },
-        "wildfire/api": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/api.git"
+            "url": "https://github.com/wil-ldf-ire/tribe-backup.git"
         }
     },
     "require": {
         "php" : ">=7.4",
         "vlucas/phpdotenv": "^5.2",
-        "wildfire/core": "^3.0",
-        "wildfire/auth": "^2.0",
-        "wildfire/admin": "^2.0",
-        "wildfire/api": "^0.1",
-        "wildfire/backup": "^1.1",
-        "wildfire/sitemap": "^1.1"
-    },
-    "autoload": {
-        "psr-4": {
-            "Theme\\": "src/"
-        }
+        "tribe/core": "^4.0",
+        "tribe/auth": "^3.0",
+        "tribe/api": "^1.1",
+        "tribe/backup": "^2.1"
     }
 }
