@@ -31,7 +31,7 @@ sudo mysql -umysql_w_user -pmysql_w_pass mysql_w_user < install_path/xyz.com/ins
 sudo rm install_path/xyz.com/install -R;
 sudo rm install_path/xyz.com/.env.sample;
 sudo chown www-data: install_path/xyz.com/uploads -R;
-
+sudo composer create-project phpmyadmin/phpmyadmin install_path/xyz.com/phpmyadmin;
 composer update;
 sudo service nginx restart;
 
