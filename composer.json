@@ -24,7 +24,7 @@
         "vlucas/phpdotenv": "^5.2",
         "tribe/core": "^4.0",
         "tribe/auth": "^3.0",
-        "tribe/api": "^1.1",
-        "tribe/backup": "^2.1"
+        "tribe/api": "^1.0",
+        "tribe/backup": "^2.0"
     }
 }
