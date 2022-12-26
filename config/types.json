@@ -1,16 +1,18 @@
 {
     "webapp": {
+        "type": "types_json",
+        "slug": "webapp",
+        "version": "1.0",
         "headmeta_title": "Tribe",
-        "headmeta_description": "A web project management system by wildfire.",
+        "headmeta_description": "An open source project management framework.",
         "headmeta_image_url": "",
         "allow_type_change": false,
         "searchable_types": [
-            "page"
+            "section", "page"
         ],
-        "user_theme": true,
         "display_activity_log": false,
         "soft_delete_records": false,
-        "hide_wildfire_logo": false
+        "hide_tribe_logo": false
     },
     "user": {
         "type": "user",
@@ -44,7 +46,6 @@
                 "input_primary": true,
                 "input_slug": "user_id",
                 "input_type": "hidden",
-                "autofill": "user_id",
                 "input_unique": true,
                 "list_field": true,
                 "list_searchable": true,
@@ -128,26 +129,8 @@
                 "list_sortable": true
             },
             {
-                "input_slug": "body",
-                "input_type": "typeout",
-                "input_options": [
-                    "undo",
-                    "blockquote",
-                    "insertParagraph",
-                    "insertorderedlist",
-                    "insertunorderedlist",
-                    "justifyCenter",
-                    "justifyLeft",
-                    "justifyRight",
-                    "justifyFull",
-                    "heading",
-                    "bold",
-                    "italic",
-                    "createLink",
-                    "unlink",
-                    "insertImage",
-                    "removeFormat"
-                ],
+                "input_slug": "body_json",
+                "input_type": "editorjs",
                 "input_unique": false
             },
             {
