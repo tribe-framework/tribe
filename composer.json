@@ -30,6 +30,7 @@
         "tribe/auth": "^3.0",
         "tribe/api": "^1.0",
         "tribe/uploads": "^1.0",
-        "tribe/backup": "^2.0"
+        "tribe/backup": "^2.0",
+        "alsvanzelf/jsonapi": "^2.4"
     }
 }
