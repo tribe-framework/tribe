@@ -1,24 +1,20 @@
 {
     "webapp": {
-        "type": "types_json",
-        "slug": "webapp",
+        "format": "types.json",
         "version": "1.0",
-        "headmeta_title": "Tribe",
-        "headmeta_description": "An open source project management framework.",
-        "headmeta_image_url": "",
-        "allow_type_change": false,
+        "name": "tribe",
+        "description": "An open source project management framework.",
         "searchable_types": [
             "section", "page"
         ],
+        "allow_type_change": false,
         "display_activity_log": false,
-        "soft_delete_records": false,
-        "hide_tribe_logo": false
+        "soft_delete_records": false
     },
     "user": {
-        "type": "user",
-        "slug": "user",
         "name": "user",
         "plural": "users",
+        "description": "List of users.",
         "roles": {
             "admin": {
                 "role": "admin",
@@ -45,6 +41,7 @@
             {
                 "input_primary": true,
                 "input_slug": "user_id",
+                "var_type": "string",
                 "input_type": "hidden",
                 "input_unique": true,
                 "list_field": true,
@@ -54,6 +51,7 @@
             {
                 "input_slug": "email",
                 "input_type": "email",
+                "var_type": "string",
                 "input_unique": true,
                 "list_field": true,
                 "list_searchable": true,
@@ -63,6 +61,7 @@
                 "input_slug": "password",
                 "input_placeholder": "Enter password",
                 "input_type": "password",
+                "var_type": "string",
                 "input_unique": false,
                 "input_confirm": true,
                 "list_field": false,
@@ -72,25 +71,16 @@
         ]
     },
     "section": {
-        "type": "content",
-        "slug": "section",
-        "headmeta_title_prepend": "",
-        "headmeta_title_append": [
-            {
-                "type": "webapp",
-                "slug": "headmeta_title"
-            }
-        ],
-        "headmeta_title_glue": "&mdash;",
-        "headmeta_title": "title",
         "name": "section",
         "plural": "sections",
+        "description": "List of sections.",
         "disallow_editing": false,
         "modules": [
             {
                 "input_slug": "title",
                 "input_primary": true,
                 "input_type": "text",
+                "var_type": "string",
                 "input_placeholder": "Enter section title",
                 "input_unique": true,
                 "list_field": true,
@@ -100,28 +90,22 @@
         ]
     },
     "page": {
-        "type": "content",
-        "slug": "page",
-        "headmeta_title_prepend": "",
-        "headmeta_title_append": [
-            {
-                "type": "webapp",
-                "slug": "headmeta_title"
-            }
-        ],
-        "headmeta_title_glue": "&mdash;",
-        "headmeta_title": "title",
-        "headmeta_description": "body",
-        "headmeta_image_url": "cover_media",
         "name": "page",
         "plural": "pages",
         "description": "List of pages.",
         "disallow_editing": false,
+        "priority": [
+            {
+                "field": "title",
+                "priority_order": "ASC"
+            }
+        ],
         "modules": [
             {
                 "input_slug": "title",
                 "input_primary": true,
                 "input_type": "text",
+                "var_type": "string",
                 "input_placeholder": "Enter page title",
                 "input_unique": false,
                 "list_field": true,
@@ -131,24 +115,37 @@
             {
                 "input_slug": "body_json",
                 "input_type": "editorjs",
+                "var_type": "json",
                 "input_unique": false
             },
             {
                 "input_slug": "section",
                 "input_type": "select",
+                "var_type": "string",
                 "input_unique": false
             },
             {
                 "input_slug": "publishing_date",
                 "input_type": "date",
+                "var_type": "string",
                 "input_unique": false,
                 "list_field": true,
                 "list_searchable": true,
                 "list_sortable": true
             },
             {
+                "input_slug": "priority",
+                "input_type": "number",
+                "var_type": "int",
+                "input_unique": false,
+                "list_field": true,
+                "list_search": false,
+                "list_sort": true
+            },
+            {
                 "input_slug": "cover_media",
                 "input_type": "url",
+                "var_type": "string",
                 "input_unique": false
             },
             {
