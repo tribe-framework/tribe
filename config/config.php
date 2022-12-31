@@ -9,17 +9,6 @@
 
 date_default_timezone_set($_ENV['DEFAULT_TIMEZONE']);
 
-if (file_exists(__DIR__ . '/vars.php')) {
-	include_once __DIR__ . '/vars.php';
-}
-
-if (!defined('VAR_NAME')) {
-	define(
-		'UPLOAD_FILE_TYPES',
-		'/\.(zip|svg|png|jpe?g|gif|pdf|doc|docx|xls|xlsx|csv|mov|mp4|vtt|srt)$/i'
-	);
-}
-
 // set cors headers in PHP server
 if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 
