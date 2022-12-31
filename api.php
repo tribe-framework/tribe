@@ -25,21 +25,35 @@ if ($type == 'webapp') {
 	$document->sendResponse();
 }
 
-else {
-	if (($type ?? false) && !($id ?? false)) {
-		if ($ids = $core->getIDs(array('type'=>$type), '=', 'AND', 'id', 'DESC', 10)) {
-			$objects = $core->getObjects($ids);
-			$i = 0;
-			foreach ($objects as $object) {
-				$documents[$i] = new ResourceDocument($type=$type, $object['id']);
-				$documents[$i]->add('modules', $object);
-				$i++;
-			}
-			$document = CollectionDocument::fromResources(...$documents);
-			$document->sendResponse();
-		} else {
-			$document = new ResourceDocument();
-			$document->sendResponse();
+else if (($type ?? false) && !($id ?? false)) {
+	if ($ids = $core->getIDs(array('type'=>$type), '=', 'AND', 'id', 'DESC', 10)) {
+		$objects = $core->getObjects($ids);
+		$i = 0;
+		foreach ($objects as $object) {
+			$documents[$i] = new ResourceDocument($type=$type, $object['id']);
+			$documents[$i]->add('modules', $object);
+			$i++;
 		}
+		$document = CollectionDocument::fromResources(...$documents);
+		$document->sendResponse();
+	} else {
+		$document = new ResourceDocument();
+		$document->sendResponse();
 	}
+}
+
+else if (($type ?? false) && ($id ?? false)) {
+	if ($object = $core->getObject($id)) {
+		$document = new ResourceDocument($type=$type, $object['id']);
+		$documents->add('modules', $object);
+		$document->sendResponse();
+	} else {
+		$document = new ResourceDocument();
+		$document->sendResponse();
+	}
+}
+
+else {
+		$document = new ResourceDocument();
+		$document->sendResponse();
 }
