@@ -1,9 +1,11 @@
 {
     "webapp": {
+        "name": "tribe",
+        "slug": "webapp",
+        "description": "An open source project management framework.",
+        "url": "https://postcodesolutions.com",
         "format": "types.json",
         "version": "1.0",
-        "name": "tribe",
-        "description": "An open source project management framework.",
         "searchable_types": [
             "section", "page"
         ],
@@ -13,6 +15,7 @@
     },
     "user": {
         "name": "user",
+        "slug": "user",
         "plural": "users",
         "description": "List of users.",
         "roles": {
@@ -40,6 +43,7 @@
         "modules": [
             {
                 "input_primary": true,
+                "input_placeholder": "Enter User ID",
                 "input_slug": "user_id",
                 "var_type": "string",
                 "input_type": "hidden",
@@ -50,6 +54,7 @@
             },
             {
                 "input_slug": "email",
+                "input_placeholder": "Enter email",
                 "input_type": "email",
                 "var_type": "string",
                 "input_unique": true,
@@ -72,6 +77,7 @@
     },
     "section": {
         "name": "section",
+        "slug": "section",
         "plural": "sections",
         "description": "List of sections.",
         "disallow_editing": false,
@@ -91,15 +97,10 @@
     },
     "page": {
         "name": "page",
+        "slug": "page",
         "plural": "pages",
         "description": "List of pages.",
         "disallow_editing": false,
-        "priority": [
-            {
-                "field": "title",
-                "priority_order": "ASC"
-            }
-        ],
         "modules": [
             {
                 "input_slug": "title",
@@ -113,19 +114,22 @@
                 "list_sortable": true
             },
             {
-                "input_slug": "body_json",
+                "input_slug": "body",
+                "input_placeholder": "Enter content",
                 "input_type": "editorjs",
                 "var_type": "json",
                 "input_unique": false
             },
             {
                 "input_slug": "section",
+                "input_placeholder": "Select section",
                 "input_type": "select",
                 "var_type": "string",
                 "input_unique": false
             },
             {
                 "input_slug": "publishing_date",
+                "input_placeholder": "Enter publishing date",
                 "input_type": "date",
                 "var_type": "string",
                 "input_unique": false,
@@ -134,9 +138,10 @@
                 "list_sortable": true
             },
             {
-                "input_slug": "priority",
-                "input_type": "number",
-                "var_type": "int",
+                "input_slug": "pinned",
+                "input_type": "checkbox",
+                "var_type": "bool",
+                "input_placeholder": "Pin to top",
                 "input_unique": false,
                 "list_field": true,
                 "list_search": false,
@@ -144,12 +149,14 @@
             },
             {
                 "input_slug": "cover_media",
+                "input_placeholder": "Enter content cover URL",
                 "input_type": "url",
                 "var_type": "string",
                 "input_unique": false
             },
             {
                 "input_slug": "files",
+                "input_placeholder": "Upload files",
                 "input_type": "file_uploader",
                 "input_unique": false
             }
