@@ -15,6 +15,7 @@ if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 	//in dev environment, allowing cross origin * for localhost
 	if ($_ENV['ENV'] == 'dev') {
 		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Headers: *");
 	}
 
 	//in prod environment, if cross origin access is required, uncomment the following and modify cross_origin_url
@@ -22,6 +23,7 @@ if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 	if ($_ENV['ENV'] == 'prod') {
 		$cross_origin_url = 'domain.tld';
 		header("Access-Control-Allow-Origin: $cross_origin_url");
+		header("Access-Control-Allow-Headers: $cross_origin_url");
 	}
 	*/
 
