@@ -19,6 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	    $document = new ResourceDocument();
 		$document->sendResponse();
 	}
+	else {
+			$document = new ResourceDocument();
+			$document->sendResponse();
+	}
 }
 
 else if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
@@ -66,8 +70,37 @@ else {
 
 	else if (($type ?? false) && !($id ?? false)) {
 		$show_public_objects_only = ($_GET['show_public_objects_only'] ?? false);
+
 		
-		if ($ids = $core->getIDs(array('type'=>$type), '=', 'AND', 'id', 'DESC', 10, $show_public_objects_only)) {
+		//FILTERING
+		if ($_GET['page'] !== null) {
+			$limit = "{$_GET['page']['offset']}, {$_GET['page']['limit']}";
+		}
+		else {
+			$limit = 25;
+		}
+
+		//SORTING
+
+
+
+		if ($_GET['modules'] !== null) {
+
+			foreach ($_GET['modules'] as $key=>$value) {
+				$search_query[$key][] = $value;
+			}
+			
+			$search_keys = array_keys($search_query);
+			
+			foreach ($search_keys as $key) {
+				$search_query[$key] = array_unique($search_query[$key]);
+				$query_lines[] = " (`content`->>'$.".$key."' LIKE '".implode("' OR `content`->>'$.".$key."' LIKE '", $search_query[$key])."') ";
+			}
+
+			$query = "SELECT `id` FROM `data` WHERE `type`='".$type."' AND ".implode(" AND ", $query_lines." LIMIT ".$limit."");
+
+			$ids = $sql->executeSQL($query);
+
 			$objects = $core->getObjects($ids);
 			$i = 0;
 			foreach ($objects as $object) {
@@ -77,7 +110,21 @@ else {
 			}
 			$document = CollectionDocument::fromResources(...$documents);
 			$document->sendResponse();
-		} else {
+		}
+
+		else if ($ids = $core->getIDs(array('type'=>$type), '=', 'AND', 'id', 'DESC', $limit, $show_public_objects_only)) {
+			$objects = $core->getObjects($ids);
+			$i = 0;
+			foreach ($objects as $object) {
+				$documents[$i] = new ResourceDocument($type=$type, $object['id']);
+				$documents[$i]->add('modules', $object);
+				$i++;
+			}
+			$document = CollectionDocument::fromResources(...$documents);
+			$document->sendResponse();
+		} 
+
+		else {
 			$document = new ResourceDocument();
 			$document->sendResponse();
 		}
