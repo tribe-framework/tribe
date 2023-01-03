@@ -11,17 +11,21 @@ $auth = new \Tribe\Auth;
 
 $url_parts = array_filter(explode('/', $_SERVER['REQUEST_URI']));
 $type = $url_parts[2] ?? false;
-$id = $url_parts[3] ?? false;
+$id = (int) $url_parts[3] ?? false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    $document = new ResourceDocument();
-	$document->sendResponse();
+	if ($id) {
+		$core->deleteObject($id);
+	    $document = new ResourceDocument();
+		$document->sendResponse();
+	}
 }
 
 else if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
     $object = $api->requestBody;
 	$object = array_merge($core->getObject($object['data']['id']), $object['data'], $object['data']['attributes']['modules']);
 	unset($object['attributes']);
+	
 	$object = $core->getObject($core->pushObject($object));
 
     $document = new ResourceDocument($type=$type, $object['id']);
@@ -82,7 +86,7 @@ else {
 	else if (($type ?? false) && ($id ?? false)) {
 		if ($object = $core->getObject($id)) {
 			$document = new ResourceDocument($type=$type, $object['id']);
-			$documents->add('modules', $object);
+			$document->add('modules', $object);
 			$document->sendResponse();
 		} else {
 			$document = new ResourceDocument();
