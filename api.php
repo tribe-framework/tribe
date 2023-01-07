@@ -103,7 +103,7 @@ else {
 				$query_lines[] = " ( LOWER(`content`->>'$.".$key."') LIKE '%".implode("%' OR LOWER(`content`->>'$.".$key."') LIKE '%", array_map('strtolower', array_values($search_query[$key])))."%' ) ";
 			}
 
-			$query = "SELECT `id` FROM `data` WHERE `type`='".$type."' AND ".implode(" AND ", $query_lines)." LIMIT ".$limit;
+			$query = "SELECT `id` FROM `data` WHERE `type`='".$type."' AND ".implode(" AND ", $query_lines)." ORDER BY `id` DESC LIMIT ".$limit;
 
 			$ids = $sql->executeSQL($query);;
 
