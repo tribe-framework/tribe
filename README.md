@@ -11,7 +11,7 @@ Tribe is a project management framework that allows us to build platforms, produ
 
 ## Install instructions
 ```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/develop/3.0/install/install.sh -O -)"
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
 ```
 
 #### Upgrade instructions
