@@ -5,34 +5,7 @@ $uploads = new \Tribe\Uploads;
 /* New code that handles file uploading */
 if ($_FILES['file']) {
 	header('Content-type: application/json; charset=utf-8');
-	$handle = new \Verot\Upload\Upload($_FILES['file']);
-
-	if ($handle->uploaded) {
-	  
-	  $file = array();
-	  $uploader_path = $uploads->getUploaderPath();
-	  $file_extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
-	  $file['name'] = pathinfo($_FILES['file']['name'], PATHINFO_FILENAME).'_'.uniqid();
-	  $file['url'] = $uploader_path['upload_url'].'/'.$file['name'].'.'.$file_extension;
-
-	  if (!in_array(strtolower($file_extension), explode(',', $_ENV['ALLOWED_FILE_EXTENSIONS_IN_UPLOADS_FOLDER']))) {
-	  	echo json_encode(array('status'=>'error', 'error_message'=>'File format not supported by server.'));
-	  }
-	  else {
-
-		  $handle->file_new_name_body = $file['name'];
-		  $handle->process($uploader_path['upload_dir']);
-		  
-		  if ($handle->processed) {
-		    
-		    echo json_encode(array('status'=>'success', 'file'=>$file));
-		    $handle->clean();
-
-		  } else {
-		    echo json_encode(array('status'=>'error', 'error_message'=>$handle->error));
-		  }
-	  }
-	}
+	echo json_encode($uploads->handleUpload($_FILES));
 }
 
 /* Old code that handles S3 CDN redirection for uploads folder */
