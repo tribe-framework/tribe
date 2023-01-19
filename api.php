@@ -90,12 +90,14 @@ else {
 
 		//getting IDs
 		if ($ids = $core->getIDs(
-				array_merge(
+				$search_array = array_merge(
 					($_GET['search_modules'] ?? []), 
 					($_GET['modules'] ?? []), 
 					array('type'=>$type)
 				), 
-				$limit, 'id', 'DESC',
+				$limit,
+				$sort_field = 'id', 
+				$sort_order = 'DESC',
 				$show_public_objects_only, 
 				$show_partial_search_results = ($_GET['search_modules'] ? true : false)
 			))
