@@ -89,7 +89,17 @@ else {
 		//code to be written
 
 		//getting IDs
-		if ($ids = $core->getIDs(array_merge(($_GET['modules'] ?? []), array('type'=>$type)), $limit, 'id', 'DESC', $show_public_objects_only, ($_GET['modules'] ? true : false))) {
+		if ($ids = $core->getIDs(
+				array_merge(
+					($_GET['search_modules'] ?? []), 
+					($_GET['modules'] ?? []), 
+					array('type'=>$type)
+				), 
+				$limit, 'id', 'DESC',
+				$show_public_objects_only, 
+				$show_partial_search_results = ($_GET['search_modules'] ? true : false)
+			))
+		{
 			$objects = $core->getObjects($ids);
 			$i = 0;
 			foreach ($objects as $object) {
