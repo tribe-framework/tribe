@@ -7,7 +7,6 @@ use alsvanzelf\jsonapi\ResourceDocument;
 $config = new \Tribe\Config;
 $core = new \Tribe\Core;
 $api = new \Tribe\API;
-$sql = new \Tribe\MySQL;
 $auth = new \Tribe\Auth;
 
 $url_parts = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
@@ -87,44 +86,10 @@ else {
 			$limit = $_GET['page']['limit'];
 
 		//SORTING
-		if ($_GET['modules'] ?? false) {
+		//code to be written
 
-			foreach ($_GET['modules'] as $key=>$value) {
-				$search_query[$key][] = $value;
-			}
-				
-			$query_lines = array();
-			$search_keys = array_keys($search_query);
-			
-			foreach ($search_keys as $key) {
-				$search_query[$key] = array_unique($search_query[$key]);
-				$query_lines[] = " ( LOWER(`content`->>'$.".$key."') LIKE '%".implode("%' OR LOWER(`content`->>'$.".$key."') LIKE '%", array_map('strtolower', array_values($search_query[$key])))."%' ) ";
-			}
-
-			$query = "SELECT `id` FROM `data` WHERE `type`='".$type."' AND ".implode(" AND ", $query_lines)." ORDER BY `id` DESC LIMIT ".$limit;
-
-			$ids = $sql->executeSQL($query);;
-
-			if ($ids) {
-				$objects = $core->getObjects($ids);
-				$i = 0;
-				foreach ($objects as $object) {
-					$documents[$i] = new ResourceDocument($type, $object['id']);
-					$documents[$i]->add('modules', $object);
-					$i++;
-				}
-				$document = CollectionDocument::fromResources(...$documents);
-				$document->sendResponse();
-			}
-			else {
-				$documents = [];
-				$document = CollectionDocument::fromResources(...$documents);
-				$document->sendResponse();
-			}
-
-		}
-
-		else if ($ids = $core->getIDs(array('type'=>$type), '=', 'AND', 'id', 'DESC', $limit, $show_public_objects_only)) {
+		//getting IDs
+		if ($ids = $core->getIDs(array_merge(($_GET['modules'] ?? []), array('type'=>$type)), $limit, 'id', 'DESC', $show_public_objects_only, ($_GET['modules'] ? true : false))) {
 			$objects = $core->getObjects($ids);
 			$i = 0;
 			foreach ($objects as $object) {
