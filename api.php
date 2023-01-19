@@ -75,20 +75,18 @@ else {
 		$show_public_objects_only = ($_GET['show_public_objects_only'] ?? false);
 
 		//FILTERING
-		if (($_GET['page'] ?? false) !== null) {
-			if (!($_GET['page']['limit'] ?? false))
-				$limit = $_GET['page']['limit'] = 25;
-			if ($_GET['page']['offset'] ?? false)
-				$limit = "{$_GET['page']['offset']}, {$_GET['page']['limit']}";
-		}
-		else {
-			$limit = 25;
-		}
+		$limit = "0, 25";
+		if (!($_GET['page']['offset'] ?? false))
+			$_GET['page']['offset'] = 0;
+		if (!($_GET['page']['limit'] ?? false))
+			$_GET['page']['limit'] = 25;
+
+		if (($_GET['page']['limit'] ?? false) !== null && ($_GET['page']['offset'] ?? false) !== null)
+			$limit = "{$_GET['page']['offset']}, {$_GET['page']['limit']}";
+		else if (($_GET['page']['limit'] ?? false) !== null)
+			$limit = $_GET['page']['limit'];
 
 		//SORTING
-
-
-
 		if ($_GET['modules'] ?? false) {
 
 			foreach ($_GET['modules'] as $key=>$value) {
