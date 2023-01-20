@@ -75,15 +75,19 @@ else {
 
 		//FILTERING
 		$limit = "0, 25";
-		if (!($_GET['page']['offset'] ?? false))
-			$_GET['page']['offset'] = 0;
-		if (!($_GET['page']['limit'] ?? false))
-			$_GET['page']['limit'] = 25;
+		if ($_GET['page']['limit'] != '-1') {
+			if (!($_GET['page']['offset'] ?? false))
+				$_GET['page']['offset'] = 0;
+			if (!($_GET['page']['limit'] ?? false))
+				$_GET['page']['limit'] = 25;
 
-		if (($_GET['page']['limit'] ?? false) !== null && ($_GET['page']['offset'] ?? false) !== null)
-			$limit = "{$_GET['page']['offset']}, {$_GET['page']['limit']}";
-		else if (($_GET['page']['limit'] ?? false) !== null)
-			$limit = $_GET['page']['limit'];
+			if (($_GET['page']['limit'] ?? false) !== null && ($_GET['page']['offset'] ?? false) !== null)
+				$limit = "{$_GET['page']['offset']}, {$_GET['page']['limit']}";
+			else if (($_GET['page']['limit'] ?? false) !== null)
+				$limit = $_GET['page']['limit'];
+		} else {
+			$limit = "";
+		}
 
 		//SORTING
 		//code to be written
