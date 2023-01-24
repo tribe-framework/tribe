@@ -1,28 +1,7 @@
 {
     "name": "tribe/tribe",
     "description": "tribe by a project management framework",
-    "repositories": {
-        "tribe/core": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/tribe-core.git"
-        },
-        "tribe/auth": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/tribe-auth.git"
-        },
-        "tribe/api": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/tribe-api.git"
-        },
-        "tribe/backup": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/tribe-backup.git"
-        },
-        "tribe/uploads": {
-            "type": "git",
-            "url": "https://github.com/wil-ldf-ire/tribe-uploads.git"
-        }
-    },
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.0",
         "vlucas/phpdotenv": "^5.2",
