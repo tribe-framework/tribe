@@ -90,7 +90,26 @@ else {
 		}
 
 		//SORTING
-		//code to be written
+		if ($_GET['sort'] ?? false) {
+			$sort_arr = array_map('trim', explode(',', $_GET['sort']));
+			$sort_field = $sort_order = array();
+
+			foreach ($sort_arr as $val) {
+				if (substr($val, 0, 1) == '-') {
+					$sort_field[] = substr($val, 1, strlen($val));
+					$sort_order[] = 'DESC';
+				}
+				else {
+					$sort_field[] = $val;
+					$sort_order[] = 'ASC';
+				}
+			}
+		}
+		else {
+			$sort_field = 'id';
+			$sort_order = 'DESC';
+		}
+
 
 		//getting IDs
 		if ($ids = $core->getIDs(
@@ -100,13 +119,20 @@ else {
 					array('type'=>$type)
 				), 
 				$limit,
-				$sort_field = 'id', 
-				$sort_order = 'DESC',
+				$sort_field, 
+				$sort_order,
 				$show_public_objects_only, 
 				$show_partial_search_results = ($_GET['search_modules'] ? true : false)
 			))
 		{
-			$objects = $core->getObjects($ids);
+			$objectr = $core->getObjects($ids);
+			$objects = [];
+			
+			//to sort accurately
+			foreach ($ids as $idr) {
+				$objects[] = $objectr[$idr['id']];
+			}
+
 			$i = 0;
 			foreach ($objects as $object) {
 				$documents[$i] = new ResourceDocument($type, $object['id']);
