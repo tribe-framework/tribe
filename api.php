@@ -73,7 +73,7 @@ else {
 	else if (($type ?? false) && !($id ?? false)) {
 		$show_public_objects_only = ($_GET['show_public_objects_only'] ?? false);
 
-		//FILTERING
+		//PAGINATION
 		$limit = "0, 25";
 		if ($_GET['page']['limit'] != '-1') {
 			if (!($_GET['page']['offset'] ?? false))
@@ -114,7 +114,7 @@ else {
 		//getting IDs
 		if ($ids = $core->getIDs(
 				$search_array = array_merge(
-					($_GET['search_modules'] ?? []), 
+					($_GET['filter'] ?? []), 
 					($_GET['modules'] ?? []), 
 					array('type'=>$type)
 				), 
@@ -122,7 +122,7 @@ else {
 				$sort_field, 
 				$sort_order,
 				$show_public_objects_only, 
-				$show_partial_search_results = ($_GET['search_modules'] ? true : false)
+				$show_partial_search_results = ($_GET['filter'] ? true : false)
 			))
 		{
 			$objectr = $core->getObjects($ids);
@@ -144,7 +144,9 @@ else {
 		} 
 
 		else {
-			$document = new ResourceDocument();
+			$documents[0] = new ResourceDocument($type, 0);
+			$documents[0]->add('modules', []);
+			$document = CollectionDocument::fromResources(...$documents);
 			$document->sendResponse();
 		}
 	}
@@ -155,7 +157,8 @@ else {
 			$document->add('modules', $object);
 			$document->sendResponse();
 		} else {
-			$document = new ResourceDocument();
+			$document = new ResourceDocument($type, 0);
+			$document->add('modules', []);
 			$document->sendResponse();
 		}
 	}
