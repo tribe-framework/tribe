@@ -71,7 +71,6 @@ else {
 	}
 
 	else if (($type ?? false) && !($id ?? false)) {
-		$show_public_objects_only = ($_GET['show_public_objects_only'] ?? false);
 
 		//PAGINATION
 		$limit = "0, 25";
@@ -109,8 +108,7 @@ else {
 			$sort_field = 'id';
 			$sort_order = 'DESC';
 		}
-
-
+		
 		//getting IDs
 		if ($ids = $core->getIDs(
 				$search_array = array_merge(
@@ -121,8 +119,8 @@ else {
 				$limit,
 				$sort_field, 
 				$sort_order,
-				$show_public_objects_only, 
-				$show_partial_search_results = ($_GET['filter'] ? true : false)
+				$show_public_objects_only = (($_GET['show_public_objects_only'] === 'false' || $_GET['show_public_objects_only'] === false) ? boolval(false) : boolval(true)), 
+				$show_partial_search_results = ($_GET['filter'] ? boolval(true) : boolval(false))
 			))
 		{
 			$objectr = $core->getObjects($ids);
