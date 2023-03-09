@@ -7,11 +7,11 @@ Tribe is a project management framework that allows us to build platforms, produ
 - 1gb ram
 - 1 core
 - ubuntu 20.04
-- make your server ready for tribe using - https://github.com/wil-ldf-ire/server-wildfire
+- make your server ready for tribe using - https://github.com/tribe-framework/ubuntu-server
 
 ## Install instructions
 ```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe/master/install/install.sh -O -)"
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/install.sh -O -)"
 ```
 
 #### Upgrade instructions
@@ -30,6 +30,6 @@ sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wi
 
 ## Uninstall
 ```
-sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/wil-ldf-ire/tribe-uninstall/master/uninstall.sh -O -)"
+sudo bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe-uninstall/master/uninstall.sh -O -)"
 ```
-more info on uninstall - https://github.com/wil-ldf-ire/tribe-uninstall
+more info on uninstall - https://github.com/tribe-framework/tribe-uninstall
