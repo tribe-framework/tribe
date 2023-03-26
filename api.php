@@ -36,6 +36,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
 
     $document = new ResourceDocument($type, $object['id']);
     $document->add('modules', $object);
+    $document->add('slug', $object['slug']);
 	$document->sendResponse();
 }
 
@@ -51,6 +52,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $document = new ResourceDocument($type, $object['id']);
     $document->add('modules', $object);
+    $document->add('slug', $object['slug']);
 	$document->sendResponse();
 }
 
@@ -67,6 +69,7 @@ else {
 
 		$document = new ResourceDocument($type, 0);
 		$document->add('modules', $object);
+    	$document->add('slug', $object['slug']);
 		$document->sendResponse();
 	}
 
@@ -135,6 +138,7 @@ else {
 			foreach ($objects as $object) {
 				$documents[$i] = new ResourceDocument($type, $object['id']);
 				$documents[$i]->add('modules', $object);
+				$documents[$i]->add('slug', $object['slug']);
 				$i++;
 			}
 			$document = CollectionDocument::fromResources(...$documents);
@@ -153,6 +157,7 @@ else {
 		if ($object = $core->getObject($id)) {
 			$document = new ResourceDocument($type, $object['id']);
 			$document->add('modules', $object);
+    		$document->add('slug', $object['slug']);
 			$document->sendResponse();
 		} else {
 			$document = new ResourceDocument($type, 0);
