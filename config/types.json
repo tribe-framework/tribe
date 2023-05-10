@@ -2,13 +2,25 @@
     "webapp": {
         "name": "tribe",
         "slug": "webapp",
-        "description": "An open source project management framework.",
-        "url": "https://postcodesolutions.com",
+        "description": "An open source, collaborative project management framework.",
+        "api_url": "https://tribe.tribe-framework.org",
+        "interface_urls": [
+            { 
+                "title": "Home", 
+                "slug": "home", 
+                "url": "https://tribe-framework.org",
+                "types": ["section", "page"]
+            },
+            { 
+                "title": "Junction", 
+                "slug": "junction", 
+                "url": "https://junction.tribe-framework.org",
+                "types": ["user", "section", "page"]
+            }
+        ],
         "format": "types.json",
         "version": "1.0",
-        "searchable_types": [
-            "section", "page"
-        ],
+        "searchable_types": ["section", "page"],
         "allow_type_change": false,
         "display_activity_log": false,
         "soft_delete_records": false
@@ -18,28 +30,6 @@
         "slug": "user",
         "plural": "users",
         "description": "List of users.",
-        "roles": {
-            "admin": {
-                "role": "admin",
-                "slug": "admin",
-                "title": "Admin"
-            },
-            "editor": {
-                "role": "crew",
-                "slug": "editor",
-                "title": "Editor"
-            },
-            "guest_writer": {
-                "role": "member",
-                "slug": "guest_writer",
-                "title": "Guest writer"
-            },
-            "subscriber": {
-                "role": "visitor",
-                "slug": "subscriber",
-                "title": "Newsletter subscriber"
-            }
-        },
         "modules": [
             {
                 "input_primary": true,
@@ -53,11 +43,31 @@
                 "list_sortable": false
             },
             {
+                "input_slug": "name",
+                "input_placeholder": "Enter your full name",
+                "input_type": "text",
+                "var_type": "string",
+                "input_unique": false,
+                "list_field": true,
+                "list_searchable": true,
+                "list_sortable": true
+            },
+            {
                 "input_slug": "email",
-                "input_placeholder": "Enter email",
+                "input_placeholder": "Email address",
                 "input_type": "email",
                 "var_type": "string",
-                "input_unique": true,
+                "input_unique": false,
+                "list_field": true,
+                "list_searchable": true,
+                "list_sortable": true
+            },
+            {
+                "input_slug": "mobile",
+                "input_placeholder": "Mobile number",
+                "input_type": "tel",
+                "var_type": "string",
+                "input_unique": false,
                 "list_field": true,
                 "list_searchable": true,
                 "list_sortable": true
@@ -65,13 +75,26 @@
             {
                 "input_slug": "password",
                 "input_placeholder": "Enter password",
-                "input_type": "password",
+                "input_type": "text",
                 "var_type": "string",
                 "input_unique": false,
-                "input_confirm": true,
                 "list_field": false,
                 "list_searchable": false,
                 "list_sortable": false
+            },
+            {
+                "input_slug": "role_slug",
+                "input_placeholder": "User role",
+                "input_type": "select",
+                "var_type": "string",
+                "input_options": [
+                    { "slug": "admin", "title": "Admin" },
+                    { "slug": "visitor", "title": "Visitor" }
+                ],
+                "input_unique": false,
+                "list_field": true,
+                "list_searchable": true,
+                "list_sortable": true
             }
         ]
     },
