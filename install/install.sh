@@ -40,26 +40,26 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		if [ -n "$websitedomain" ] && [ -n "$mysqluser" ] && [ -n "$mysqlpass" ] && [ -n "$mysqlwuser" ] && [ -n "$adminemail" ] && [ -n "$mysqlwpass" ]
 		then
 			#get tribe from github
-			sudo git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
+			git clone https://github.com/wil-ldf-ire/tribe.git $installpath/$websitedomain;
 
 			#remove .git folder
 			cd $installpath/$websitedomain;
-			sudo rm -rf .git;
+			rm -rf .git;
 
 			#prepare website.sh for execution
 			#replace placeholders with user inputs in website.sh file
-			sudo sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/ipv4_address/$ipv4address/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/mysql_root_user/$mysqluser/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/admin_email/$adminemail/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/install_path/$installpath1/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/mysql_w_user/$mysqlwuser/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/mysql_w_pass/$mysqlwpass/g" $installpath/$websitedomain/install/website.sh;
-			sudo sed -i "s/www_ssl/$wwwssl/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/xyz.com/$websitedomain/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/ipv4_address/$ipv4address/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/mysql_root_user/$mysqluser/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/admin_email/$adminemail/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/install_path/$installpath1/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/mysql_w_user/$mysqlwuser/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/mysql_w_pass/$mysqlwpass/g" $installpath/$websitedomain/install/website.sh;
+			sed -i "s/www_ssl/$wwwssl/g" $installpath/$websitedomain/install/website.sh;
 
 			#run website.sh
-			sudo bash $installpath/$websitedomain/install/website.sh;
+			bash $installpath/$websitedomain/install/website.sh;
 
 			#display success message
 			echo -e "\r\n### -----------------\r\n";
