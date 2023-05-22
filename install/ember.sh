@@ -12,7 +12,7 @@ read -p "Ember App Certbot Email Address: " adminemail;
 read -p "Ember App Domain: " emberdomain;
 read -p "Ember App Dir in applications/<dir-name>: " emberdir;
 
-emberpath1=$(echo "$installpath/$tribedomain/applications/$emberdir" | sed 's/\//\\\//g');
+emberpath1=$(echo "$tribedomain/applications/$emberdir" | sed 's/\//\\\//g');
 
 #ARE YOU SURE prompt
 #yes, no or cancel
@@ -36,8 +36,8 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/ember-nginx.conf;
 		mv ember-nginx.conf /etc/nginx/sites-available/$emberdomain;
 		sed -i 's/your_server_domain/'"${emberdomain}"'/g' /etc/nginx/sites-available/$emberdomain;
-		sed -i 's/your_server_logs_dir/'"${installpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
-		sed -i 's/your_server_base_dir/'"${emberpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
+		sed -i 's/your_server_tribe_dir/'"${tribedomain}"'/g' /etc/nginx/sites-available/$emberdomain;
+		sed -i 's/your_server_ember_dir/'"${emberpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
 		ln -s /etc/nginx/sites-available/$emberdomain /etc/nginx/sites-enabled/$emberdomain;
 		certbot --agree-tos --no-eff-email --email $adminemail --nginx -d $emberdomain;
 		service nginx restart;
