@@ -1,20 +1,14 @@
 installpath1=$(echo "install_path" | sed 's/\//\\\//g');
-wwwssl1="www_ssl";
 
 #--------CORE CHANGES BEGIN---------#
 
-cp install_path/xyz.com/install/nginx.conf /etc/nginx/sites-available/xyz.com;
+cp install_path/xyz.com/install/tribe-nginx.conf /etc/nginx/sites-available/xyz.com;
 sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/xyz.com;
 sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.com;
 sed -i 's/your_server_domain/xyz.com/g' /etc/nginx/sites-available/xyz.com;
-sed -i 's/xyz-port-var/xyz_port/g' /etc/nginx/sites-available/xyz.com;
 ln -s /etc/nginx/sites-available/xyz.com /etc/nginx/sites-enabled/xyz.com;
 
-if [[ ${wwwssl1} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
-	certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com -d www.xyz.com;
-else
-	certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com;
-fi
+certbot --agree-tos --no-eff-email --email admin_email --nginx -d xyz.com;
 
 cp install_path/xyz.com/.env.sample install_path/xyz.com/.env;
 sed -i 's/xyz-domain-var/xyz.com/g' install_path/xyz.com/.env;

@@ -10,24 +10,14 @@ Tribe is a project management framework that allows us to build platforms, produ
 - ubuntu 20.04
 - make your server ready for tribe using - https://github.com/tribe-framework/ubuntu-server
 
-## Install instructions
+## Install Tribe
 ```
 bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/install.sh -O -)"
 ```
 
-## Configure front-end apps' domains and subdomains on the server
+## Configure Ember apps' domains and subdomains on the server
 ```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/app-config.sh -O -)"
-```
-
-## Deploy a front-end Ember app on the server
-First, git-pull:
-```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/git-pull.sh -O -)"
-```
-Then, deploy app:
-```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/app-deploy.sh -O -)"
+bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/ember.sh -O -)"
 ```
 
 #### Upgrade instructions
