@@ -35,7 +35,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		rm /etc/nginx/sites-enabled/$emberdomain;
 		wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/ember-nginx.conf;
 		mv ember-nginx.conf /etc/nginx/sites-available/$emberdomain;
-		sed -i 's/your_server_domain/'"${$emberdomain}"'/g' /etc/nginx/sites-available/$emberdomain;
+		sed -i 's/your_server_domain/'"${emberdomain}"'/g' /etc/nginx/sites-available/$emberdomain;
 		sed -i 's/your_server_logs_dir/'"${installpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
 		sed -i 's/your_server_base_dir/'"${emberpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
 		ln -s /etc/nginx/sites-available/$emberdomain /etc/nginx/sites-enabled/$emberdomain;
