@@ -12,7 +12,7 @@ read -p "Ember App Certbot Email Address: " adminemail;
 read -p "Ember App Domain: " emberdomain;
 read -p "Ember App Dir in applications/<dir-name>: " emberdir;
 
-emberpath1=$(echo "$tribedomain/applications/$emberdir" | sed 's/\//\\\//g');
+emberpath1=$(echo "$tribedomain/applications/$emberdir/dist" | sed 's/\//\\\//g');
 
 #ARE YOU SURE prompt
 #yes, no or cancel
