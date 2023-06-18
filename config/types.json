@@ -29,6 +29,7 @@
         "name": "user",
         "slug": "user",
         "plural": "users",
+        "readonly": false,
         "description": "List of users.",
         "modules": [
             {
@@ -102,8 +103,10 @@
         "name": "section",
         "slug": "section",
         "plural": "sections",
+        "readonly": false,
+        "sendable": false,
+        "editable": true,
         "description": "List of sections.",
-        "disallow_editing": false,
         "modules": [
             {
                 "input_slug": "title",
@@ -118,12 +121,54 @@
             }
         ]
     },
+    "notification": {
+        "name": "notification",
+        "slug": "notification",
+        "plural": "notifications",
+        "readonly": false,
+        "sendable": true,
+        "editable": false,
+        "description": "List of notifications.",
+        "modules": [
+            {
+                "input_slug": "title",
+                "input_primary": true,
+                "input_type": "text",
+                "var_type": "string",
+                "input_placeholder": "Enter notification text",
+                "input_unique": false,
+                "list_field": true,
+                "list_searchable": true,
+                "list_sortable": true
+            },
+            {
+                "input_slug": "users",
+                "linked_type": "user",
+                "input_placeholder": "Users it must be sent to",
+                "input_type": "select",
+                "input_multiple": true,
+                "var_type": "json"
+            },
+            {
+                "input_slug": "sent_on",
+                "input_placeholder": "Sent on",
+                "input_type": "datetime-local",
+                "var_type": "string",
+                "input_unique": false,
+                "list_field": true,
+                "list_searchable": true,
+                "list_sortable": true
+            }
+        ]
+    },
     "page": {
         "name": "page",
         "slug": "page",
         "plural": "pages",
+        "readonly": false,
+        "sendable": false,
+        "editable": true,
         "description": "List of pages.",
-        "disallow_editing": false,
         "modules": [
             {
                 "input_slug": "title",
