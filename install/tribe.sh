@@ -2,6 +2,9 @@ installpath1=$(echo "install_path" | sed 's/\//\\\//g');
 
 #--------CORE CHANGES BEGIN---------#
 
+wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/types.json/master/types.json;
+mv types.json install_path/xyz.com/config/;
+
 cp install_path/xyz.com/install/tribe-nginx.conf /etc/nginx/sites-available/xyz.com;
 sed -i 's/your_server_ip/ipv4_address/g' /etc/nginx/sites-available/xyz.com;
 sed -i 's/your_server_base_dir/xyz.com/g' /etc/nginx/sites-available/xyz.com;
