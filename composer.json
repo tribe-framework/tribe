@@ -1,6 +1,6 @@
 {
     "name": "tribe/tribe",
-    "description": "tribe by a project management framework",
+    "description": "Tribe is a project management framework by Wildfire.",
     "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.0",
