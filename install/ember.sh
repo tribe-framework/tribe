@@ -1,4 +1,4 @@
-installpath="/var/www/html";
+installpath="/mnt/junctions";
 installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
 
 #Initialising colours
@@ -39,7 +39,7 @@ if [[ ${REPLY,,} =~ ^(y|yes|Y|YES|Yes)$ ]]; then
 		sed -i 's/your_server_tribe_dir/'"${tribedomain}"'/g' /etc/nginx/sites-available/$emberdomain;
 		sed -i 's/your_server_ember_dir/'"${emberpath1}"'/g' /etc/nginx/sites-available/$emberdomain;
 		ln -s /etc/nginx/sites-available/$emberdomain /etc/nginx/sites-enabled/$emberdomain;
-		certbot --agree-tos --no-eff-email --email $adminemail --nginx -d $emberdomain;
+		yes | certbot --agree-tos --no-eff-email --email $adminemail --nginx -d $emberdomain;
 		service nginx restart;
 
 		#display success message

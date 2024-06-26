@@ -1,5 +1,5 @@
 #Initialising install path and IP address of host
-installpath="/var/www/html";
+installpath="/mnt/junctions";
 installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
 ipv4address=$(hostname -I);
 
