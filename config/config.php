@@ -38,7 +38,7 @@ if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 	}
 }
 
-define('JUNCTIONS_ROOT', dirname(__DIR__, 2));
+define('WEB_ROOT', dirname(__DIR__, 2));
 define('TRIBE_ROOT', dirname(__DIR__, 1));
 define('ABSOLUTE_PATH', dirname(__DIR__, 1));
 define('ENV', $_ENV['ENV']);
