@@ -39,7 +39,7 @@ if (!$APP_NAME_OG) {
     die("'app_name' is required");
 }
 
-$BASE_DIR = "/home/apurv/junctions";
+$BASE_DIR = "/mnt/junctions";
 
 if (!is_dir($BASE_DIR)) {
     mkdir($BASE_DIR);
