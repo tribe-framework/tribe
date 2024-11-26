@@ -6,7 +6,6 @@
  * add custom variables to ".env" in project root or create a "vars.php"
  * in this directory if you want to add your own variables
  */
-session_start();
 date_default_timezone_set($_ENV['DEFAULT_TIMEZONE']);
 
 // set cors headers in PHP server
