@@ -2,7 +2,7 @@
 
 Tribe is a project management framework that allows us to build platforms, products, applications and web interfaces, using a modular approach. It provides a coherent language for UX, content and design collaborations.
 
-**For ease of setup, we recommend using the [Docker version of Tribe](https://github.com/tribe-framework/trib-docker).**
+**For ease of setup, we recommend using the [Docker version of Tribe](https://github.com/tribe-framework/tribe-docker).**
 
 ## Minimum system requirements
 - independent cloud or dedicated server
