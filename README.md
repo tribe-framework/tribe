@@ -2,13 +2,15 @@
 
 Tribe is a project management framework that allows us to build platforms, products, applications and web interfaces, using a modular approach. It provides a coherent language for UX, content and design collaborations.
 
+**For ease of setup, we recommend using the [Docker version of Tribe](https://github.com/tribe-framework/trib-docker).**
+
 ## Minimum system requirements
 - independent cloud or dedicated server
 - php 8
 - 1gb ram
 - 1 core
-- ubuntu 20.04
-- make your server ready for tribe using - https://github.com/tribe-framework/ubuntu-server
+- ubuntu 24.04
+- make your server ready for tribe using this [script](https://github.com/tribe-framework/ubuntu-server)
 
 ## Install Tribe
 ```
