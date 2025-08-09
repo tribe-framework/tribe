@@ -1,43 +1,48 @@
-# Tribe - a web project management framework.
+# Flame
 
-Tribe is a project management framework that allows us to build platforms, products, applications and web interfaces, using a modular approach. It provides a coherent language for UX, content and design collaborations.
+## Install EmberJS for using Tribe API with Junction
 
-**For ease of setup, we recommend using the [Docker version of Tribe](https://github.com/tribe-framework/tribe-docker).**
+1. Use tribe-framework.org to install this Git template
 
-## Minimum system requirements
-- independent cloud or dedicated server
-- php 8
-- 1gb ram
-- 1 core
-- ubuntu 24.04
-- make your server ready for tribe using this [script](https://github.com/tribe-framework/ubuntu-server)
+2. Open command line in the directory that has been installed
 
-## Install Tribe
+3. Install EmberJS by running the following command, and enter the name of the directory when asked:
+
+- Linux and Mac OS
+
 ```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/install.sh -O -)"
+chmod +x ./config/ember/init.sh; bash ./config/ember/init.sh;
 ```
 
-## Configure Ember apps' domains and subdomains on the server
+- Windows
+
 ```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe/master/install/ember.sh -O -)"
+powershell -ExecutionPolicy Bypass -File .\config\ember\ember-init.ps1
 ```
 
-#### Upgrade instructions
-- To upgrade from exiting tribe projects, update composer.json and copy files auth.php, api.php, uploads.php and index.php to the root folder of the existing project
+4. Serve to start coding
 
-### Database structure
-1. there are 2 tables - data and meta. both tables have same table structure
-2. tribe uses json heavily, the need for creating new tables is eleminated by use of json
-3. the column 'content' uses json, example usage:
-```$sql->executeSQL("SELECT \`id\` FROM \`data\` WHERE \`content\`->'$.type'='user'");```
-4. data table stores all posts', post-types' and users' data
-5. meta table is for plugins to use as the developers deem fit, it can be used for web analytics data, to store user sessions or any other use-case
-
-### NginX config
-- nginx config is available at /etc/nginx/sites-available/&lt;domain.tld&gt;
-
-## Uninstall
 ```
-bash -c "$(wget --no-cache --no-cookie https://raw.githubusercontent.com/tribe-framework/tribe-uninstall/master/uninstall.sh -O -)"
+ember s
 ```
-more info on uninstall - https://github.com/tribe-framework/tribe-uninstall
+
+## Deploy
+
+1. Build
+
+```
+ember build -prod
+```
+
+2. Deploy to Netlify or Cloudflare Pages
+
+---
+
+## Tribe - a web project management framework.
+
+Tribe is a project management framework that allows us to build platforms, products, applications and web interfaces, using a modular approach. It provides a coherent language for UX, content, design and code collaborations.
+
+## License
+
+The GNU General Public License is a free, copyleft license for
+software and other kinds of works.
