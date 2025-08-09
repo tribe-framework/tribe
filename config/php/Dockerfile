@@ -47,6 +47,12 @@ WORKDIR /var/www/html
 # Copy custom PHP configuration
 COPY ./php.ini /usr/local/etc/php/php.ini
 
+# Install phpMyAdmin
+RUN curl https://files.phpmyadmin.net/phpMyAdmin/5.2.2/phpMyAdmin-5.2.2-all-languages.tar.gz -o pma.tar.gz && \
+    mkdir /var/www/html/phpmyadmin && \
+    tar -xzf pma.tar.gz -C /var/www/html/phpmyadmin --strip-components=1 && \
+    rm pma.tar.gz
+
 # Create user for php processes
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www

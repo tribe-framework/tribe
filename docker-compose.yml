@@ -9,7 +9,7 @@ services:
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./config/php/phpmyadmin:/var/www/html/phpmyadmin
+      - ./config/php/phpmyadmin.config.inc.php:/var/www/html/phpmyadmin/config.inc.php
       - ./.env:/var/www/html/.env
       - ./logs:/var/log/nginx
       - ./config/nginx/conf.d:/etc/nginx/conf.d
@@ -28,7 +28,7 @@ services:
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./config/php/phpmyadmin:/var/www/html/phpmyadmin
+      - ./config/php/phpmyadmin.config.inc.php:/var/www/html/phpmyadmin/config.inc.php
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./config/php/php.ini:/usr/local/etc/php/php.ini
