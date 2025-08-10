@@ -40,7 +40,6 @@ fi
 # Create directories
 mkdir -p applications
 mkdir -p uploads
-mkdir -p applications/junction
 
 # Download phpMyAdmin
 echo "📦 Downloading phpMyAdmin..."
@@ -63,6 +62,7 @@ if [ -d "applications/junction" ]; then
 fi
 
 curl -L -o junction-dev.zip "https://github.com/tribe-framework/junction/archive/refs/heads/dev.zip"
+mkdir -p applications/junction
 unzip -q junction-dev.zip
 mv junction-dev/dist applications/junction/dist
 rm -rf junction-dev
