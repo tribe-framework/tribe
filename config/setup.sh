@@ -91,6 +91,7 @@ if [ "$SKIP_ENV_SETUP" = false ]; then
 ENV="dev"
 ALLOW_CROSS_ORIGIN=true
 SSL=false
+DISPLAY_ERRORS=false
 
 TRIBE_BARE_URL="$TRIBE_BARE_URL"
 TRIBE_URL="http://$TRIBE_BARE_URL"

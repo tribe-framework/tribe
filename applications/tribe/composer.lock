@@ -2548,12 +2548,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tribe-framework/tribe-core.git",
-                "reference": "056bcfb1324f3b5419c3a3802bbd219259a25284"
+                "reference": "3c56909b0ae4b7ad3260d0eff7ed195b99db2e5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/056bcfb1324f3b5419c3a3802bbd219259a25284",
-                "reference": "056bcfb1324f3b5419c3a3802bbd219259a25284",
+                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/3c56909b0ae4b7ad3260d0eff7ed195b99db2e5f",
+                "reference": "3c56909b0ae4b7ad3260d0eff7ed195b99db2e5f",
                 "shasum": ""
             },
             "require": {
@@ -2578,7 +2578,7 @@
                 "issues": "https://github.com/tribe-framework/tribe-core/issues",
                 "source": "https://github.com/tribe-framework/tribe-core/tree/dev"
             },
-            "time": "2025-08-10T01:54:09+00:00"
+            "time": "2025-08-10T17:15:00+00:00"
         },
         {
             "name": "twirp/twirp",
