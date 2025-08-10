@@ -40,6 +40,7 @@ fi
 # Create directories
 mkdir -p applications
 mkdir -p uploads
+mkdir -p applications/junction
 
 # Download phpMyAdmin
 echo "📦 Downloading phpMyAdmin..."
