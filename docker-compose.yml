@@ -10,6 +10,7 @@ services:
       - ./applications/tribe:/var/www/html
       - ./applications/phpmyadmin:/var/www/html/phpmyadmin
       - ./uploads:/var/www/html/uploads
+      - ./config/tribe/config.php:/var/www/html/config/config.php
       - ./config/tribe/phpmyadmin.config.inc.php:/var/www/html/phpmyadmin/config.inc.php
       - ./.env:/var/www/html/.env
       - ./logs:/var/log/nginx
@@ -51,8 +52,9 @@ services:
     ports:
       - "4488:88"
     volumes:
-      - ./applications/junction/dist:/var/www/html/junction
-      - ./.env:/var/www/html/junction/php/.env
+      - ./applications/junction/dist:/var/www/html
+      - ./.env:/var/www/html/.env
+      - ./config/junction/config.php:/var/www/html/config/config.php
       - ./logs:/var/log/nginx
       - ./config/junction/conf.d/junction.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -69,7 +71,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./applications/junction/dist:/var/www/html
-      - ./.env:/var/www/html/php/.env
+      - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./config/junction/php.ini:/usr/local/etc/php/php.ini
       - ./config/junction/config.php:/var/www/html/config/config.php
