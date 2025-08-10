@@ -36,14 +36,11 @@ if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 	}
 }
 
-define('WEB_ROOT', dirname(__DIR__, 2));
-define('TRIBE_ROOT', dirname(__DIR__, 1));
-define('ABSOLUTE_PATH', dirname(__DIR__, 1));
 define('ENV', $_ENV['ENV']);
 define('DB_NAME', $_ENV['DB_NAME']);
 define('DB_USER', $_ENV['DB_USER']);
 define('DB_PASS', $_ENV['DB_PASS']);
 define('DB_HOST', $_ENV['DB_HOST']);
 define('DB_PORT', $_ENV['DB_PORT']);
-define('BARE_URL', $_ENV['WEB_BARE_URL']);
+define('BARE_URL', $_ENV['TRIBE_BARE_URL']);
 define('BASE_URL', ($_ENV['SSL'] !== 'false' ? 'https' : 'http') . '://' . BARE_URL);
