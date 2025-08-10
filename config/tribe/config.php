@@ -13,9 +13,6 @@ if ($_ENV['ALLOW_CROSS_ORIGIN'] === 'true') {
 
 	if ($_ENV['ENV'] == 'prod') {
 	    $allowed_origins = [
-	        'http://localhost:4488',
-	        'http://localhost:1212',
-	        'http://localhost:4200',
 	        /*
 	        'https://domain.tld',
 	        'https://tribe.domain.tld',
