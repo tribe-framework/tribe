@@ -63,7 +63,8 @@ fi
 
 curl -L -o junction-dev.zip "https://github.com/tribe-framework/junction/archive/refs/heads/dev.zip"
 unzip -q junction-dev.zip
-mv junction-dev applications/junction
+mv junction-dev/dist applications/junction/dist
+rm -rf junction-dev
 rm junction-dev.zip
 chmod -R 755 applications/junction
 echo "✅ Junction downloaded successfully!"
