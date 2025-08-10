@@ -53,6 +53,7 @@ services:
       - "4488:88"
     volumes:
       - ./applications/junction/dist:/var/www/html
+      - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./config/junction/config.php:/var/www/html/config/config.php
       - ./logs:/var/log/nginx
@@ -71,6 +72,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./applications/junction/dist:/var/www/html
+      - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./config/junction/php.ini:/usr/local/etc/php/php.ini
