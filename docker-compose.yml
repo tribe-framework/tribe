@@ -5,7 +5,7 @@ services:
     container_name: nginx_tribe
     restart: unless-stopped
     ports:
-      - "1212:80"
+      - "${TRIBE_PORT:-1212}:80"
     volumes:
       - ./applications/tribe:/var/www/html
       - ./applications/phpmyadmin:/var/www/html/phpmyadmin
@@ -50,7 +50,7 @@ services:
     container_name: nginx_junction
     restart: unless-stopped
     ports:
-      - "4488:88"
+      - "${JUNCTION_PORT:-4488}:88"
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -96,7 +96,7 @@ services:
       MYSQL_USER: tribe_user
       MYSQL_PASSWORD: userpassword
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     volumes:
       - ./uploads/mysql:/var/lib/mysql
       - ./config/mysql/init:/docker-entrypoint-initdb.d

@@ -78,43 +78,50 @@ if [ "$SKIP_ENV_SETUP" = false ]; then
     echo ""
     
     # Prompt for user inputs
-    prompt_with_default "Tribe URL (without protocol)" "localhost:1212" "TRIBE_BARE_URL"
-    prompt_with_default "Tribe URL (without protocol)" "localhost:4488" "JUNCTION_BARE_URL"
+    prompt_with_default "Tribe Port" "1212" "TRIBE_PORT"
+    prompt_with_default "Junction Port" "4488" "JUNCTION_PORT"
+    prompt_with_default "MySQL Port" "3306" "DB_PORT"
     prompt_with_default "Database password" "userpassword" "DB_PASS"
     prompt_with_default "Junction password" "password" "JUNCTION_PASSWORD"
+    
+    # Build URLs using localhost and the provided ports
+    TRIBE_BARE_URL="localhost:$TRIBE_PORT"
+    JUNCTION_BARE_URL="localhost:$JUNCTION_PORT"
     
     echo ""
     echo "📝 Creating .env file..."
     
     # Create .env file from template with user values
     cat > .env << EOF
-ENV="dev"
-ALLOW_CROSS_ORIGIN=true
+# Config for Tribe and Junction
 SSL=false
 DISPLAY_ERRORS=false
+ALLOW_API_FULL_ACCESS=true
+DEFAULT_TIMEZONE="Asia/Kolkata"
 
+# Tribe settings
 TRIBE_BARE_URL="$TRIBE_BARE_URL"
 TRIBE_URL="http://$TRIBE_BARE_URL"
-TRIBE_API_URL="http://$TRIBE_BARE_URL"
-TRIBE_API_KEY=""
+TRIBE_PORT=$TRIBE_PORT
 
+# Junction settings
 JUNCTION_BARE_URL="$JUNCTION_BARE_URL"
 JUNCTION_URL="http://$JUNCTION_BARE_URL"
 JUNCTION_SLUG="junction"
 JUNCTION_PASSWORD="$JUNCTION_PASSWORD"
-JUNCTION_PORT=4488
+TRIBE_API_URL="http://$TRIBE_BARE_URL"
+TRIBE_API_KEY=""
+JUNCTION_PORT=$JUNCTION_PORT
+PLAUSIBLE_AUTH=""
+PLAUSIBLE_DOMAIN=""
+HIDE_POSTCODE_ATTRIBUTION="false"
 
+# MySQL database settings
 DB_NAME="tribe_db"
 DB_USER="tribe_user"
 DB_PASS="$DB_PASS"
 DB_HOST="mysql"
-
-PLAUSIBLE_AUTH=""
-PLAUSIBLE_DOMAIN=""
-
-HIDE_POSTCODE_ATTRIBUTION="false"
-
-DEFAULT_TIMEZONE="Asia/Kolkata"
+DB_PORT=$DB_PORT
 EOF
     
     echo "✅ .env file created successfully!"
