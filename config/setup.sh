@@ -5,33 +5,11 @@ set -e
 
 echo "🚀 Setting up development environment..."
 
-# Function to prompt user for input with default value
-prompt_with_default() {
-    local prompt="$1"
-    local default="$2"
-    local var_name="$3"
-    
-    echo -n "$prompt [$default]: "
-    read user_input
-    
-    if [ -z "$user_input" ]; then
-        eval "$var_name=\"$default\""
-    else
-        eval "$var_name=\"$user_input\""
-    fi
-}
-
 # Check if .env file exists and warn user
 if [ -f ".env" ]; then
     echo "⚠️  .env file already exists!"
     echo "This script will NOT override your existing .env file."
-    echo "If you want to reconfigure, please rename or delete the existing .env file first."
-    echo ""
-    read -p "Continue with setup anyway? (y/N): " continue_setup
-    if [[ ! "$continue_setup" =~ ^[Yy]$ ]]; then
-        echo "Setup cancelled."
-        exit 0
-    fi
+    echo "Continuing with setup anyway..."
     SKIP_ENV_SETUP=true
 else
     SKIP_ENV_SETUP=false
@@ -73,16 +51,15 @@ echo "✅ Junction downloaded successfully!"
 # Setup environment configuration
 if [ "$SKIP_ENV_SETUP" = false ]; then
     echo ""
-    echo "🔧 Setting up environment configuration..."
-    echo "Please provide the following configuration values (press Enter for defaults):"
-    echo ""
+    echo "🔧 Setting up environment configuration with default values..."
     
-    # Prompt for user inputs
-    prompt_with_default "Tribe Port" "1212" "TRIBE_PORT"
-    prompt_with_default "Junction Port" "4488" "JUNCTION_PORT"
-    prompt_with_default "MySQL Port" "3306" "DB_PORT"
-    prompt_with_default "Database password" "userpassword" "DB_PASS"
-    prompt_with_default "Junction password" "password" "JUNCTION_PASSWORD"
+    # Use default values directly
+    TRIBE_PORT="1212"
+    JUNCTION_PORT="4488"
+    DB_PORT="3306"
+    DB_PASS="userpassword"
+    DB_ROOT_PASSWORD="rootpassword"
+    JUNCTION_PASSWORD="password"
     
     # Build URLs using localhost and the provided ports
     TRIBE_BARE_URL="localhost:$TRIBE_PORT"
@@ -91,7 +68,7 @@ if [ "$SKIP_ENV_SETUP" = false ]; then
     echo ""
     echo "📝 Creating .env file..."
     
-    # Create .env file from template with user values
+    # Create .env file from template with default values
     cat > .env << EOF
 # Config for Tribe and Junction
 SSL=false
@@ -120,6 +97,7 @@ HIDE_POSTCODE_ATTRIBUTION="false"
 DB_NAME="tribe_db"
 DB_USER="tribe_user"
 DB_PASS="$DB_PASS"
+DB_ROOT_PASSWORD="$DB_ROOT_PASSWORD"
 DB_HOST="mysql"
 DB_PORT=$DB_PORT
 EOF
@@ -130,6 +108,7 @@ EOF
     echo "  Tribe URL: $TRIBE_BARE_URL"
     echo "  Junction URL: $JUNCTION_BARE_URL"
     echo "  Database Password: $DB_PASS"
+    echo "  Database Root Password: $DB_ROOT_PASSWORD"
     echo "  Junction Password: $JUNCTION_PASSWORD"
     echo ""
 else
