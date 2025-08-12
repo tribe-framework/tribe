@@ -5,8 +5,12 @@ set -e
 
 echo "🚀 Setting up development environment..."
 
-# Check if .env file exists and warn user
-if [ -f ".env" ]; then
+# Check if .env exists and handle accordingly
+if [ -d ".env" ]; then
+    echo "🗑️ Found .env directory - removing it..."
+    rm -rf .env
+    SKIP_ENV_SETUP=false
+elif [ -f ".env" ]; then
     echo "⚠️  .env file already exists!"
     echo "This script will NOT override your existing .env file."
     echo "Continuing with setup anyway..."

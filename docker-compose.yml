@@ -9,29 +9,40 @@ services:
       - ./uploads:/uploads
       - .:/workdir
     working_dir: /workdir
-    command: sh -c "apk add --no-cache curl unzip bash && bash ./config/setup.sh"
+    command: sh -c "apk add --no-cache curl unzip bash && bash ./config/setup.sh && touch /tmp/setup_complete && tail -f /dev/null"
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/setup_complete"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
     networks:
       - lemp_network
 
-  # Nginx Web Server (Tribe)
-  nginx_tribe:
-    image: nginx:alpine
-    container_name: nginx_tribe
+  # MySQL 9 Database
+  mysql:
+    image: mysql:9
+    container_name: mysql_db
     restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     ports:
-      - "${TRIBE_PORT:-1212}:80"
+      - "${DB_PORT:-3306}:3306"
     volumes:
-      - ./applications/tribe:/var/www/html
-      - ./applications/phpmyadmin:/var/www/html/phpmyadmin
-      - ./uploads:/var/www/html/uploads
-      - ./config/tribe/config.php:/var/www/html/config/config.php
-      - ./config/tribe/phpmyadmin.config.inc.php:/var/www/html/phpmyadmin/config.inc.php
-      - ./.env:/var/www/html/.env
-      - ./logs:/var/log/nginx
-      - ./config/tribe/conf.d/tribe.conf:/etc/nginx/conf.d/default.conf
+      - ./uploads/mysql:/var/lib/mysql
+      - ./config/mysql/init:/docker-entrypoint-initdb.d
     depends_on:
-      - setup
-      - php_tribe
+      setup:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - lemp_network
 
@@ -55,28 +66,10 @@ services:
       sh -c "composer install --no-interaction --optimize-autoloader &&
            php-fpm"
     depends_on:
-      - setup
-      - mysql
-    networks:
-      - lemp_network
-
-  # Nginx Web Server (Junction)
-  nginx_junction:
-    image: nginx:alpine
-    container_name: nginx_junction
-    restart: unless-stopped
-    ports:
-      - "${JUNCTION_PORT:-4488}:88"
-    volumes:
-      - ./applications/junction/dist:/var/www/html
-      - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
-      - ./config/junction/config.php:/var/www/html/config/config.php
-      - ./logs:/var/log/nginx
-      - ./config/junction/conf.d/junction.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - setup
-      - php_junction
+      setup:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
     networks:
       - lemp_network
 
@@ -98,28 +91,56 @@ services:
       sh -c "composer install --no-interaction --optimize-autoloader &&
            php-fpm"
     depends_on:
-      - setup
-      - mysql
+      setup:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
     networks:
       - lemp_network
 
-  # MySQL 9 Database
-  mysql:
-    image: mysql:9
-    container_name: mysql_db
+  # Nginx Web Server (Tribe)
+  nginx_tribe:
+    image: nginx:alpine
+    container_name: nginx_tribe
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${TRIBE_PORT:-1212}:80"
     volumes:
-      - ./uploads/mysql:/var/lib/mysql
-      - ./config/mysql/init:/docker-entrypoint-initdb.d
+      - ./applications/tribe:/var/www/html
+      - ./applications/phpmyadmin:/var/www/html/phpmyadmin
+      - ./uploads:/var/www/html/uploads
+      - ./config/tribe/config.php:/var/www/html/config/config.php
+      - ./config/tribe/phpmyadmin.config.inc.php:/var/www/html/phpmyadmin/config.inc.php
+      - ./.env:/var/www/html/.env
+      - ./logs:/var/log/nginx
+      - ./config/tribe/conf.d/tribe.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - setup
+      setup:
+        condition: service_healthy
+      php_tribe:
+        condition: service_started
+    networks:
+      - lemp_network
+
+  # Nginx Web Server (Junction)
+  nginx_junction:
+    image: nginx:alpine
+    container_name: nginx_junction
+    restart: unless-stopped
+    ports:
+      - "${JUNCTION_PORT:-4488}:88"
+    volumes:
+      - ./applications/junction/dist:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./.env:/var/www/html/.env
+      - ./config/junction/config.php:/var/www/html/config/config.php
+      - ./logs:/var/log/nginx
+      - ./config/junction/conf.d/junction.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      setup:
+        condition: service_healthy
+      php_junction:
+        condition: service_started
     networks:
       - lemp_network
 
