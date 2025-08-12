@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tribe Setup Reference</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+            }
+
+            .docker-icon {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 30px;
+                background: #2496ed;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 40px;
+                font-weight: bold;
+            }
+
+            .accordion-button:not(.collapsed) {
+                background-color: #e3f2fd;
+                color: #1565c0;
+                border-color: #2196f3;
+            }
+
+            .accordion-button:focus {
+                box-shadow: 0 0 0 0.25rem rgba(36, 150, 237, 0.25);
+            }
+
+            .command-block {
+                background: #1e1e1e;
+                color: #d4d4d4;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 15px 0;
+                position: relative;
+            }
+
+            .command-block code {
+                background: transparent;
+                color: #d4d4d4;
+                padding: 0;
+            }
+
+            .command-block .comment {
+                color: #6a9955;
+                font-style: italic;
+            }
+
+            .copy-btn-block {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+
+            .copy-btn.copied,
+            .copy-btn-block.copied {
+                background-color: #198754 !important;
+                border-color: #198754 !important;
+            }
+
+            .method-item {
+                border-left: 4px solid #0d6efd;
+            }
+
+            .step-badge {
+                background: #2496ed;
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                margin-right: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container py-lg-4">
+            <div class="row justify-content-center">
+                <div class="card w-100">
+                    <div class="card-body p-lg-5">
+                        <div class="text-center">
+                            <h1 class="display-4 mb-5">
+                                Tribe Setup Reference
+                            </h1>
+                        </div>
+
+                        <div class="accordion" id="dockerAccordion">
+                            <!-- Step 1: Check Docker Installation -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step1"
+                                        aria-expanded="false"
+                                        aria-controls="step1"
+                                    >
+                                        <span class="step-badge">1</span>
+                                        Check Docker Installation
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step1"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Command
+                                                                Line:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >docker
+                                                                --version</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('docker --version', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Windows:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >winget list
+                                                                docker</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('winget list docker', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >macOS:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >brew list |
+                                                                grep
+                                                                docker</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('brew list | grep docker', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Linux:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >which
+                                                                docker</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('which docker', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-4">
+                                            <h5 class="alert-heading">
+                                                Docker Not Installed?
+                                            </h5>
+                                            <p class="mb-0">
+                                                Download and install Docker from
+                                                the official website:
+                                            </p>
+                                            <a
+                                                href="https://www.docker.com/get-started/"
+                                                class="btn btn-info mt-2"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Download Docker
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Check Docker Compose Installation -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step2"
+                                        aria-expanded="false"
+                                        aria-controls="step2"
+                                    >
+                                        <span class="step-badge">2</span>
+                                        Check Docker Compose
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step2"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Command
+                                                                Line:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >docker-compose
+                                                                --version</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('docker-compose --version', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Alternative
+                                                                (newer Docker
+                                                                versions):</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >docker compose
+                                                                version</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('docker compose version', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Linux (which
+                                                                command):</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >which
+                                                                docker-compose</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('which docker-compose', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-4">
+                                            <h5 class="alert-heading">
+                                                Docker Compose Not Installed?
+                                            </h5>
+                                            <p class="mb-0">
+                                                Docker Compose installation
+                                                instructions:
+                                            </p>
+                                            <a
+                                                href="https://docs.docker.com/compose/install/"
+                                                class="btn btn-info mt-2"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Install Docker Compose
+                                            </a>
+                                        </div>
+
+                                        <div class="alert alert-warning mt-3">
+                                            <strong>Note:</strong> Docker
+                                            Desktop for Windows and macOS
+                                            includes Docker Compose by default.
+                                            If you have Docker Desktop, you
+                                            should already have Docker Compose
+                                            installed.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Navigate to Project Directory -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step3"
+                                        aria-expanded="false"
+                                        aria-controls="step3"
+                                    >
+                                        <span class="step-badge">3</span>
+                                        Navigate to Directory
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step3"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Open your terminal/command prompt
+                                            and navigate to the directory
+                                            containing this index.html file and
+                                            your docker-compose.yml:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('cd /path/to/your/project', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code
+                                                ><span class="comment"
+                                                    ># Replace
+                                                    /path/to/your/project with
+                                                    your actual project
+                                                    path</span
+                                                ><br />cd
+                                                /path/to/your/project</code
+                                            >
+                                        </div>
+
+                                        <h6 class="mt-4 mb-3">
+                                            <strong
+                                                >Platform-specific
+                                                examples:</strong
+                                            >
+                                        </h6>
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >Windows:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >cd
+                                                                C:\Users\YourName\Documents\MyProject</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('cd C:\\Users\\YourName\\Documents\\MyProject', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center"
+                                                    >
+                                                        <div>
+                                                            <strong
+                                                                >macOS/Linux:</strong
+                                                            ><br />
+                                                            <code
+                                                                class="bg-light p-2 rounded"
+                                                                >cd
+                                                                ~/Documents/MyProject</code
+                                                            >
+                                                        </div>
+                                                        <button
+                                                            class="btn btn-primary btn-sm copy-btn"
+                                                            onclick="copyToClipboard('cd ~/Documents/MyProject', this)"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-warning mt-4">
+                                            <strong>📁 Important:</strong>
+                                            Make sure you're in the directory
+                                            that contains your
+                                            <code>docker-compose.yml</code>
+                                            file before running the next
+                                            commands.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Start the Application -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step4"
+                                        aria-expanded="false"
+                                        aria-controls="step4"
+                                    >
+                                        <span class="step-badge">4</span>
+                                        Start Your Application
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step4"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Once you're in the correct
+                                            directory, start your Docker
+                                            application:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('docker-compose up -d --build', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code
+                                                >docker-compose up -d
+                                                --build</code
+                                            >
+                                        </div>
+
+                                        <div class="alert alert-success mt-4">
+                                            <h6 class="alert-heading">
+                                                What this command does:
+                                            </h6>
+                                            <ul class="mb-0">
+                                                <li>
+                                                    <code>up</code> - Starts the
+                                                    containers
+                                                </li>
+                                                <li>
+                                                    <code>-d</code> - Runs in
+                                                    detached mode (in
+                                                    background)
+                                                </li>
+                                                <li>
+                                                    <code>--build</code> -
+                                                    Rebuilds images before
+                                                    starting
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <p class="mt-3 mb-2">
+                                            <strong
+                                                >Alternative command for newer
+                                                Docker versions:</strong
+                                            >
+                                        </p>
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('docker compose up -d --build', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code
+                                                >docker compose up -d
+                                                --build</code
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Use Junction -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step5"
+                                        aria-expanded="false"
+                                        aria-controls="step5"
+                                    >
+                                        <span class="step-badge">5</span>
+                                        Use Junction
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step5"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Once your application is running,
+                                            you can access Junction through your
+                                            web browser:
+                                        </p>
+
+                                        <div class="alert alert-success">
+                                            <h6 class="alert-heading">
+                                                Access Junction:
+                                            </h6>
+                                            <p class="mb-3">
+                                                Open your web browser and
+                                                navigate to:
+                                            </p>
+                                            <div class="text-center">
+                                                <a
+                                                    href="http://localhost:4488"
+                                                    target="_blank"
+                                                    class="btn btn-primary btn-lg"
+                                                    id="junctionLink"
+                                                >
+                                                    Open Junction
+                                                    (localhost:4488)
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-4">
+                                            <h6 class="alert-heading">
+                                                Junction Credentials:
+                                            </h6>
+                                            <p class="mb-2">
+                                                Use the following credentials to
+                                                log in:
+                                            </p>
+                                            <ul class="mb-0">
+                                                <li>
+                                                    <strong
+                                                        >Username/Slug:</strong
+                                                    >
+                                                    junction
+                                                </li>
+                                                <li>
+                                                    <strong>Password:</strong>
+                                                    password
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="alert alert-warning mt-3">
+                                            <strong>Note:</strong> Make sure
+                                            your Docker containers are running
+                                            before attempting to access
+                                            Junction. If you can't access the
+                                            page, wait a few moments for the
+                                            containers to fully start up.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 6: Stop the Application -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#step6"
+                                        aria-expanded="false"
+                                        aria-controls="step6"
+                                    >
+                                        <span class="step-badge">6</span>
+                                        Stop Your Application
+                                    </button>
+                                </h2>
+                                <div
+                                    id="step6"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#dockerAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            When you want to stop and remove the
+                                            containers, use:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('docker-compose down', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code>docker-compose down</code>
+                                        </div>
+
+                                        <p class="mt-3 mb-2">
+                                            <strong
+                                                >Alternative command for newer
+                                                Docker versions:</strong
+                                            >
+                                        </p>
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('docker compose down', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code>docker compose down</code>
+                                        </div>
+
+                                        <div class="alert alert-warning mt-4">
+                                            <strong>⚠️ Important:</strong>
+                                            Always use
+                                            <code>docker-compose down</code>
+                                            to properly stop and clean up your
+                                            containers. This ensures all
+                                            resources are properly released.
+                                        </div>
+
+                                        <div class="alert alert-success mt-3">
+                                            <h6 class="alert-heading">
+                                                Additional useful commands:
+                                            </h6>
+                                            <ul class="mb-0">
+                                                <li>
+                                                    <code
+                                                        >docker-compose
+                                                        logs</code
+                                                    >
+                                                    - View application logs
+                                                </li>
+                                                <li>
+                                                    <code
+                                                        >docker-compose ps</code
+                                                    >
+                                                    - List running containers
+                                                </li>
+                                                <li>
+                                                    <code
+                                                        >docker-compose
+                                                        restart</code
+                                                    >
+                                                    - Restart services
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Reference -->
+                        <div class="text-center mt-5">
+                            <h2 class="h3 mb-4">🎉 Quick Reference</h2>
+                            <div class="alert alert-success">
+                                <p class="mb-0">
+                                    <strong>Start:</strong>
+                                    <code>docker-compose up -d --build</code
+                                    ><br />
+                                    <strong>Access Junction:</strong>
+                                    <a
+                                        href="http://localhost:4488"
+                                        target="_blank"
+                                        id="quickJunctionLink"
+                                        >localhost:4488</a
+                                    ><br />
+                                    <strong>Stop:</strong>
+                                    <code>docker-compose down</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Read the .env file and update Junction port dynamically
+            async function updateJunctionPort() {
+                try {
+                    const envContent = await window.fs.readFile(".env", {
+                        encoding: "utf8",
+                    });
+                    const lines = envContent.split("\n");
+                    let junctionPort = "4488"; // default fallback
+
+                    for (const line of lines) {
+                        if (line.startsWith("JUNCTION_PORT=")) {
+                            junctionPort = line.split("=")[1].trim();
+                            break;
+                        }
+                    }
+
+                    // Update all Junction links with the correct port
+                    const junctionUrl = `http://localhost:${junctionPort}`;
+                    const junctionLink =
+                        document.getElementById("junctionLink");
+                    const quickJunctionLink =
+                        document.getElementById("quickJunctionLink");
+
+                    if (junctionLink) {
+                        junctionLink.href = junctionUrl;
+                        junctionLink.textContent = `Open Junction (localhost:${junctionPort})`;
+                    }
+
+                    if (quickJunctionLink) {
+                        quickJunctionLink.href = junctionUrl;
+                        quickJunctionLink.textContent = `localhost:${junctionPort}`;
+                    }
+                } catch (error) {
+                    console.log(
+                        "Could not read .env file, using default port 4488",
+                    );
+                }
+            }
+
+            // Call the function when the page loads
+            window.addEventListener("DOMContentLoaded", updateJunctionPort);
+
+            async function copyToClipboard(text, button) {
+                try {
+                    await navigator.clipboard.writeText(text);
+
+                    // Visual feedback
+                    const originalText = button.textContent;
+                    button.textContent = "Copied!";
+                    button.classList.add("copied");
+
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove("copied");
+                    }, 2000);
+                } catch (err) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+
+                    try {
+                        document.execCommand("copy");
+                        button.textContent = "Copied!";
+                        button.classList.add("copied");
+
+                        setTimeout(() => {
+                            button.textContent = "Copy";
+                            button.classList.remove("copied");
+                        }, 2000);
+                    } catch (err) {
+                        console.error("Failed to copy text: ", err);
+                        button.textContent = "Failed";
+                        setTimeout(() => {
+                            button.textContent = "Copy";
+                        }, 2000);
+                    }
+
+                    document.body.removeChild(textArea);
+                }
+            }
+        </script>
+    </body>
+</html>
