@@ -77,22 +77,6 @@ Deploy your built application to your preferred hosting platform:
 
 ---
 
-## 🎉 Quick Reference
-
-### Backend (Junction + Tribe API)
-
-- **Start:** `docker-compose up -d --build`
-- **Access Junction:** http://localhost:4488
-- **Stop:** `docker-compose down`
-
-### Frontend (EmberJS)
-
-- **Serve:** `ember s`
-- **Access Frontend:** http://localhost:4200
-- **Build:** `ember build -prod`
-
----
-
 ## BACKEND SETUP
 
 ### Step 1: Check Docker Installation
@@ -212,6 +196,22 @@ docker compose down
 - `docker-compose logs` - View application logs
 - `docker-compose ps` - List running containers
 - `docker-compose restart` - Restart services
+
+---
+
+## 🎉 Quick Reference
+
+### Backend (Junction + Tribe API)
+
+- **Start:** `docker-compose up -d --build`
+- **Access Junction:** http://localhost:4488
+- **Stop:** `docker-compose down`
+
+### Frontend (EmberJS)
+
+- **Serve:** `ember s`
+- **Access Frontend:** http://localhost:4200
+- **Build:** `ember build -prod`
 
 ---
 
