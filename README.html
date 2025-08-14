@@ -14,20 +14,6 @@
                 min-height: 100vh;
             }
 
-            .docker-icon {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 30px;
-                background: #2496ed;
-                border-radius: 15px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 40px;
-                font-weight: bold;
-            }
-
             .accordion-button:not(.collapsed) {
                 background-color: #e3f2fd;
                 color: #1565c0;
@@ -116,8 +102,411 @@
                                 Tribe Complete Setup Guide
                             </h1>
                             <p class="lead text-muted mb-5">
-                                Backend (Junction + Tribe API) & Frontend (EmberJS) Setup
+                                Frontend (EmberJS) Setup & Backend (Junction +
+                                Tribe API)
                             </p>
+                        </div>
+
+                        <!-- FRONTEND SECTION -->
+                        <div class="section-divider">
+                            <span class="section-label">FRONTEND SETUP</span>
+                        </div>
+
+                        <div class="accordion mb-5" id="frontendAccordion">
+                            <!-- Step 1: Install from Template -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step1"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step1"
+                                    >
+                                        <span class="step-badge">1</span>
+                                        Install from Template
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step1"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Use tribe-framework.org to install
+                                            this Git template for your frontend
+                                            application.
+                                        </p>
+
+                                        <div class="alert alert-info">
+                                            <h6 class="alert-heading">
+                                                Visit Tribe Framework:
+                                            </h6>
+                                            <p class="mb-3">
+                                                Go to the official Tribe
+                                                Framework website to get the
+                                                template:
+                                            </p>
+                                            <div class="text-center">
+                                                <a
+                                                    href="https://tribe-framework.org"
+                                                    target="_blank"
+                                                    class="btn btn-info btn-lg"
+                                                >
+                                                    Visit tribe-framework.org
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Navigate to Frontend Directory -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step2"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step2"
+                                    >
+                                        <span class="step-badge">2</span>
+                                        Open Command Line
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step2"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Open command line in the directory
+                                            that has been installed from the
+                                            template:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('cd /path/to/frontend/directory', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code
+                                                ><span class="comment"
+                                                    ># Navigate to your frontend
+                                                    directory</span
+                                                ><br />cd
+                                                /path/to/frontend/directory</code
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Install EmberJS -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step3"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step3"
+                                    >
+                                        <span class="step-badge">3</span>
+                                        Install EmberJS
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step3"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Install EmberJS by running the
+                                            following command based on your
+                                            operating system. You'll be asked to
+                                            enter the name of the directory when
+                                            prompted:
+                                        </p>
+
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div class="card-body">
+                                                        <h6 class="mb-3">
+                                                            <strong
+                                                                >Linux and
+                                                                macOS:</strong
+                                                            >
+                                                        </h6>
+                                                        <div
+                                                            class="command-block mb-0"
+                                                        >
+                                                            <button
+                                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                                onclick="copyToClipboard('chmod +x ./config/ember/ember-init.sh; bash ./config/ember/ember-init.sh;', this)"
+                                                            >
+                                                                Copy
+                                                            </button>
+                                                            <code
+                                                                >chmod +x
+                                                                ./config/ember/ember-init.sh;
+                                                                bash
+                                                                ./config/ember/ember-init.sh;</code
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card method-item">
+                                                    <div class="card-body">
+                                                        <h6 class="mb-3">
+                                                            <strong
+                                                                >Windows:</strong
+                                                            >
+                                                        </h6>
+                                                        <div
+                                                            class="command-block mb-0"
+                                                        >
+                                                            <button
+                                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                                onclick="copyToClipboard('powershell -ExecutionPolicy Bypass -File .\\config\\ember\\ember-init.ps1', this)"
+                                                            >
+                                                                Copy
+                                                            </button>
+                                                            <code
+                                                                >powershell
+                                                                -ExecutionPolicy
+                                                                Bypass -File
+                                                                .\config\ember\ember-init.ps1</code
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-4">
+                                            <strong>Note:</strong> When
+                                            prompted, enter the name of your
+                                            EmberJS application directory.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Start Frontend Development Server -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step4"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step4"
+                                    >
+                                        <span class="step-badge">4</span>
+                                        Start Development Server
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step4"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Serve the EmberJS application to
+                                            start coding:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('ember s', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code>ember s</code>
+                                        </div>
+
+                                        <div class="alert alert-success mt-4">
+                                            <h6 class="alert-heading">
+                                                EmberJS Development Server:
+                                            </h6>
+                                            <p class="mb-3">
+                                                Your EmberJS frontend will be
+                                                available at:
+                                            </p>
+                                            <div class="text-center">
+                                                <a
+                                                    href="http://localhost:4200"
+                                                    target="_blank"
+                                                    class="btn btn-success btn-lg"
+                                                >
+                                                    Open Frontend
+                                                    (localhost:4200)
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-3">
+                                            <strong>Tip:</strong> The
+                                            development server includes
+                                            hot-reload functionality. Changes to
+                                            your code will automatically refresh
+                                            in the browser.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Build for Production -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step5"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step5"
+                                    >
+                                        <span class="step-badge">5</span>
+                                        Build for Production
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step5"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            When you're ready to deploy, build
+                                            your application for production:
+                                        </p>
+
+                                        <div class="command-block">
+                                            <button
+                                                class="btn btn-secondary btn-sm copy-btn-block"
+                                                onclick="copyToClipboard('ember build -prod', this)"
+                                            >
+                                                Copy
+                                            </button>
+                                            <code>ember build -prod</code>
+                                        </div>
+
+                                        <div class="alert alert-success mt-4">
+                                            <h6 class="alert-heading">
+                                                Build Output:
+                                            </h6>
+                                            <p class="mb-0">
+                                                The production-ready build will
+                                                be generated in the
+                                                <code>dist/</code> directory.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 6: Deploy -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button
+                                        class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#frontend-step6"
+                                        aria-expanded="false"
+                                        aria-controls="frontend-step6"
+                                    >
+                                        <span class="step-badge">6</span>
+                                        Deploy to Production
+                                    </button>
+                                </h2>
+                                <div
+                                    id="frontend-step6"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#frontendAccordion"
+                                >
+                                    <div class="accordion-body">
+                                        <p class="mb-3">
+                                            Deploy your built application to
+                                            your preferred hosting platform:
+                                        </p>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="card">
+                                                    <div
+                                                        class="card-body text-center"
+                                                    >
+                                                        <h5 class="card-title">
+                                                            Netlify
+                                                        </h5>
+                                                        <p class="card-text">
+                                                            Easy deployment with
+                                                            continuous
+                                                            integration
+                                                        </p>
+                                                        <a
+                                                            href="https://www.netlify.com"
+                                                            target="_blank"
+                                                            class="btn btn-outline-primary"
+                                                        >
+                                                            Deploy to Netlify
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card">
+                                                    <div
+                                                        class="card-body text-center"
+                                                    >
+                                                        <h5 class="card-title">
+                                                            Cloudflare Pages
+                                                        </h5>
+                                                        <p class="card-text">
+                                                            Fast, secure
+                                                            deployment with
+                                                            global CDN
+                                                        </p>
+                                                        <a
+                                                            href="https://pages.cloudflare.com"
+                                                            target="_blank"
+                                                            class="btn btn-outline-primary"
+                                                        >
+                                                            Deploy to Cloudflare
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-4">
+                                            <strong>Deployment tip:</strong>
+                                            Both platforms support drag-and-drop
+                                            deployment of your
+                                            <code>dist/</code> folder or
+                                            Git-based continuous deployment.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- BACKEND SECTION -->
@@ -620,9 +1009,9 @@
                                 >
                                     <div class="accordion-body">
                                         <p class="mb-3">
-                                            Once your backend is running,
-                                            you can access Junction through your
-                                            web browser:
+                                            Once your backend is running, you
+                                            can access Junction through your web
+                                            browser:
                                         </p>
 
                                         <div class="alert alert-success">
@@ -773,361 +1162,27 @@
                             </div>
                         </div>
 
-                        <!-- FRONTEND SECTION -->
-                        <div class="section-divider">
-                            <span class="section-label">FRONTEND SETUP</span>
-                        </div>
-
-                        <div class="accordion mb-5" id="frontendAccordion">
-                            <!-- Step 1: Install from Template -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step1"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step1"
-                                    >
-                                        <span class="step-badge">1</span>
-                                        Install from Template
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step1"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            Use tribe-framework.org to install this Git template for your frontend application.
-                                        </p>
-
-                                        <div class="alert alert-info">
-                                            <h6 class="alert-heading">
-                                                Visit Tribe Framework:
-                                            </h6>
-                                            <p class="mb-3">
-                                                Go to the official Tribe Framework website to get the template:
-                                            </p>
-                                            <div class="text-center">
-                                                <a
-                                                    href="https://tribe-framework.org"
-                                                    target="_blank"
-                                                    class="btn btn-info btn-lg"
-                                                >
-                                                    Visit tribe-framework.org
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 2: Navigate to Frontend Directory -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step2"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step2"
-                                    >
-                                        <span class="step-badge">2</span>
-                                        Open Command Line
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step2"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            Open command line in the directory that has been installed from the template:
-                                        </p>
-
-                                        <div class="command-block">
-                                            <button
-                                                class="btn btn-secondary btn-sm copy-btn-block"
-                                                onclick="copyToClipboard('cd /path/to/frontend/directory', this)"
-                                            >
-                                                Copy
-                                            </button>
-                                            <code
-                                                ><span class="comment"
-                                                    ># Navigate to your frontend directory</span
-                                                ><br />cd /path/to/frontend/directory</code
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: Install EmberJS -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step3"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step3"
-                                    >
-                                        <span class="step-badge">3</span>
-                                        Install EmberJS
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step3"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            Install EmberJS by running the following command based on your operating system. You'll be asked to enter the name of the directory when prompted:
-                                        </p>
-
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <div class="card method-item">
-                                                    <div class="card-body">
-                                                        <h6 class="mb-3"><strong>Linux and macOS:</strong></h6>
-                                                        <div class="command-block mb-0">
-                                                            <button
-                                                                class="btn btn-secondary btn-sm copy-btn-block"
-                                                                onclick="copyToClipboard('chmod +x ./config/ember/ember-init.sh; bash ./config/ember/ember-init.sh;', this)"
-                                                            >
-                                                                Copy
-                                                            </button>
-                                                            <code>chmod +x ./config/ember/ember-init.sh; bash ./config/ember/ember-init.sh;</code>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="card method-item">
-                                                    <div class="card-body">
-                                                        <h6 class="mb-3"><strong>Windows:</strong></h6>
-                                                        <div class="command-block mb-0">
-                                                            <button
-                                                                class="btn btn-secondary btn-sm copy-btn-block"
-                                                                onclick="copyToClipboard('powershell -ExecutionPolicy Bypass -File .\\config\\ember\\ember-init.ps1', this)"
-                                                            >
-                                                                Copy
-                                                            </button>
-                                                            <code>powershell -ExecutionPolicy Bypass -File .\config\ember\ember-init.ps1</code>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="alert alert-info mt-4">
-                                            <strong>Note:</strong> When prompted, enter the name of your EmberJS application directory.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 4: Start Frontend Development Server -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step4"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step4"
-                                    >
-                                        <span class="step-badge">4</span>
-                                        Start Development Server
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step4"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            Serve the EmberJS application to start coding:
-                                        </p>
-
-                                        <div class="command-block">
-                                            <button
-                                                class="btn btn-secondary btn-sm copy-btn-block"
-                                                onclick="copyToClipboard('ember s', this)"
-                                            >
-                                                Copy
-                                            </button>
-                                            <code>ember s</code>
-                                        </div>
-
-                                        <div class="alert alert-success mt-4">
-                                            <h6 class="alert-heading">
-                                                EmberJS Development Server:
-                                            </h6>
-                                            <p class="mb-3">
-                                                Your EmberJS frontend will be available at:
-                                            </p>
-                                            <div class="text-center">
-                                                <a
-                                                    href="http://localhost:4200"
-                                                    target="_blank"
-                                                    class="btn btn-success btn-lg"
-                                                >
-                                                    Open Frontend (localhost:4200)
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <div class="alert alert-info mt-3">
-                                            <strong>Tip:</strong> The development server includes hot-reload functionality. Changes to your code will automatically refresh in the browser.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 5: Build for Production -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step5"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step5"
-                                    >
-                                        <span class="step-badge">5</span>
-                                        Build for Production
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step5"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            When you're ready to deploy, build your application for production:
-                                        </p>
-
-                                        <div class="command-block">
-                                            <button
-                                                class="btn btn-secondary btn-sm copy-btn-block"
-                                                onclick="copyToClipboard('ember build -prod', this)"
-                                            >
-                                                Copy
-                                            </button>
-                                            <code>ember build -prod</code>
-                                        </div>
-
-                                        <div class="alert alert-success mt-4">
-                                            <h6 class="alert-heading">
-                                                Build Output:
-                                            </h6>
-                                            <p class="mb-0">
-                                                The production-ready build will be generated in the <code>dist/</code> directory.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 6: Deploy -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button
-                                        class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#frontend-step6"
-                                        aria-expanded="false"
-                                        aria-controls="frontend-step6"
-                                    >
-                                        <span class="step-badge">6</span>
-                                        Deploy to Production
-                                    </button>
-                                </h2>
-                                <div
-                                    id="frontend-step6"
-                                    class="accordion-collapse collapse"
-                                    data-bs-parent="#frontendAccordion"
-                                >
-                                    <div class="accordion-body">
-                                        <p class="mb-3">
-                                            Deploy your built application to your preferred hosting platform:
-                                        </p>
-
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <div class="card">
-                                                    <div class="card-body text-center">
-                                                        <h5 class="card-title">Netlify</h5>
-                                                        <p class="card-text">
-                                                            Easy deployment with continuous integration
-                                                        </p>
-                                                        <a
-                                                            href="https://www.netlify.com"
-                                                            target="_blank"
-                                                            class="btn btn-outline-primary"
-                                                        >
-                                                            Deploy to Netlify
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="card">
-                                                    <div class="card-body text-center">
-                                                        <h5 class="card-title">Cloudflare Pages</h5>
-                                                        <p class="card-text">
-                                                            Fast, secure deployment with global CDN
-                                                        </p>
-                                                        <a
-                                                            href="https://pages.cloudflare.com"
-                                                            target="_blank"
-                                                            class="btn btn-outline-primary"
-                                                        >
-                                                            Deploy to Cloudflare
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="alert alert-info mt-4">
-                                            <strong>Deployment tip:</strong> Both platforms support drag-and-drop deployment of your <code>dist/</code> folder or Git-based continuous deployment.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Quick Reference -->
                         <div class="text-center mt-5">
                             <h2 class="h3 mb-4">🎉 Quick Reference</h2>
-                            
+
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="alert alert-primary">
                                         <h5>Backend (Junction + Tribe API)</h5>
                                         <p class="mb-0">
                                             <strong>Start:</strong>
-                                            <code>docker-compose up -d --build</code><br />
+                                            <code
+                                                >docker-compose up -d
+                                                --build</code
+                                            ><br />
                                             <strong>Access Junction:</strong>
                                             <a
                                                 href="http://localhost:4488"
                                                 target="_blank"
                                                 id="quickJunctionLink"
-                                            >localhost:4488</a><br />
+                                                >localhost:4488</a
+                                            ><br />
                                             <strong>Stop:</strong>
                                             <code>docker-compose down</code>
                                         </p>
@@ -1143,7 +1198,8 @@
                                             <a
                                                 href="http://localhost:4200"
                                                 target="_blank"
-                                            >localhost:4200</a><br />
+                                                >localhost:4200</a
+                                            ><br />
                                             <strong>Build:</strong>
                                             <code>ember build -prod</code>
                                         </p>
@@ -1154,13 +1210,21 @@
 
                         <!-- About Tribe Section -->
                         <div class="mt-5 pt-4 border-top">
-                            <h3 class="text-center mb-4">About Tribe Framework</h3>
+                            <h3 class="text-center mb-4">
+                                About Tribe Framework
+                            </h3>
                             <p class="text-center text-muted">
-                                Tribe is a web project management framework that allows us to build platforms, products, applications and web interfaces using a modular approach. It provides a coherent language for UX, content, design and code collaborations.
+                                Tribe is a web project management framework that
+                                allows us to build platforms, products,
+                                applications and web interfaces using a modular
+                                approach. It provides a coherent language for
+                                UX, content, design and code collaborations.
                             </p>
                             <div class="text-center mt-3">
                                 <small class="text-muted">
-                                    <strong>License:</strong> The GNU General Public License is a free, copyleft license for software and other kinds of works.
+                                    <strong>License:</strong> The GNU General
+                                    Public License is a free, copyleft license
+                                    for software and other kinds of works.
                                 </small>
                             </div>
                         </div>
