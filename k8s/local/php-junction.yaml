@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-junction
+  namespace: tribe-junction
+  labels:
+    app: php-junction
+spec:
+  ports:
+    - port: 9000
+      targetPort: 9000
+      name: php-fpm
+  selector:
+    app: php-junction
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-junction
+  namespace: tribe-junction
+  labels:
+    app: php-junction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-junction
+  template:
+    metadata:
+      labels:
+        app: php-junction
+    spec:
+      initContainers:
+      - name: setup
+        image: yourusername/tribe-junction-setup:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: shared-data
+          mountPath: /shared
+        command: ["/setup.sh"]
+      containers:
+      - name: php-junction
+        image: yourusername/tribe-junction-php-junction:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9000
+        env:
+        # Database connection
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: DB_PASS
+        # App configuration
+        - name: SSL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SSL
+        - name: DISPLAY_ERRORS
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DISPLAY_ERRORS
+        - name: DEFAULT_TIMEZONE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DEFAULT_TIMEZONE
+        # Junction specific settings
+        - name: JUNCTION_BARE_URL
+          value: "localhost:4488"
+        - name: JUNCTION_URL
+          value: "http://localhost:4488"
+        - name: JUNCTION_PORT
+          value: "4488"
+        - name: JUNCTION_SLUG
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: JUNCTION_SLUG
+        - name: JUNCTION_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JUNCTION_PASSWORD
+        - name: TRIBE_API_URL
+          value: "http://localhost:1212"
+        - name: TRIBE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: TRIBE_API_KEY
+        volumeMounts:
+        - name: shared-data
+          mountPath: /var/www/html
+          subPath: applications/junction/dist
+        - name: uploads
+          mountPath: /var/www/html/uploads
+        - name: logs
+          mountPath: /var/log
+        workingDir: /var/www/html
+        command: ["sh", "-c"]
+        args: 
+        - |
+          composer install --no-interaction --optimize-autoloader
+          php-fpm
+        livenessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: uploads
+        hostPath:
+          path: ./uploads
+          type: DirectoryOrCreate
+      - name: logs
+        hostPath:
+          path: ./logs
+          type: DirectoryOrCreate
