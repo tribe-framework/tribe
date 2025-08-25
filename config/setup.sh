@@ -11,7 +11,7 @@ if [ -d ".env" ]; then
     rm -rf .env
     SKIP_ENV_SETUP=false
 elif [ -f ".env" ]; then
-    echo "⚠️  .env file already exists!"
+    echo "⚠️ .env file already exists!"
     echo "This script will NOT override your existing .env file."
     echo "Continuing with setup anyway..."
     SKIP_ENV_SETUP=true
@@ -22,6 +22,7 @@ fi
 # Create directories
 mkdir -p applications
 mkdir -p uploads
+mkdir -p uploads/ollama
 
 # Download phpMyAdmin
 echo "📦 Downloading phpMyAdmin..."
@@ -51,6 +52,10 @@ rm -rf junction-dev
 rm junction-dev.zip
 chmod -R 755 applications/junction
 echo "✅ Junction downloaded successfully!"
+
+echo "🤖 Ollama will be available as a Docker service..."
+echo "   It will be accessible at ollama:11434 from within containers"
+echo "   and at localhost:11434 from the host machine"
 
 # Setup environment configuration
 if [ "$SKIP_ENV_SETUP" = false ]; then
@@ -104,6 +109,11 @@ DB_PASS="$DB_PASS"
 DB_ROOT_PASSWORD="$DB_ROOT_PASSWORD"
 DB_HOST="mysql"
 DB_PORT=$DB_PORT
+
+# Ollama settings
+OLLAMA_HOST="ollama"
+OLLAMA_PORT="11434"
+OLLAMA_URL="http://ollama:11434"
 EOF
     
     echo "✅ .env file created successfully!"
@@ -114,6 +124,8 @@ EOF
     echo "  Database Password: $DB_PASS"
     echo "  Database Root Password: $DB_ROOT_PASSWORD"
     echo "  Junction Password: $JUNCTION_PASSWORD"
+    echo "  Ollama URL (internal): http://ollama:11434"
+    echo "  Ollama URL (external): http://localhost:11434"
     echo ""
 else
     echo ""
@@ -121,3 +133,10 @@ else
 fi
 
 echo "🎉 Setup complete! You can now run 'docker-compose up -d'"
+echo ""
+echo "📚 Next steps:"
+echo "  1. Run: docker-compose up -d"
+echo "  2. Wait for all services to start"
+echo "  3. Pull Ollama models: docker exec ollama_service ollama pull llama2"
+echo "  4. Access Tribe at: http://localhost:$TRIBE_PORT"
+echo "  5. Access Junction at: http://localhost:$JUNCTION_PORT"

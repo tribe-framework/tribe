@@ -10,6 +10,7 @@
         "phpmailer/phpmailer": "^6.7",
         "guzzlehttp/guzzle": "^7.7",
         "pusher/pusher-php-server": "^7.2",
-        "agence104/livekit-server-sdk": "1.1"
+        "agence104/livekit-server-sdk": "1.1",
+        "ardagnsrn/ollama-php": "dev-master"
     }
 }

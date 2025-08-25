@@ -19,6 +19,42 @@ services:
     networks:
       - lemp_network
 
+  # Ollama Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_service
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./uploads/ollama:/root/.ollama
+    networks:
+      - lemp_network
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Ollama Model Puller - runs once to download models
+  ollama_puller:
+    image: ollama/ollama:latest
+    container_name: ollama_puller
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./uploads/ollama:/root/.ollama
+      - ./config/ollama:/scripts
+    networks:
+      - lemp_network
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["/bin/sh"]
+    command: ["/scripts/init.sh"]
+    restart: "no"
+
   # MySQL 9 Database
   mysql:
     image: mysql:9
@@ -70,8 +106,12 @@ services:
         condition: service_healthy
       mysql:
         condition: service_healthy
+      ollama:
+        condition: service_started
     networks:
       - lemp_network
+    environment:
+      - OLLAMA_HOST=ollama:11434
 
   # PHP 8 with FPM for Junction
   php_junction:
@@ -95,6 +135,8 @@ services:
         condition: service_healthy
       mysql:
         condition: service_healthy
+      ollama:
+        condition: service_started
     networks:
       - lemp_network
 
