@@ -24,7 +24,6 @@ services:
     image: mysql:9
     container_name: mysql_db
     restart: unless-stopped
-    user: "999:999"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
