@@ -20,31 +20,6 @@ services:
     networks:
       - tribe_network
 
-  # Syncthing for file synchronization
-  syncthing:
-    image: syncthing/syncthing:latest
-    container_name: ${PROJECT_NAME}_syncthing
-    restart: unless-stopped
-    ports:
-      - "${SYNCTHING_PORT:-12008}:8384"
-      - "22000:22000/tcp"
-      - "22000:22000/udp"
-      - "21027:21027/udp"
-    volumes:
-      - ./uploads/:/var/syncthing/Sync:rw
-      - ./config/syncthing:/var/syncthing/config:rw
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - STGUIUSER=${SYNCTHING_GUI_USER:-admin}
-      - STGUIPASSWORD=${SYNCTHING_GUI_PASSWORD:-password}
-      - STDEFAULTFOLDERPATH=${SYNCTHING_DEFAULT_FOLDER_PATH:-~}
-    depends_on:
-      setup:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
   # PHP 8 with FPM for Tribe
   php_tribe:
     build:
@@ -176,8 +151,8 @@ services:
     container_name: ${PROJECT_NAME}_caddy_php_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PHP_PORT:-12006}:80"
-      - "${DIST_PHP_PORT_SSL:-12007}:443"
+      - "${DIST_PHP_PORT:-12004}:80"
+      - "${DIST_PHP_PORT_SSL:-12005}:443"
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -197,14 +172,40 @@ services:
     networks:
       - tribe_network
 
+  # Syncthing for file synchronization
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: ${PROJECT_NAME}_syncthing
+    restart: unless-stopped
+    ports:
+      - "${SYNCTHING_PORT:-12006}:8384"      # HTTP port
+      - "${SYNCTHING_PORT_SSL:-12007}:8384"  # HTTPS port (same internal port)
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    volumes:
+      - ./uploads/:/var/syncthing/Sync:rw
+      - ./config/syncthing:/var/syncthing/config:rw
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - STGUIUSER=${SYNCTHING_GUI_USER:-admin}
+      - STGUIPASSWORD=${SYNCTHING_GUI_PASSWORD:-password}
+      - STDEFAULTFOLDERPATH=${SYNCTHING_DEFAULT_FOLDER_PATH:-~}
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
   # Caddy Static Site Server - Single site from uploads/sites/dist
   caddy_dist:
     image: caddy:alpine
     container_name: ${PROJECT_NAME}_caddy_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PORT:-12004}:80"
-      - "${DIST_PORT_SSL:-12005}:443"
+      - "${DIST_PORT:-12012}:80"
+      - "${DIST_PORT_SSL:-12013}:443"
     volumes:
       - ./uploads/sites/dist:/srv
       - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
