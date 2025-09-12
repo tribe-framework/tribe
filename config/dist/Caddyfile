@@ -1,4 +1,4 @@
-:4484 {
+:12012 {
     # Root directory for single static site
     root * /srv
     

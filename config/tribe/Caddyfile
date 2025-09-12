@@ -2,7 +2,7 @@
 
 {
     # Global options
-    email {$CONTACT_EMAIL:tech@collective.org}
+    email {$CONTACT_EMAIL:your-name@your-collective.org}
     admin off
     
     # For localhost development, use internal CA
@@ -85,7 +85,7 @@ http://{$TRIBE_BARE_URL:tribe.localhost}:80 {
 # HTTPS configuration
 https://{$TRIBE_BARE_URL:tribe.localhost}:443 {
     tls internal  # Use for localhost development
-    # tls {$CONTACT_EMAIL:tech@collective.org}  # Use this for production with real domain
+    # tls {$CONTACT_EMAIL:your-name@your-collective.org}  # Use this for production with real domain
     
     root * /var/www/html
     
