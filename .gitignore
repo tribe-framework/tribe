@@ -3,6 +3,7 @@
 /uploads/*
 !/uploads/.gitkeep
 /logs/*
+!/logs/.gitkeep
 /node_modules
 /vendor
 /composer.phar
@@ -11,8 +12,10 @@ sftp-config.json
 .DS_Store
 /applications/phpmyadmin/
 /applications/junction/
+/config/syncthing/
 
 /junction-dev/
 /phpmyadmin/
 /pma.tar.gz
 /junction-dev.zip
+/.stfolder
