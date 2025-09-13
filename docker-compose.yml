@@ -201,17 +201,17 @@ services:
   # phpMyAdmin for database management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: tribe_phpmyadmin_server
+    container_name: ${PROJECT_NAME}_phpmyadmin
     restart: unless-stopped
     ports:
       - "${PHPMYADMIN_PORT:-12008}:80"
       - "${PHPMYADMIN_PORT_SSL:-12009}:443"
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: ${DB_HOST}
       PMA_PORT: 3306
       UPLOAD_LIMIT: 2G
     depends_on:
-      mysql:
+      setup:
         condition: service_healthy
     networks:
       - tribe_network
