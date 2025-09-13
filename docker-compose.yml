@@ -224,6 +224,7 @@ services:
   # phpMyAdmin for database management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
+    platform: linux/amd64
     container_name: ${PROJECT_NAME}_phpmyadmin
     restart: unless-stopped
     ports:
