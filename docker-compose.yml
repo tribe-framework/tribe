@@ -1,4 +1,24 @@
 services:
+  # MySQL 9 Database - System-wide
+  mysql:
+    image: mysql:9
+    container_name: tribe_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tribe_network
+      
   # config/setup.sh
   setup:
     image: alpine:latest
@@ -17,6 +37,9 @@ services:
       timeout: 3s
       retries: 10
       start_period: 30s
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - tribe_network
 
@@ -298,12 +321,12 @@ services:
     networks:
       - tribe_network
 
-# Networks
+# Tribe Network
 networks:
-  # External network to connect to tribe-server services
   tribe_network:
-    external: true
+    driver: bridge
     name: tribe_network
+    #external: true
 
 volumes:
   junction_caddy_data:
@@ -312,3 +335,5 @@ volumes:
   tribe_caddy_config:
   dist_php_caddy_data:
   dist_php_caddy_config:
+  mysql_data:
+    driver: local
