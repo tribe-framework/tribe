@@ -83,11 +83,11 @@ if [ "$DB_EXISTS" -eq 0 ]; then
     echo "✅ Privileges granted to ${DB_USER}!"
     
     # Import SQL schema
-    if [ -f "/config/mysql/init/install.sql" ]; then
+    if [ -f "/config/mysql/install.sql" ]; then
         echo "📥 Importing database schema from install.sql..."
         
         # Import directly without copying to container
-        if docker exec -i ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < /config/mysql/init/install.sql; then
+        if docker exec -i ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < /config/mysql/install.sql; then
             echo "✅ Database schema imported successfully!"
         else
             echo "⚠️ Failed to import database schema"

@@ -45,9 +45,7 @@ services:
 
   # PHP 8 with FPM for Tribe
   php_tribe:
-    build:
-      context: ./config/tribe
-      dockerfile: Dockerfile
+    image: tribeframework/tribe-core:v1.0
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     volumes:
@@ -55,8 +53,6 @@ services:
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
-      - ./config/tribe/php.ini:/usr/local/etc/php/php.ini
-      - ./config/tribe/config.php:/var/www/html/config/config.php
       - ./README.html:/var/www/html/index.php
     command: >
       sh -c "composer install --no-interaction --optimize-autoloader &&
@@ -69,9 +65,7 @@ services:
 
   # PHP 8 with FPM for Junction
   php_junction:
-    build:
-      context: ./config/junction
-      dockerfile: Dockerfile
+    image: tribeframework/tribe-core:v1.0
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
     volumes:
@@ -79,8 +73,6 @@ services:
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
-      - ./config/junction/php.ini:/usr/local/etc/php/php.ini
-      - ./config/junction/config.php:/var/www/html/config/config.php
     command: >
       sh -c "composer install --no-interaction --optimize-autoloader &&
            php-fpm"
@@ -92,9 +84,7 @@ services:
 
   # PHP 8 with FPM for Dist PHP
   php_dist:
-    build:
-      context: ./config/dist-php
-      dockerfile: Dockerfile
+    image: tribeframework/tribe-core:v1.0
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
     volumes:
@@ -102,8 +92,6 @@ services:
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
-      - ./config/dist-php/php.ini:/usr/local/etc/php/php.ini
-      - ./config/dist-php/config.php:/var/www/html/config/config.php
     command: >
       sh -c "if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
            php-fpm"
@@ -124,7 +112,6 @@ services:
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./config/tribe/config.php:/var/www/html/config/config.php
       - ./.env:/var/www/html/.env
       - ./README.html:/var/www/html/index.php
       - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile
@@ -153,7 +140,6 @@ services:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
-      - ./config/junction/config.php:/var/www/html/config/config.php
       - ./config/junction/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
       - junction_caddy_data:/data
@@ -180,7 +166,6 @@ services:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
-      - ./config/dist-php/config.php:/var/www/html/config/config.php
       - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
       - dist_php_caddy_data:/data
