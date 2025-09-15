@@ -107,7 +107,6 @@ mkdir -p applications
 mkdir -p uploads
 mkdir -p uploads/sites
 mkdir -p uploads/backups
-mkdir -p config/syncthing
 
 echo "📁 Created necessary directories"
 
@@ -133,7 +132,6 @@ if [ ! -d "uploads/sites/dist-php" ]; then
     echo "📄 Creating default index.php..."
     cat > uploads/sites/dist-php/index.php << 'EOF'
 <?php
-require_once 'config/config.php';
 echo "Hello, PHP world @ ".time();
 ?>
 EOF
@@ -149,11 +147,11 @@ if [ -d "applications/junction" ]; then
     rm -rf applications/junction
 fi
 
-curl -L -o junction-dev.zip "https://github.com/tribe-framework/junction/archive/refs/heads/dev.zip"
+curl -L -o junction-master.zip "https://github.com/tribe-framework/junction/archive/refs/heads/master.zip"
 mkdir -p applications/junction
-unzip -q junction-dev.zip
-mv junction-dev/dist applications/junction/dist
-rm -rf junction-dev
-rm junction-dev.zip
+unzip -q junction-master.zip
+mv junction-master/dist applications/junction/dist
+rm -rf junction-master
+rm junction-master.zip
 chmod -R 755 applications/junction
 echo "✅ Junction downloaded successfully!"

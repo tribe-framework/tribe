@@ -13,6 +13,5 @@ sftp-config.json
 /applications/junction/
 /config/syncthing/
 
-/junction-dev/*
-/junction-dev.zip
-/.stfolder
+/junction-master/*
+/junction-master.zip
