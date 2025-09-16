@@ -18,17 +18,17 @@ services:
       start_period: 30s
     networks:
       - tribe_network
-      
+
   # config/setup.sh
   setup:
-    image: alpine:latest
+    image: alpine:3
     container_name: ${PROJECT_NAME}_setup
     volumes:
       - ./config:/config
       - ./applications:/applications
       - ./uploads:/uploads
       - .:/workdir
-      - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket
     working_dir: /workdir
     command: sh -c "apk add --no-cache curl unzip bash docker-cli && bash ./config/setup.sh && touch /tmp/setup_complete && tail -f /dev/null"
     healthcheck:
@@ -46,6 +46,7 @@ services:
   # PHP 8 with FPM for Tribe
   php_tribe:
     image: tribeframework/tribe-core:v1.0
+    platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     volumes:
@@ -66,6 +67,7 @@ services:
   # PHP 8 with FPM for Junction
   php_junction:
     image: tribeframework/tribe-core:v1.0
+    platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
     volumes:
@@ -85,6 +87,7 @@ services:
   # PHP 8 with FPM for Dist PHP
   php_dist:
     image: tribeframework/tribe-core:v1.0
+    platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
     volumes:
@@ -196,6 +199,14 @@ services:
       - FB_ROOT=/srv
       - FB_PORT=80
       - FB_ADDRESS=0.0.0.0
+    command: >
+      sh -c "
+        if [ ! -f /database/filebrowser.db ]; then
+          filebrowser config init --database /database/filebrowser.db --root /srv &&
+          filebrowser users add admin ${FILEBROWSER_PASSWORD} --perm.admin;
+        fi &&
+        filebrowser
+      "
     depends_on:
       setup:
         condition: service_healthy
@@ -228,7 +239,7 @@ services:
 
   # phpMyAdmin for database management
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin/phpmyadmin:5
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_phpmyadmin
     restart: unless-stopped
@@ -247,7 +258,7 @@ services:
 
   # Caddy Static Site Server - Single site from uploads/sites/dist
   caddy_dist:
-    image: caddy:alpine
+    image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_dist
     restart: unless-stopped
     ports:
