@@ -30,3 +30,4 @@ sftp-config.json
 /logs/*
 /vendor
 /composer.phar
+/composer.lock
