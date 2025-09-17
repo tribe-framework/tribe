@@ -103,35 +103,35 @@ else
 fi
 
 # Create directories
-mkdir -p applications
-mkdir -p uploads
-mkdir -p uploads/sites
-mkdir -p uploads/backups
-mkdir -p uploads/filebrowser
+mkdir -p /applications
+mkdir -p /uploads
+mkdir -p /uploads/sites
+mkdir -p /uploads/backups
+mkdir -p /uploads/filebrowser
 
 echo "📁 Created necessary directories"
 
 # Create uploads/sites/dist directory if it doesn't exist
-if [ ! -d "uploads/sites/dist" ]; then
+if [ ! -d "/uploads/sites/dist" ]; then
     echo "📁 Creating uploads/sites/dist directory..."
-    mkdir -p uploads/sites/dist
+    mkdir -p /uploads/sites/dist
     
     # Create index.html with "Hello, world!" content
     echo "📄 Creating default index.html..."
-    echo "Hello, world!" > uploads/sites/dist/index.html
+    echo "Hello, world!" > /uploads/sites/dist/index.html
     echo "✅ Default static site created in uploads/sites/dist!"
 else
     echo "ℹ️ uploads/sites/dist directory already exists, skipping creation"
 fi
 
 # Create uploads/sites/dist-php directory if it doesn't exist
-if [ ! -d "uploads/sites/dist-php" ]; then
+if [ ! -d "/uploads/sites/dist-php" ]; then
     echo "📁 Creating uploads/sites/dist-php directory..."
-    mkdir -p uploads/sites/dist-php
+    mkdir -p /uploads/sites/dist-php
     
     # Create index.php with "Hello, PHP world!" content
     echo "📄 Creating default index.php..."
-    cat > uploads/sites/dist-php/index.php << 'EOF'
+    cat > /uploads/sites/dist-php/index.php << 'EOF'
 <?php
 echo "Hello, PHP world @ ".time();
 ?>
@@ -145,23 +145,31 @@ fi
 echo "🔧 Setting up FileBrowser..."
 
 # Check if FileBrowser database already exists
-if [ ! -f "uploads/filebrowser/filebrowser.db" ]; then
+if [ ! -f "/uploads/filebrowser/filebrowser.db" ]; then
     echo "📦 Initializing FileBrowser database..."
     
-    # Pull FileBrowser image if not exists
-    docker pull filebrowser/filebrowser:latest
+    # Download FileBrowser binary
+    FILEBROWSER_VERSION="2.27.0"
+    ARCH="linux-amd64"
     
-    # Create temporary container to initialize FileBrowser
-    docker run --rm \
-        -v "$(pwd)/uploads/filebrowser:/database" \
-        -v "$(pwd)/uploads:/srv" \
-        filebrowser/filebrowser:latest \
-        sh -c "
-            filebrowser config init --database /database/filebrowser.db --root /srv && \
-            filebrowser users add admin '${FILEBROWSER_PASSWORD:-filepassword}' --database /database/filebrowser.db --perm.admin
-        "
+    echo "📥 Downloading FileBrowser binary..."
+    cd /tmp
+    curl -fsSL https://github.com/filebrowser/filebrowser/releases/download/v${FILEBROWSER_VERSION}/${ARCH}-filebrowser.tar.gz -o filebrowser.tar.gz
+    tar -xzf filebrowser.tar.gz
+    chmod +x filebrowser
     
-    if [ -f "uploads/filebrowser/filebrowser.db" ]; then
+    # Initialize FileBrowser database
+    echo "🔨 Creating FileBrowser database..."
+    ./filebrowser config init --database /uploads/filebrowser/filebrowser.db --root /uploads
+    
+    echo "👤 Adding admin user with password..."
+    ./filebrowser users add admin "${FILEBROWSER_PASSWORD:-filepassword}" --database /uploads/filebrowser/filebrowser.db --perm.admin
+    
+    # Clean up
+    rm -f filebrowser filebrowser.tar.gz
+    cd /workdir
+    
+    if [ -f "/uploads/filebrowser/filebrowser.db" ]; then
         echo "✅ FileBrowser initialized with admin password!"
     else
         echo "⚠️ Failed to initialize FileBrowser"
