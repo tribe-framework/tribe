@@ -107,6 +107,7 @@ mkdir -p applications
 mkdir -p uploads
 mkdir -p uploads/sites
 mkdir -p uploads/backups
+mkdir -p uploads/filebrowser
 
 echo "📁 Created necessary directories"
 
@@ -139,3 +140,34 @@ EOF
 else
     echo "ℹ️ uploads/sites/dist-php directory already exists, skipping creation"
 fi
+
+# Initialize FileBrowser
+echo "🔧 Setting up FileBrowser..."
+
+# Check if FileBrowser database already exists
+if [ ! -f "uploads/filebrowser/filebrowser.db" ]; then
+    echo "📦 Initializing FileBrowser database..."
+    
+    # Pull FileBrowser image if not exists
+    docker pull filebrowser/filebrowser:latest
+    
+    # Create temporary container to initialize FileBrowser
+    docker run --rm \
+        -v "$(pwd)/uploads/filebrowser:/database" \
+        -v "$(pwd)/uploads:/srv" \
+        filebrowser/filebrowser:latest \
+        sh -c "
+            filebrowser config init --database /database/filebrowser.db --root /srv && \
+            filebrowser users add admin '${FILEBROWSER_PASSWORD:-filepassword}' --database /database/filebrowser.db --perm.admin
+        "
+    
+    if [ -f "uploads/filebrowser/filebrowser.db" ]; then
+        echo "✅ FileBrowser initialized with admin password!"
+    else
+        echo "⚠️ Failed to initialize FileBrowser"
+    fi
+else
+    echo "ℹ️ FileBrowser database already exists, skipping initialization"
+fi
+
+echo "✅ Setup complete!"

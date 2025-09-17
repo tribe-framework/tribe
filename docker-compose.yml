@@ -104,6 +104,28 @@ services:
     networks:
       - tribe_network
 
+  # MySQL Daily Backup Service
+  mysql_backup:
+    image: mysql:9
+    container_name: ${PROJECT_NAME}_mysql_backup
+    restart: unless-stopped
+    volumes:
+      - ./uploads/backups:/backups
+      - ./config/backup.sh:/backup.sh:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_PWD=${DB_ROOT_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - PROJECT_NAME=${PROJECT_NAME}
+    command: ["bash", "/backup.sh"]
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
   # Caddy Web Server (Tribe) with SSL
   caddy_tribe:
     image: caddy:2-alpine
@@ -218,20 +240,12 @@ services:
       - "${FILEBROWSER_PORT:-12005}:80"
     volumes:
       - ./uploads:/srv
-      - filebrowser_data:/database
+      - ./uploads/filebrowser:/database
     environment:
       - FB_DATABASE=/database/filebrowser.db
       - FB_ROOT=/srv
       - FB_PORT=80
       - FB_ADDRESS=0.0.0.0
-    command: >
-      sh -c "
-        if [ ! -f /database/filebrowser.db ]; then
-          filebrowser config init --database /database/filebrowser.db --root /srv &&
-          filebrowser users add admin ${FILEBROWSER_PASSWORD} --perm.admin;
-        fi &&
-        filebrowser
-      "
     depends_on:
       setup:
         condition: service_healthy
@@ -256,28 +270,6 @@ services:
         mkdir -p /data &&
         /opt/typesense-server --data-dir /data --api-key \$TYPESENSE_API_KEY --enable-cors
       "
-    depends_on:
-      setup:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
-  # MySQL Daily Backup Service
-  mysql_backup:
-    image: mysql:9
-    container_name: ${PROJECT_NAME}_mysql_backup
-    restart: unless-stopped
-    volumes:
-      - ./uploads/backups:/backups
-      - ./config/backup.sh:/backup.sh:ro
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - MYSQL_PWD=${DB_ROOT_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - PROJECT_NAME=${PROJECT_NAME}
-    command: ["bash", "/backup.sh"]
     depends_on:
       setup:
         condition: service_healthy
