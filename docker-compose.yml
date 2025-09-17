@@ -163,8 +163,8 @@ services:
     container_name: ${PROJECT_NAME}_caddy_php_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PHP_PORT:-12004}:80"
-      - "${DIST_PHP_PORT_SSL:-12005}:443"
+      - "${DIST_PHP_PORT:-12010}:80"
+      - "${DIST_PHP_PORT_SSL:-12011}:443"
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -219,7 +219,7 @@ services:
     container_name: ${PROJECT_NAME}_typesense
     restart: unless-stopped
     ports:
-      - "${TYPESENSE_PORT:-12010}:8108"
+      - "${TYPESENSE_PORT:-12004}:8108"
     volumes:
       - ./uploads/typesense:/data
     environment:
