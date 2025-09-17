@@ -87,8 +87,8 @@ function showProgress($current, $total, $type = '') {
 log_message("🔍 Checking Typesense connection...", 'blue');
 
 // First check if we can reach the host and port
-$host = $_ENV['TYPESENSE_HOST'] ?? 'localhost';
-$port = $_ENV['TYPESENSE_PORT'] ?? '12006';
+$host = $_ENV['PROJECT_NAME'].'_typesense';
+$port = $_ENV['TYPESENSE_INTERNAL_PORT'] ?? '8108';
 $protocol = $_ENV['TYPESENSE_PROTOCOL'] ?? 'http';
 
 log_message("🌐 Connecting to: {$protocol}://{$host}:{$port}", 'blue');
@@ -124,6 +124,7 @@ try {
 
 // Get available types
 $types = $config->getTypes();
+print_r($types);
 $typesToMigrate = [];
 
 if ($specificType) {
