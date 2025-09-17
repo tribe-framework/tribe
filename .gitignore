@@ -6,12 +6,8 @@
 !/logs/.gitkeep
 /node_modules
 /vendor
+/vendor/*
 /composer.phar
 *.code-workspace
 sftp-config.json
 .DS_Store
-/applications/junction/
-/config/syncthing/
-
-/junction-master/*
-/junction-master.zip

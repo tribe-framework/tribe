@@ -39,7 +39,7 @@ fi
 echo "⏳ Waiting for MySQL to be ready..."
 timeout=60
 count=0
-until docker exec ${DB_HOST} mysqladmin ping -u root -p"${MYSQL_ROOT_PASSWORD}" --silent 2>/dev/null; do
+until docker exec ${DB_HOST} mysqladmin ping -u root -p"${DB_ROOT_PASSWORD}" --silent 2>/dev/null; do
     sleep 2
     count=$((count + 2))
     if [ $count -ge $timeout ]; then
@@ -55,13 +55,13 @@ echo "✅ MySQL is ready and connection successful!"
 echo "🔍 Checking if database ${DB_NAME} exists..."
 
 # More reliable database existence check
-DB_EXISTS=$(docker exec ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" -sN -e "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}';")
+DB_EXISTS=$(docker exec ${DB_HOST} mysql -u root -p"$DB_ROOT_PASSWORD" -sN -e "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}';")
 
 if [ "$DB_EXISTS" -eq 0 ]; then
     echo "📦 Database ${DB_NAME} does not exist. Creating..."
     
     # Create database
-    if docker exec ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; then
+    if docker exec ${DB_HOST} mysql -u root -p"$DB_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; then
         echo "✅ Database ${DB_NAME} created successfully!"
     else
         echo "⚠️ Failed to create database ${DB_NAME}"
@@ -70,7 +70,7 @@ if [ "$DB_EXISTS" -eq 0 ]; then
     
     # Create user if not exists
     echo "👤 Creating database user ${DB_USER}..."
-    if docker exec ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';"; then
+    if docker exec ${DB_HOST} mysql -u root -p"$DB_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';"; then
         echo "✅ User ${DB_USER} created successfully!"
     else
         echo "⚠️ Failed to create user ${DB_USER}"
@@ -79,7 +79,7 @@ if [ "$DB_EXISTS" -eq 0 ]; then
     
     # Grant privileges
     echo "🔑 Granting privileges to ${DB_USER}..."
-    docker exec ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;"
+    docker exec ${DB_HOST} mysql -u root -p"$DB_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;"
     echo "✅ Privileges granted to ${DB_USER}!"
     
     # Import SQL schema
@@ -87,7 +87,7 @@ if [ "$DB_EXISTS" -eq 0 ]; then
         echo "📥 Importing database schema from install.sql..."
         
         # Import directly without copying to container
-        if docker exec -i ${DB_HOST} mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < /config/mysql/install.sql; then
+        if docker exec -i ${DB_HOST} mysql -u root -p"$DB_ROOT_PASSWORD" "$DB_NAME" < /config/mysql/install.sql; then
             echo "✅ Database schema imported successfully!"
         else
             echo "⚠️ Failed to import database schema"
@@ -139,19 +139,3 @@ EOF
 else
     echo "ℹ️ uploads/sites/dist-php directory already exists, skipping creation"
 fi
-
-# Download Junction
-echo "📦 Downloading Junction..."
-if [ -d "applications/junction" ]; then
-    echo "🗑️ Removing existing junction directory..."
-    rm -rf applications/junction
-fi
-
-curl -L -o junction-master.zip "https://github.com/tribe-framework/junction/archive/refs/heads/master.zip"
-mkdir -p applications/junction
-unzip -q junction-master.zip
-mv junction-master/dist applications/junction/dist
-rm -rf junction-master
-rm junction-master.zip
-chmod -R 755 applications/junction
-echo "✅ Junction downloaded successfully!"
