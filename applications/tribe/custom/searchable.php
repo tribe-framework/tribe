@@ -124,7 +124,7 @@ try {
 
 // Get available types
 $types = $config->getTypes();
-print_r($types);
+
 $typesToMigrate = [];
 
 if ($specificType) {
