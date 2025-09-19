@@ -19,6 +19,59 @@ services:
     networks:
       - tribe_network
 
+  # Apache Tika Server with Tesseract OCR (All Languages)
+  tika:
+    build:
+      context: ./config/tika
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME}_tika
+    restart: unless-stopped
+    ports:
+      - "${TIKA_PORT:-12007}:9998"
+    volumes:
+      - ./uploads:/uploads
+      - ./logs:/var/log/tika
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms1g -XX:+UseG1GC -Djava.awt.headless=true
+      - TIKA_CONFIG_PATH=/tika-config.xml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9998/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  # OpenAI Whisper Server for Audio/Video Transcription
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: ${PROJECT_NAME}_whisper
+    restart: unless-stopped
+    ports:
+      - "${WHISPER_PORT:-12008}:9000"
+    volumes:
+      - ./uploads:/uploads
+      - ./logs:/var/log/whisper
+      - whisper_models:/root/.cache/whisper
+    environment:
+      - ASR_MODEL=${WHISPER_MODEL:-base}
+      - ASR_ENGINE=openai_whisper
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
   # config/setup.sh
   setup:
     image: alpine:3
@@ -292,4 +345,6 @@ volumes:
   dist_php_caddy_config:
   filebrowser_data:
   mysql_data:
+    driver: local
+  whisper_models:
     driver: local
