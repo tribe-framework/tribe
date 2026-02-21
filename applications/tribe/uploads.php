@@ -6,8 +6,27 @@ $api = new \Tribe\API;
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 	$_POST = $api->requestBody;
 
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+/* Dist deployment actions */
+if ($action === 'dist_upload') {
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode($uploads->handleDistUpload($_FILES ?? []));
+}
+
+else if ($action === 'dist_versions') {
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode($uploads->getDistVersions());
+}
+
+else if ($action === 'dist_revert') {
+	header('Content-type: application/json; charset=utf-8');
+	$timestamp = $_POST['timestamp'] ?? '';
+	echo json_encode($uploads->revertDistVersion($timestamp));
+}
+
 /* New code that handles file uploading */
-if (($_FILES ?? false) || ($_POST ?? false)) {
+else if (($_FILES ?? false) || ($_POST ?? false)) {
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($uploads->handleUpload(($_FILES ?? []), ($_POST ?? []), ($_GET ?? [])));
 }
