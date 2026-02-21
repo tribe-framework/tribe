@@ -1,6 +1,6 @@
 # Tribe Complete Setup Guide
 
-View README.html or visit https://tribe-framework.org
+Visit https://tribe-framework.org
 
 ---
 
