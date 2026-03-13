@@ -185,20 +185,65 @@ function ts_get(string $path, array $params, string $host, string $port, string 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. DATABASE / TYPESENSE SEARCH
-// ─────────────────────────────────────────────────────────────────────────────
-// TYPESENSE_ENABLED=false → return nothing. Indexing still happens via Core,
-// but search.php will not surface results from any source when Typesense is
-// disabled. MySQL is never queried directly for search results.
-//
-// TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY=false → no content_privacy filter is
-// applied; all objects are returned regardless of their privacy setting.
+// 1a. DATABASE SEARCH — Typesense (when TYPESENSE_ENABLED=true)
 // ─────────────────────────────────────────────────────────────────────────────
 $dbResults = [];
 $dbTotal   = 0;
 $dbTimeMs  = 0;
 
-if ($envTypesenseEnabled && in_array($source, ['db','all'])) {
+if ($envTypesenseEnabled && in_array($source, ['db', 'all'])) {
+    $t0 = microtime(true);
+    try {
+        $ts = new \Tribe\Typesense();
+
+        $searchOptions = [
+            'per_page'        => $perPage,
+            'page'            => $page,
+            'show_public_only'=> $publicOnly,
+            'query_by'        => 'search_content',
+        ];
+        if ($type) {
+            $searchOptions['type'] = $type;
+        }
+
+        $result = $ts->search($query, $searchOptions);
+
+        if ($result && isset($result['found'])) {
+            $dbTotal = (int)$result['found'];
+
+            foreach ($result['hits'] ?? [] as $hit) {
+                $doc = $hit['document'] ?? [];
+                // Strip sensitive keys
+                foreach (['password_md5','mysql_access_log','mysql_activity_log'] as $sk) {
+                    unset($doc[$sk]);
+                }
+                $dbResults[] = [
+                    'id'         => $doc['id'],
+                    'type'       => $doc['type']       ?? null,
+                    'slug'       => $doc['slug']       ?? null,
+                    'updated_on' => $doc['updated_on'] ?? null,
+                    'created_on' => $doc['created_on'] ?? null,
+                    'modules'    => $doc,
+                    '_source'    => 'typesense',
+                    '_highlights'=> $hit['highlights'] ?? [],
+                ];
+            }
+        }
+    } catch (\Throwable $e) {
+        error_log("search.php Typesense DB search error: " . $e->getMessage());
+    }
+
+    $dbTimeMs = (int)round((microtime(true) - $t0) * 1000);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1b. DATABASE SEARCH — Direct MySQL (when TYPESENSE_ENABLED=false)
+// ─────────────────────────────────────────────────────────────────────────────
+// Uses the `type` and `content_privacy` real columns (not JSON path) for the
+// type/privacy filter — these are indexed and fast. The LOWER(content) LIKE
+// scan covers all JSON field values in one pass.
+// ─────────────────────────────────────────────────────────────────────────────
+if (!$envTypesenseEnabled && in_array($source, ['db','all'])) {
     $t0 = microtime(true);
 
     try {
@@ -272,10 +317,10 @@ if ($envTypesenseEnabled && in_array($source, ['db','all'])) {
             }
         }
     } catch (\Throwable $e) {
-        error_log("search.php Typesense DB search error: " . $e->getMessage());
+        error_log("search.php MySQL DB search error: " . $e->getMessage());
     }
 
-    $dbTimeMs = $dbTimeMs ?: (int)round((microtime(true) - $t0) * 1000);
+    $dbTimeMs = (int)round((microtime(true) - $t0) * 1000);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -342,6 +387,12 @@ if (!$envHideUploads && in_array($source, ['files','all'])) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Response
 // ─────────────────────────────────────────────────────────────────────────────
+// Determine which backend actually served DB results (for meta transparency)
+$dbBackend = 'none';
+if (!empty($dbResults)) {
+    $dbBackend = $dbResults[0]['_source'] ?? 'unknown';
+}
+
 $response = [
     'meta' => [
         'query'          => $query,
@@ -353,6 +404,7 @@ $response = [
         'total_files'    => $fileTotal,
         'total'          => $dbTotal + $fileTotal,
         'search_time_ms' => max($dbTimeMs, $fileTimeMs),
+        'db_backend'     => $dbBackend,  // "typesense" | "mysql" | "none"
         'generated_at'   => date('Y-m-d H:i:s'),
         // Active env-level visibility flags (for debugging / transparency)
         'env' => [

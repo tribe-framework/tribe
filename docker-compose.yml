@@ -60,6 +60,7 @@ services:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-xyz}
       - COLLECTION_NAME=files
       - INDEX_FOLDER=/var/www/html/uploads
+      - INDEX_DB_SCRIPT=/app/index_db.php
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -69,6 +70,7 @@ services:
       # Indexer scripts — mounted so you can edit without rebuilding the image
       - ./config/tribe/index_files.php:/app/index_files.php
       - ./config/tribe/watcher.sh:/app/watcher.sh
+      - ./config/tribe/index_db.php:/app/index_db.php
       # supervisord config — Debian path is /etc/supervisor/conf.d/
       - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
