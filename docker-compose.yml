@@ -29,7 +29,7 @@ services:
       - ./applications:/applications
       - ./uploads:/uploads
       - .:/workdir
-      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /workdir
     command: sh -c "apk add --no-cache curl unzip bash docker-cli && bash ./config/setup.sh && touch /tmp/setup_complete && tail -f /dev/null"
     healthcheck:
@@ -45,23 +45,43 @@ services:
       - tribe_network
 
   # PHP 8 with FPM for Tribe
+  # Also runs the Typesense file indexer + inotify watcher as background processes.
+  # supervisord manages both php-fpm and the inotify watcher.
   php_tribe:
-    image: tribeframework/tribe-core:v1.0
+    image: tribeframework/tribe-core:v1.1
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
+    environment:
+      # Passed explicitly so getenv() works inside PHP (mounted .env alone is not enough)
+      - PROJECT_NAME=${PROJECT_NAME}
+      - TYPESENSE_HOST=${PROJECT_NAME}_typesense
+      - TYPESENSE_PORT=8108
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-xyz}
+      - COLLECTION_NAME=files
+      - INDEX_FOLDER=/var/www/html/uploads
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./applications/tribe/index.php:/var/www/html/index.php
+      # Indexer scripts — mounted so you can edit without rebuilding the image
+      - ./config/tribe/index_files.php:/app/index_files.php
+      - ./config/tribe/watcher.sh:/app/watcher.sh
+      # supervisord config — Debian path is /etc/supervisor/conf.d/
+      - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
-      sh -c "composer install --no-interaction --optimize-autoloader &&
-           php-fpm"
+      sh -c "
+        composer install --no-interaction --optimize-autoloader &&
+        chmod +x /app/watcher.sh &&
+        exec supervisord -c /etc/supervisor/conf.d/tribe.conf
+      "
     depends_on:
       setup:
         condition: service_healthy
+      typesense:
+        condition: service_started
     networks:
       - tribe_network
 
@@ -132,6 +152,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_tribe
     restart: unless-stopped
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
     ports:
       - "${TRIBE_PORT:-12000}:80"
     volumes:
@@ -174,6 +196,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_junction
     restart: unless-stopped
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
     ports:
       - "${JUNCTION_PORT:-12002}:80"
     volumes:
@@ -214,6 +238,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_php_dist
     restart: unless-stopped
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
     ports:
       - "${DIST_PHP_PORT:-12004}:80"
     volumes:
@@ -282,7 +308,6 @@ networks:
   tribe_network:
     driver: bridge
     name: tribe_network
-    #external: true
 
 volumes:
   junction_caddy_data:
