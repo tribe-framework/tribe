@@ -32,31 +32,28 @@
  */
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
-// Try to load Tribe's _init.php so we can reuse MySQL / Config / Typesense.
-// If it is not found (e.g. running outside the container) we fall back to a
-// lightweight stand-alone mode that connects to MySQL directly via PDO.
+// Script lives at /var/www/html/index_db.php — _init.php is in the same dir.
+// Composer vendor/ is also at /var/www/html/vendor/autoload.php.
+// Both paths are therefore always predictable and never need a directory crawl.
 
-$initFile = null;
-$dir = __DIR__;
-for ($i = 0; $i < 6; $i++) {
-    if (file_exists($dir . '/_init.php')) { $initFile = $dir . '/_init.php'; break; }
-    $dir = dirname($dir);
-}
+$webRoot = '/var/www/html';
 
 $tribeBootstrapped = false;
-if ($initFile) {
+$initFile = $webRoot . '/_init.php';
+if (file_exists($initFile)) {
     require $initFile;
     $tribeBootstrapped = true;
+} else {
+    echo '[' . date('Y-m-d H:i:s') . '] WARN: _init.php not found at ' . $initFile . ' — running in standalone PDO mode.' . PHP_EOL;
 }
 
 // ─── Composer autoload (for Typesense PHP SDK) ───────────────────────────────
-$autoloadCandidates = [
-    __DIR__ . '/vendor/autoload.php',
-    '/app/vendor/autoload.php',
-    dirname(__DIR__) . '/vendor/autoload.php',
-];
-foreach ($autoloadCandidates as $al) {
-    if (file_exists($al)) { require_once $al; break; }
+$autoload = $webRoot . '/vendor/autoload.php';
+if (file_exists($autoload)) {
+    require_once $autoload;
+} else {
+    echo '[' . date('Y-m-d H:i:s') . '] FATAL: vendor/autoload.php not found at ' . $autoload . PHP_EOL;
+    exit(1);
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -113,8 +110,8 @@ function db_query(string $sql, $tribeDb = null): array
     return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 }
 
-$tribeDb   = $tribeBootstrapped ? new \Tribe\MySQL() : null;
-$tribeConf = $tribeBootstrapped ? new \Tribe\Config() : null;
+$tribeDb   = $tribeBootstrapped ? new \Tribe\MySQL()    : null;
+$tribeConf = $tribeBootstrapped ? new \Tribe\Config()   : null;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -293,7 +290,12 @@ function hydrate_rows(array $rows): array
         $obj['id']         = (int)$row['id'];
         $obj['updated_on'] = (int)$row['updated_on'];
         $obj['created_on'] = (int)$row['created_on'];
-        $objects[]         = $obj;
+        // Prefer the real indexed `type` column over the JSON-decoded value
+        // so the type is always available even if content JSON is malformed.
+        if (!empty($row['type'])) {
+            $obj['type'] = $row['type'];
+        }
+        $objects[] = $obj;
     }
     return $objects;
 }
@@ -320,7 +322,7 @@ if ($singleId !== null) {
 
     if ($mode === 'delete') {
         // Determine type from DB before we lose the row
-        $rows = db_query("SELECT * FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
+        $rows = db_query("SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
         if (empty($rows)) {
             log_msg("Object {$id} not found in DB (already deleted?).");
             exit(0);
@@ -344,7 +346,7 @@ if ($singleId !== null) {
     }
 
     // Upsert mode (create or update)
-    $rows = db_query("SELECT * FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
+    $rows = db_query("SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
     if (empty($rows)) {
         log_msg("Object {$id} not found in DB.");
         exit(1);
@@ -383,10 +385,10 @@ $offset = 0;
 do {
     // Fetch a batch of raw rows directly (content column is JSON)
     $rows = db_query(
-        "SELECT `id`, `content`, `updated_on`, `created_on` FROM `data`
-         WHERE `content`->>'$.type' NOT IN ('{$skipList}')
-           AND `content`->>'$.type' IS NOT NULL
-           AND `content`->>'$.type' != ''
+        "SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data`
+         WHERE `type` NOT IN ('{$skipList}')
+           AND `type` IS NOT NULL
+           AND `type` != ''
          ORDER BY `id` ASC
          LIMIT {$offset}, " . MYSQL_BATCH,
         $tribeDb

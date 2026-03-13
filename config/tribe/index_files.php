@@ -6,7 +6,7 @@
  * Runs as a full re-index or single-file update (pass file path as argument).
  */
 
-require '/app/vendor/autoload.php';
+require '/var/www/html/vendor/autoload.php';
 
 use Typesense\Client;
 

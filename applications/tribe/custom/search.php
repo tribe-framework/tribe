@@ -336,7 +336,7 @@ $fileTotal   = 0;
 $fileTimeMs  = 0;
 $facets      = [];
 
-if (!$envHideUploads && in_array($source, ['files','all'])) {
+if (!$envHideUploads && $envTypesenseEnabled && in_array($source, ['files','all'])) {
     $fileFilters = [];
     if ($category)  $fileFilters[] = "category:={$category}";
     if ($extension) $fileFilters[] = "extension:={$extension}";
