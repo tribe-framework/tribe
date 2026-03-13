@@ -206,8 +206,9 @@ if ($envTypesenseEnabled && in_array($source, ['db','all'])) {
         $link  = $mysql->databaseLink;
 
         // Sanitise query for LIKE — search the entire JSON blob.
-        // This is exactly how Core's LIKE searches work everywhere else.
-        $escaped = mysqli_real_escape_string($link, $query);
+        // Lower-case both sides so the match is always case-insensitive,
+        // regardless of the column's collation.
+        $escaped = mysqli_real_escape_string($link, strtolower($query));
         $like    = '%' . $escaped . '%';
 
         // ── WHERE clauses ──────────────────────────────────────────────────
@@ -227,8 +228,8 @@ if ($envTypesenseEnabled && in_array($source, ['db','all'])) {
             $where[] = "`content_privacy` = 'public'";
         }
 
-        // Full content search — matches any JSON field value
-        $where[] = "`content` LIKE '{$like}'";
+        // Full content search — matches any JSON field value (case-insensitive)
+        $where[] = "LOWER(`content`) LIKE '{$like}'";
 
         $whereStr = implode(' AND ', $where);
 
