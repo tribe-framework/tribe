@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${DB_PORT:-3306}:12006"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
@@ -285,7 +285,7 @@ services:
     container_name: ${PROJECT_NAME}_typesense
     restart: unless-stopped
     ports:
-      - "${TYPESENSE_PORT:-12006}:8108"
+      - "${TYPESENSE_PORT:-12007}:8108"
     volumes:
       - ./uploads/typesense:/data
     environment:
@@ -307,17 +307,26 @@ services:
 networks:
   tribe_network:
     driver: bridge
-    name: tribe_network
+    name: ${PROJECT_NAME}_tribe_network
 
 volumes:
   junction_caddy_data:
+    name: ${PROJECT_NAME}_junction_caddy_data
   junction_caddy_config:
+    name: ${PROJECT_NAME}_junction_caddy_config
   tribe_caddy_data:
+    name: ${PROJECT_NAME}_tribe_caddy_data
   tribe_caddy_config:
+    name: ${PROJECT_NAME}_tribe_caddy_config
   dist_php_caddy_data:
+    name: ${PROJECT_NAME}_dist_php_caddy_data
   dist_php_caddy_config:
+    name: ${PROJECT_NAME}_dist_php_caddy_config
   filebrowser_data:
+    name: ${PROJECT_NAME}_filebrowser_data
   mysql_data:
+    name: ${PROJECT_NAME}_mysql_data
     driver: local
   whisper_models:
+    name: ${PROJECT_NAME}_whisper_models
     driver: local

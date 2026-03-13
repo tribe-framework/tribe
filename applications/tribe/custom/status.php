@@ -59,13 +59,13 @@ function parse_dotenv(string $key): ?string {
 $PROJECT_NAME   = getenv('PROJECT_NAME')      ?: parse_dotenv('PROJECT_NAME')      ?: 'tribe';
 $TYPESENSE_KEY  = getenv('TYPESENSE_API_KEY') ?: parse_dotenv('TYPESENSE_API_KEY') ?: 'xyz';
 
-// php_tribe cannot use localhost:12006 — that resolves to itself, not Typesense.
+// php_tribe cannot use localhost:12007 — that resolves to itself, not Typesense.
 // It must reach Typesense via Docker's internal network using the container name,
 // which is always {PROJECT_NAME}_typesense per the compose file.
 // If TYPESENSE_HOST is already set in the environment (as it is in docker-compose),
 // use it directly — otherwise derive it from PROJECT_NAME.
 $TYPESENSE_HOST = getenv('TYPESENSE_HOST') ?: ($PROJECT_NAME . '_typesense');
-$TYPESENSE_PORT = '8108'; // internal port, NOT the host-mapped port (12006)
+$TYPESENSE_PORT = '8108'; // internal port, NOT the host-mapped port (12007)
 $COLLECTION     = 'files';
 $INDEX_FOLDER   = '/var/www/html/uploads';
 
