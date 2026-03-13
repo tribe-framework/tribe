@@ -185,18 +185,20 @@ function ts_get(string $path, array $params, string $host, string $port, string 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. DATABASE SEARCH — direct MySQL, always live
+// 1. DATABASE / TYPESENSE SEARCH
 // ─────────────────────────────────────────────────────────────────────────────
-// Root cause of "no DB results":
-//  - Core::searchObjectsDatabase passes type=null → SQL: WHERE type='null' → 0 rows
-//  - TYPESENSE_ENABLED=false means tribe_* collections are never synced
-//  - We bypass both and query MySQL directly, which is always up-to-date
+// TYPESENSE_ENABLED=false → return nothing. Indexing still happens via Core,
+// but search.php will not surface results from any source when Typesense is
+// disabled. MySQL is never queried directly for search results.
+//
+// TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY=false → no content_privacy filter is
+// applied; all objects are returned regardless of their privacy setting.
 // ─────────────────────────────────────────────────────────────────────────────
 $dbResults = [];
 $dbTotal   = 0;
 $dbTimeMs  = 0;
 
-if (in_array($source, ['db','all'])) {
+if ($envTypesenseEnabled && in_array($source, ['db','all'])) {
     $t0 = microtime(true);
 
     try {
@@ -269,10 +271,10 @@ if (in_array($source, ['db','all'])) {
             }
         }
     } catch (\Throwable $e) {
-        error_log("search.php DB error: " . $e->getMessage());
+        error_log("search.php Typesense DB search error: " . $e->getMessage());
     }
 
-    $dbTimeMs = (int)round((microtime(true) - $t0) * 1000);
+    $dbTimeMs = $dbTimeMs ?: (int)round((microtime(true) - $t0) * 1000);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
