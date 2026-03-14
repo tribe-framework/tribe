@@ -329,6 +329,3 @@ volumes:
   mysql_data:
     name: ${PROJECT_NAME}_mysql_data
     driver: local
-  whisper_models:
-    name: ${PROJECT_NAME}_whisper_models
-    driver: local
