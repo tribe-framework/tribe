@@ -50,6 +50,8 @@ services:
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       # Passed explicitly so getenv() works inside PHP (mounted .env alone is not enough)
       - PROJECT_NAME=${PROJECT_NAME}
@@ -62,7 +64,6 @@ services:
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./applications/tribe/index.php:/var/www/html/index.php
       # Indexer scripts — mounted directly into the web root alongside _init.php and vendor/
@@ -91,10 +92,11 @@ services:
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./logs:/var/log
     command: >
       sh -c "composer install --no-interaction --optimize-autoloader &&
@@ -111,10 +113,11 @@ services:
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./logs:/var/log
     command: >
       sh -c "if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
@@ -151,6 +154,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_tribe
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
@@ -158,7 +163,6 @@ services:
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./applications/tribe/index.php:/var/www/html/index.php
       - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
@@ -195,6 +199,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_junction
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
@@ -202,7 +208,6 @@ services:
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./config/junction/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
       - junction_caddy_data:/data
@@ -237,6 +242,8 @@ services:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_php_dist
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
@@ -244,7 +251,6 @@ services:
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./.env:/var/www/html/.env
       - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
       - dist_php_caddy_data:/data
