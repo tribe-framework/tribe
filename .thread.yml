@@ -1,26 +1,7 @@
 services:
-  # MySQL 9 Database - System-wide
-  mysql:
-    image: mysql:9
-    container_name: ${DB_HOST}
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
-    ports:
-      - "${DB_PORT:-3306}:12006"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks:
-      - tribe_network
-
-  # config/setup.sh
+  # ─── Setup — provisions this thread's DB on loom's MySQL ─────────────────────
+  # No local MySQL. The thread connects to loom's shared MySQL container over
+  # the shared Docker network (tribe_network defined in tribe-loom).
   setup:
     image: alpine:3
     container_name: ${PROJECT_NAME}_setup
@@ -38,22 +19,16 @@ services:
       timeout: 3s
       retries: 10
       start_period: 30s
-    depends_on:
-      mysql:
-        condition: service_healthy
     networks:
-      - tribe_network
+      - loom_network
 
-  # PHP 8 with FPM for Tribe
-  # Also runs the Typesense file indexer + inotify watcher as background processes.
-  # supervisord manages both php-fpm and the inotify watcher.
+  # ─── PHP-FPM for Tribe (this thread's main app) ───────────────────────────────
   php_tribe:
     image: tribeframework/tribe-core:v1.2
     platform: linux/amd64
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     environment:
-      # Passed explicitly so getenv() works inside PHP (mounted .env alone is not enough)
       - PROJECT_NAME=${PROJECT_NAME}
       - TYPESENSE_HOST=${PROJECT_NAME}_typesense
       - TYPESENSE_PORT=8108
@@ -67,11 +42,9 @@ services:
       - ./.env:/var/www/html/.env
       - ./logs:/var/log
       - ./applications/tribe/index.php:/var/www/html/index.php
-      # Indexer scripts — mounted directly into the web root alongside _init.php and vendor/
       - ./config/tribe/index_files.php:/var/www/html/index_files.php
       - ./config/tribe/watcher.sh:/var/www/html/watcher.sh
       - ./config/tribe/index_db.php:/var/www/html/index_db.php
-      # supervisord config — Debian path is /etc/supervisor/conf.d/
       - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
       sh -c "
@@ -85,9 +58,9 @@ services:
       typesense:
         condition: service_started
     networks:
-      - tribe_network
+      - loom_network
 
-  # PHP 8 with FPM for Junction
+  # ─── PHP-FPM for Junction ─────────────────────────────────────────────────────
   php_junction:
     image: tribeframework/tribe-core:v1.2
     platform: linux/amd64
@@ -100,14 +73,14 @@ services:
       - ./logs:/var/log
     command: >
       sh -c "composer install --no-interaction --optimize-autoloader &&
-           php-fpm"
+             php-fpm"
     depends_on:
       setup:
         condition: service_healthy
     networks:
-      - tribe_network
+      - loom_network
 
-  # PHP 8 with FPM for Dist PHP
+  # ─── PHP-FPM for dist-php ─────────────────────────────────────────────────────
   php_dist:
     image: tribeframework/tribe-core:v1.2
     platform: linux/amd64
@@ -120,36 +93,14 @@ services:
       - ./logs:/var/log
     command: >
       sh -c "if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
-           php-fpm"
+             php-fpm"
     depends_on:
       setup:
         condition: service_healthy
     networks:
-      - tribe_network
+      - loom_network
 
-  # MySQL Daily Backup Service
-  mysql_backup:
-    image: mysql:9
-    container_name: ${PROJECT_NAME}_mysql_backup
-    restart: unless-stopped
-    volumes:
-      - ./uploads/backups:/backups
-      - ./config/backup.sh:/backup.sh:ro
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - MYSQL_PWD=${DB_ROOT_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - PROJECT_NAME=${PROJECT_NAME}
-    command: ["bash", "/backup.sh"]
-    depends_on:
-      setup:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
-  # Caddy Web Server (Tribe) with SSL
+  # ─── Caddy — Tribe (main app) ─────────────────────────────────────────────────
   caddy_tribe:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_tribe
@@ -157,7 +108,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${TRIBE_PORT:-12000}:80"
+      - "${TRIBE_PORT}:80"
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -173,27 +124,9 @@ services:
       php_tribe:
         condition: service_started
     networks:
-      - tribe_network
+      - loom_network
 
-  # phpMyAdmin for database management
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5
-    platform: linux/amd64
-    container_name: ${PROJECT_NAME}_phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "${PHPMYADMIN_PORT:-12001}:80"
-    environment:
-      PMA_HOST: ${DB_HOST}
-      PMA_PORT: 3306
-      UPLOAD_LIMIT: 2G
-    depends_on:
-      setup:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
-  # Caddy Web Server (Junction) with SSL
+  # ─── Caddy — Junction ─────────────────────────────────────────────────────────
   caddy_junction:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_junction
@@ -201,7 +134,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${JUNCTION_PORT:-12002}:80"
+      - "${JUNCTION_PORT}:80"
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -216,15 +149,15 @@ services:
       php_junction:
         condition: service_started
     networks:
-      - tribe_network
+      - loom_network
 
-  # Caddy Static Site Server - Single site from uploads/sites/dist
+  # ─── Caddy — dist (static) ────────────────────────────────────────────────────
   caddy_dist:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PORT:-12003}:80"
+      - "${DIST_PORT}:80"
     volumes:
       - ./uploads/sites/dist:/srv
       - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
@@ -233,9 +166,9 @@ services:
       setup:
         condition: service_healthy
     networks:
-      - tribe_network
+      - loom_network
 
-  # Caddy Web Server (Dist PHP) with SSL
+  # ─── Caddy — dist-php ────────────────────────────────────────────────────────
   caddy_php_dist:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_php_dist
@@ -243,7 +176,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${DIST_PHP_PORT:-12004}:80"
+      - "${DIST_PHP_PORT}:80"
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -258,36 +191,15 @@ services:
       php_dist:
         condition: service_started
     networks:
-      - tribe_network
+      - loom_network
 
-  # FileBrowser for file management
-  filebrowser:
-    image: filebrowser/filebrowser:latest
-    container_name: ${PROJECT_NAME}_filebrowser
-    restart: unless-stopped
-    ports:
-      - "${FILEBROWSER_PORT:-12005}:80"
-    volumes:
-      - ./uploads:/srv
-      - ./uploads/filebrowser:/database
-    environment:
-      - FB_DATABASE=/database/filebrowser.db
-      - FB_ROOT=/srv
-      - FB_PORT=80
-      - FB_ADDRESS=0.0.0.0
-    depends_on:
-      setup:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
-  # Typesense Search Engine
+  # ─── Typesense — per-thread private instance ──────────────────────────────────
   typesense:
     image: typesense/typesense:29.0
     container_name: ${PROJECT_NAME}_typesense
     restart: unless-stopped
     ports:
-      - "${TYPESENSE_PORT:-12007}:8108"
+      - "${TYPESENSE_PORT}:8108"
     volumes:
       - ./uploads/typesense:/data
     environment:
@@ -303,29 +215,26 @@ services:
       setup:
         condition: service_healthy
     networks:
-      - tribe_network
+      - loom_network
 
-# Tribe Network
+# ─── Network — external, defined by tribe-loom ────────────────────────────────
+# The network name must match: <LOOM_PROJECT_NAME>_tribe_network
+# Set LOOM_PROJECT_NAME in .env to the PROJECT_NAME value used in tribe-loom.
 networks:
-  tribe_network:
-    driver: bridge
-    name: ${PROJECT_NAME}_tribe_network
+  loom_network:
+    external: true
+    name: ${LOOM_PROJECT_NAME}_tribe_network
 
 volumes:
-  junction_caddy_data:
-    name: ${PROJECT_NAME}_junction_caddy_data
-  junction_caddy_config:
-    name: ${PROJECT_NAME}_junction_caddy_config
   tribe_caddy_data:
     name: ${PROJECT_NAME}_tribe_caddy_data
   tribe_caddy_config:
     name: ${PROJECT_NAME}_tribe_caddy_config
+  junction_caddy_data:
+    name: ${PROJECT_NAME}_junction_caddy_data
+  junction_caddy_config:
+    name: ${PROJECT_NAME}_junction_caddy_config
   dist_php_caddy_data:
     name: ${PROJECT_NAME}_dist_php_caddy_data
   dist_php_caddy_config:
     name: ${PROJECT_NAME}_dist_php_caddy_config
-  filebrowser_data:
-    name: ${PROJECT_NAME}_filebrowser_data
-  mysql_data:
-    name: ${PROJECT_NAME}_mysql_data
-    driver: local
