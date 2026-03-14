@@ -223,7 +223,7 @@ services:
 networks:
   loom_network:
     external: true
-    name: ${LOOM_PROJECT_NAME}_tribe_network
+    name: ${LOOM_PROJECT_NAME}_network
 
 volumes:
   tribe_caddy_data:
