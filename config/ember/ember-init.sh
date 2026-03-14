@@ -1,3 +1,5 @@
+# Called from https://tribe-framework.org documentation
+
 FILE=.flame
 
 echo "Please enter the name of the Ember directory:"

@@ -1,3 +1,5 @@
+# Called from https://tribe-framework.org documentation
+
 $FILE = ".flame"
 
 # Prompt for input

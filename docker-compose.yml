@@ -6,8 +6,6 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
-    ports:
-      - "${DB_PORT:-3306}:12006"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
@@ -140,7 +138,6 @@ services:
       - MYSQL_PWD=${DB_ROOT_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
       - PROJECT_NAME=${PROJECT_NAME}
     command: ["bash", "/backup.sh"]
     depends_on:
@@ -268,7 +265,7 @@ services:
     ports:
       - "${FILEBROWSER_PORT:-12005}:80"
     volumes:
-      - ./uploads:/srv
+      - ./:/srv
       - ./uploads/filebrowser:/database
     environment:
       - FB_DATABASE=/database/filebrowser.db
@@ -286,8 +283,6 @@ services:
     image: typesense/typesense:29.0
     container_name: ${PROJECT_NAME}_typesense
     restart: unless-stopped
-    ports:
-      - "${TYPESENSE_PORT:-12007}:8108"
     volumes:
       - ./uploads/typesense:/data
     environment:
@@ -309,7 +304,7 @@ services:
 networks:
   tribe_network:
     driver: bridge
-    name: ${PROJECT_NAME}_tribe_network
+    name: ${PROJECT_NAME}_network
 
 volumes:
   junction_caddy_data:

@@ -146,10 +146,10 @@ $TS_FILES_COLL = search_parse_env('COLLECTION_NAME') ?: 'files';
 // ── Read the three controlling .env flags ─────────────────────────────────────
 // TYPESENSE_ENABLED                    – whether Typesense is used for DB objects
 // TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY   – hide non-public DB objects when true
-// TYPESENSE_HIDE_UPLOADS_FOLDER_RESULTS – suppress files/uploads results when true
+// TYPESENSE_SHOW_UPLOADS_FOLDER_RESULTS – suppress files/uploads results when false
 $envTypesenseEnabled = (strtolower(trim(search_parse_env('TYPESENSE_ENABLED')                    ?: 'true')) !== 'false');
 $envShowPublicOnly   = (strtolower(trim(search_parse_env('TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY')   ?: 'true')) !== 'false');
-$envHideUploads      = (strtolower(trim(search_parse_env('TYPESENSE_HIDE_UPLOADS_FOLDER_RESULTS') ?: 'true')) !== 'false');
+$envHideUploads      = !(strtolower(trim(search_parse_env('TYPESENSE_SHOW_UPLOADS_FOLDER_RESULTS') ?: 'true')) !== 'false');
 
 // Resolve effective public-only flag.
 // The ?public_only param can tighten visibility beyond the env default,
@@ -326,7 +326,7 @@ if (!$envTypesenseEnabled && in_array($source, ['db','all'])) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. FILE SEARCH — direct Typesense HTTP, always live
 // ─────────────────────────────────────────────────────────────────────────────
-// TYPESENSE_HIDE_UPLOADS_FOLDER_RESULTS=true  → skip this section entirely.
+// TYPESENSE_SHOW_UPLOADS_FOLDER_RESULTS=true  → skip this section entirely.
 // The inotify watcher maintains the `files` collection independently of
 // TYPESENSE_ENABLED, so the HTTP query always reflects the current state of
 // the uploads folder.
@@ -410,7 +410,7 @@ $response = [
         'env' => [
             'typesense_enabled'              => $envTypesenseEnabled,
             'show_public_objects_only'        => $envShowPublicOnly,
-            'hide_uploads_folder_results'     => $envHideUploads,
+            'show_uploads_folder_results'     => !$envHideUploads,
         ],
     ],
     'db_results'   => $dbResults,
