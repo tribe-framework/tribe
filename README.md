@@ -18,7 +18,7 @@ Tribe is a web project management framework that allows us to build platforms, p
 | **Thread** | A single Tribe + Junction instance inside a Loom setup |
 | **Docker** | Containerisation platform; `docker-compose.yml` defines all services and how they connect |
 | **.env** | Environment file holding secrets and config (DB passwords, ports, project name) |
-| **Tor** | Overlay mode that routes all traffic through `.onion` hidden services |
+| **Tor** | Overlay mode that routes all traffic through `.onion` hidden services, works with single-project Tribe only |
 | **MySQL** | Relational database storing all Tribe content and application data |
 | **phpMyAdmin** | Web UI for browsing and managing MySQL databases |
 | **Caddy** | Web server / reverse proxy — handles HTTP and routes requests to PHP-FPM |
@@ -66,7 +66,7 @@ threads/               # Generated thread configs (Loom mode)
 docker-compose.yml          # Standard single-project setup
 docker-compose.loom.yml     # Loom shared infrastructure
 docker-compose.thread.yml   # Thread template (do not edit directly)
-docker-compose.tor.yml      # Tor overlay
+docker-compose.tor.yml      # Tor overlay for single-project only
 
 loom.sh                     # Loom CLI
 
