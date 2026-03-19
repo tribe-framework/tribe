@@ -19,6 +19,34 @@ threads/beta/  → loom_beta_php_tribe  :13002
 threads/gamma/ → loom_gamma_php_tribe :13004
 ```
 
+## Setup
+
+Before using Loom, move its files to the project root:
+
+```bash
+mv config/loom/docker-compose.loom.yml .
+mv config/loom/docker-compose.thread.yml .
+mv config/loom/loom.sh .
+mv config/loom/.env.loom.sample .
+```
+
+Then:
+
+```bash
+# 1. Configure
+cp .env.loom.sample .env.loom
+# Edit .env.loom — set DB_ROOT_PASSWORD, TYPESENSE_API_KEY, FILEBROWSER_PASSWORD
+
+# 2. Place Tribe app code
+# applications/tribe-base/ must contain the Tribe app before creating threads
+
+# 3. Start shared services
+docker compose -f docker-compose.loom.yml --env-file .env.loom up -d
+
+# 4. Make CLI executable
+chmod +x loom.sh
+```
+
 ## Directory Layout
 
 ```
@@ -60,23 +88,6 @@ uploads/
 
 logs/
   threads/<name>/
-```
-
-## Setup
-
-```bash
-# 1. Configure
-cp .env.loom.sample .env.loom
-# Edit .env.loom — set DB_ROOT_PASSWORD, TYPESENSE_API_KEY, FILEBROWSER_PASSWORD
-
-# 2. Place Tribe app code
-# applications/tribe-base/ must contain the Tribe app before creating threads
-
-# 3. Start shared services
-docker compose -f docker-compose.loom.yml --env-file .env.loom up -d
-
-# 4. Make CLI executable
-chmod +x loom.sh
 ```
 
 ## CLI
