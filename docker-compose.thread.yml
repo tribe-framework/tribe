@@ -1,0 +1,130 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Loom Thread — Application Services Template
+#
+# DO NOT edit or use this file directly. It is the canonical template read by
+# loom.sh which generates threads/<name>/docker-compose.yml via envsubst.
+#
+# Template variables (substituted by loom.sh):
+#   THREAD_NAME       slug-safe name, e.g. "acme"
+#   TRIBE_PORT        host port for Tribe,   e.g. 13000
+#   JUNCTION_PORT     host port for Junction, e.g. 13001
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ─── PHP-FPM + supervisord (Tribe app + file watcher + DB indexer) ──────────
+  php_tribe:
+    image: tribeframework/tribe-core:v1.2
+    platform: linux/amd64
+    container_name: loom_${THREAD_NAME}_php_tribe
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=loom_${THREAD_NAME}
+      - TYPESENSE_HOST=loom_typesense
+      - TYPESENSE_PORT=8108
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-xyz}
+      # Prefix scopes all Typesense collections to this thread.
+      - TYPESENSE_COLLECTION_PREFIX=${THREAD_NAME}
+      - COLLECTION_NAME=${THREAD_NAME}_files
+      - INDEX_FOLDER=/var/www/html/uploads
+      - INDEX_DB_SCRIPT=/var/www/html/index_db.php
+    volumes:
+      # Shared read-only Tribe application code (composer install runs at Loom setup)
+      - ../../applications/tribe-base:/var/www/html:ro
+      # Thread-specific uploads (writable)
+      - ../../uploads/threads/${THREAD_NAME}:/var/www/html/uploads
+      # Thread-specific logs
+      - ../../logs/threads/${THREAD_NAME}:/var/log
+      # Config scripts (mounted over the read-only app tree)
+      - ../../config/tribe/index_files.php:/var/www/html/index_files.php
+      - ../../config/tribe/watcher.sh:/var/www/html/watcher.sh
+      # Loom-specific index_db.php supports TYPESENSE_COLLECTION_PREFIX
+      - ../../config/loom/index_db.php:/var/www/html/index_db.php
+      - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
+    command: >
+      sh -c "
+        chmod +x /var/www/html/watcher.sh &&
+        exec supervisord -c /etc/supervisor/conf.d/tribe.conf
+      "
+    networks:
+      - loom_network
+
+  # ─── PHP-FPM (Junction) ───────────────────────────────────────────────────
+  php_junction:
+    image: tribeframework/tribe-core:v1.2
+    platform: linux/amd64
+    container_name: loom_${THREAD_NAME}_php_junction
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ../../applications/threads/${THREAD_NAME}/junction/dist:/var/www/html
+      - ../../uploads/threads/${THREAD_NAME}:/var/www/html/uploads
+      - ../../logs/threads/${THREAD_NAME}:/var/log
+    command: >
+      sh -c "
+        if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
+        php-fpm
+      "
+    networks:
+      - loom_network
+
+  # ─── Caddy (Tribe) ────────────────────────────────────────────────────────
+  caddy_tribe:
+    image: caddy:2-alpine
+    container_name: loom_${THREAD_NAME}_caddy_tribe
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${TRIBE_PORT}:80"
+    volumes:
+      - ../../applications/tribe-base:/var/www/html:ro
+      - ../../uploads/threads/${THREAD_NAME}:/var/www/html/uploads
+      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../logs/threads/${THREAD_NAME}:/var/log/caddy
+      - tribe_caddy_data:/data
+      - tribe_caddy_config:/config
+    depends_on:
+      - php_tribe
+    networks:
+      - loom_network
+
+  # ─── Caddy (Junction) ────────────────────────────────────────────────────
+  caddy_junction:
+    image: caddy:2-alpine
+    container_name: loom_${THREAD_NAME}_caddy_junction
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${JUNCTION_PORT}:80"
+    volumes:
+      - ../../applications/threads/${THREAD_NAME}/junction/dist:/var/www/html
+      - ../../uploads/threads/${THREAD_NAME}:/var/www/html/uploads
+      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../logs/threads/${THREAD_NAME}:/var/log/caddy
+      - junction_caddy_data:/data
+      - junction_caddy_config:/config
+    depends_on:
+      - php_junction
+    networks:
+      - loom_network
+
+# ─── Shared Loom network (must be running before threads start) ───────────────
+networks:
+  loom_network:
+    external: true
+    name: loom_network
+
+volumes:
+  tribe_caddy_data:
+    name: loom_${THREAD_NAME}_tribe_caddy_data
+  tribe_caddy_config:
+    name: loom_${THREAD_NAME}_tribe_caddy_config
+  junction_caddy_data:
+    name: loom_${THREAD_NAME}_junction_caddy_data
+  junction_caddy_config:
+    name: loom_${THREAD_NAME}_junction_caddy_config
