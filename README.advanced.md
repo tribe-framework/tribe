@@ -1,4 +1,4 @@
-# Tribe — Extended Reference
+# Tribe — Advanced Reference
 
 ## Glossary
 
