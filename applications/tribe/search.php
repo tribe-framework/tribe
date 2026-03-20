@@ -58,7 +58,7 @@ if (function_exists('opcache_invalidate')) {
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
-require  __DIR__ . '/../_init.php';
+require  __DIR__ . '/_init.php';
 
 // ── Headers ───────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
@@ -100,7 +100,7 @@ function search_parse_env(string $key): ?string
     $val = getenv($key);
     if ($val !== false) { $cache[$key] = $val; return $val; }
 
-    $envFile = __DIR__ . '/../.env';
+    $envFile = __DIR__ . '/.env';
     if (!file_exists($envFile)) { $cache[$key] = null; return null; }
 
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
