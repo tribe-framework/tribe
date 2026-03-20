@@ -58,18 +58,7 @@ if (function_exists('opcache_invalidate')) {
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
-$initFile = null;
-$dir = __DIR__;
-for ($i = 0; $i < 5; $i++) {
-    if (file_exists($dir . '/_init.php')) { $initFile = $dir . '/_init.php'; break; }
-    $dir = dirname($dir);
-}
-if (!$initFile) {
-    http_response_code(500);
-    echo json_encode(['error' => '_init.php not found']);
-    exit;
-}
-require $initFile;
+require  __DIR__ . '/../_init.php';
 
 // ── Headers ───────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
