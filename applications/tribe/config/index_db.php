@@ -32,7 +32,7 @@
  */
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
-// Script lives at /var/www/html/index_db.php — _init.php is in the same dir.
+// Script lives at /var/www/html/config/index_db.php — _init.php is in the same dir.
 // Composer vendor/ is also at /var/www/html/vendor/autoload.php.
 // Both paths are therefore always predictable and never need a directory crawl.
 

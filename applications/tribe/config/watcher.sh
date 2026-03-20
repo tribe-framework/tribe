@@ -4,7 +4,7 @@
 # Uses inotifywait (inotify-tools) for efficient kernel-level file watching.
 
 INDEX_FOLDER="${INDEX_FOLDER:-/uploads}"
-INDEXER_SCRIPT="/var/www/html/index_files.php"
+INDEXER_SCRIPT="/var/www/html/config/index_files.php"
 PHP_BIN="${PHP_BIN:-php}"
 
 # Debounce: avoid hammering Typesense on bulk copy operations

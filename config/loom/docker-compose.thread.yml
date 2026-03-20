@@ -11,7 +11,6 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 services:
-
   # ─── PHP-FPM + supervisord (Tribe app + file watcher + DB indexer) ──────────
   php_tribe:
     image: tribeframework/tribe-core:v1.2
@@ -29,7 +28,7 @@ services:
       - TYPESENSE_COLLECTION_PREFIX=${THREAD_NAME}
       - COLLECTION_NAME=${THREAD_NAME}_files
       - INDEX_FOLDER=/var/www/html/uploads
-      - INDEX_DB_SCRIPT=/var/www/html/index_db.php
+      - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
       # Shared read-only Tribe application code (composer install runs at Loom setup)
       - ../../applications/tribe-base:/var/www/html:ro
@@ -37,15 +36,10 @@ services:
       - ../../uploads/threads/${THREAD_NAME}:/var/www/html/uploads
       # Thread-specific logs
       - ../../logs/threads/${THREAD_NAME}:/var/log
-      # Config scripts (mounted over the read-only app tree)
-      - ../../config/tribe/index_files.php:/var/www/html/index_files.php
-      - ../../config/tribe/watcher.sh:/var/www/html/watcher.sh
-      # Loom-specific index_db.php supports TYPESENSE_COLLECTION_PREFIX
-      - ../../config/loom/index_db.php:/var/www/html/index_db.php
       - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
       sh -c "
-        chmod +x /var/www/html/watcher.sh &&
+        chmod +x /var/www/html/config/watcher.sh &&
         exec supervisord -c /etc/supervisor/conf.d/tribe.conf
       "
     networks:

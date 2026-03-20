@@ -9,6 +9,3 @@
 sftp-config.json
 /.idea
 .DS_Store
-index_db.php
-index_files.php
-watcher.sh

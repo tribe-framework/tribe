@@ -281,18 +281,15 @@ services:
       - TYPESENSE_COLLECTION_PREFIX=${name}
       - COLLECTION_NAME=${name}_files
       - INDEX_FOLDER=/var/www/html/uploads
-      - INDEX_DB_SCRIPT=/var/www/html/index_db.php
+      - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
       - ../../applications/tribe-base:/var/www/html:ro
       - ../../uploads/threads/${name}:/var/www/html/uploads
       - ../../logs/threads/${name}:/var/log
-      - ../../config/tribe/index_files.php:/var/www/html/index_files.php
-      - ../../config/tribe/watcher.sh:/var/www/html/watcher.sh
-      - ../../config/loom/index_db.php:/var/www/html/index_db.php
       - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
       sh -c "
-        chmod +x /var/www/html/watcher.sh &&
+        chmod +x /var/www/html/config/watcher.sh &&
         exec supervisord -c /etc/supervisor/conf.d/tribe.conf
       "
     networks:
