@@ -343,6 +343,7 @@ services:
       - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
       - ../../applications/tribe:/var/www/html:ro
+      - ./custom:/var/www/html/custom
       - ../../uploads/threads/${name}:/var/www/html/uploads
       - ../../logs/threads/${name}:/var/log
       - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
@@ -382,6 +383,7 @@ services:
       - "${tribePort}:80"
     volumes:
       - ../../applications/tribe:/var/www/html:ro
+      - ./custom:/var/www/html/custom
       - ../../uploads/threads/${name}:/var/www/html/uploads
       - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
       - ../../logs/threads/${name}:/var/log/caddy
@@ -587,6 +589,9 @@ async function cmdCreate(name) {
   const threadDir = path.join(THREADS_DIR, name);
   fs.mkdirSync(path.join(threadDir, 'config', 'tribe'),    { recursive: true });
   fs.mkdirSync(path.join(threadDir, 'config', 'junction'), { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'custom'), { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'dist'), { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'dist-php'), { recursive: true });
   fs.mkdirSync(path.join(SCRIPT_DIR, 'uploads', 'threads', name), { recursive: true });
   fs.mkdirSync(path.join(SCRIPT_DIR, 'logs',    'threads', name), { recursive: true });
 
