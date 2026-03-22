@@ -737,7 +737,7 @@ function mysqlBackupNow(name) {
   const dbName     = registryGet(name, 'db_name');
   const backupDir  = path.join(THREADS_DIR, name, 'uploads', 'backups');
   const dateTag    = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15);
-  const backupFile = path.join(backupDir, `${PROJECT_NAME}_${name}_backup_${dateTag}.sql.gz`);
+  const backupFile = path.join(backupDir, `${PROJECT_NAME}_${name}_backup_${dateTag}sql.gz`);
 
   fs.mkdirSync(backupDir, { recursive: true });
 
