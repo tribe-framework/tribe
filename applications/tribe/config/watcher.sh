@@ -65,7 +65,7 @@ inotifywait \
 
     # Skip internal dirs
     case "$filepath" in
-        */filebrowser/*|*/backups/*|*/typesense/*|*/types/*|*/sites/*|*/tribe-threads/*|*/.git/*) continue ;;
+        */filebrowser/*|*/backups/*|*/typesense/*|*/types/*|*/sites/*|*/.git/*) continue ;;
     esac
 
     echo "${event}|${filepath}" >> "$QUEUE_FILE"

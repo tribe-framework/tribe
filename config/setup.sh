@@ -108,7 +108,6 @@ mkdir -p /uploads
 mkdir -p /uploads/sites
 mkdir -p /uploads/backups
 mkdir -p /uploads/filebrowser
-mkdir -p /uploads/tribe-threads
 
 echo "📁 Created necessary directories"
 

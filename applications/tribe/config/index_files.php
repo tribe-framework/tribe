@@ -240,7 +240,7 @@ function buildDocument(SplFileInfo $file, string $indexFolder, int $maxChars): a
 
 // ─── Skip List ────────────────────────────────────────────────────────────────
 function shouldSkip(SplFileInfo $file): bool {
-    $skip_dirs = ['filebrowser', 'backups', 'typesense', 'types', 'sites', 'tribe-threads', '.git', 'node_modules', 'vendor'];
+    $skip_dirs = ['filebrowser', 'backups', 'typesense', 'types', 'sites', '.git', 'node_modules', 'vendor'];
     $path_parts = explode(DIRECTORY_SEPARATOR, $file->getPathname());
     foreach ($skip_dirs as $dir) {
         if (in_array($dir, $path_parts)) return true;

@@ -6,9 +6,6 @@
 |------|------------|
 | **Tribe** | PHP content/app framework — core backend and UI engine |
 | **Junction** | CMS layer connecting to Tribe via API |
-| **Loom** | Multi-tenant mode — one shared infrastructure hosting many Threads |
-| **Thread** | A single Tribe + Junction instance inside a Loom setup |
-| **Tor** | Overlay mode routing all traffic through `.onion` hidden services |
 | **Docker** | Containerisation platform; `docker-compose.yml` defines all services |
 | **.env** | Environment file holding secrets and config |
 | **MySQL** | Relational database storing all Tribe content and data |
@@ -16,6 +13,9 @@
 | **Caddy** | Web server / reverse proxy — handles HTTP, routes to PHP-FPM |
 | **Typesense** | Fast search engine — indexes Tribe content for full-text search |
 | **FileBrowser** | Web UI for browsing and managing uploaded files |
+| **Loom** | Multi-tenant mode — one shared infrastructure hosting many Threads |
+| **Thread** | A single Tribe + Junction instance inside a Loom setup |
+| **Tor** | Overlay mode routing all traffic through `.onion` hidden services |
 
 ---
 
@@ -75,13 +75,7 @@ Loom lets you run hundreds of isolated Tribe + Junction instances (Threads) on o
 **To use Loom:**
 
 ```bash
-# 1. In your .env, set LOOM_MODE=true and configure shared service credentials.
-#    Thread ports are allocated automatically starting from THREAD_BASE_PORT.
-
-# 2. Start shared infrastructure
-docker compose --profile loom up -d
-
-# 3. Manage Threads with loom.sh
+# Manage Threads with loom.sh
 ./loom.sh create <name>    # provision and start a new Thread
 ./loom.sh list             # list all Threads with ports and status
 ./loom.sh destroy <name>   # stop containers and drop DB

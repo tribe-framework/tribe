@@ -84,9 +84,9 @@ check_and_backup() {
 
 # Function to calculate seconds until next 4 AM
 seconds_until_4am() {
-    current_hour=$(date +%H)
-    current_min=$(date +%M)
-    current_sec=$(date +%S)
+    current_hour=$(date +%-H)
+    current_min=$(date +%-M)
+    current_sec=$(date +%-S)
     
     # Calculate seconds since midnight
     current_seconds=$((current_hour * 3600 + current_min * 60 + current_sec))
