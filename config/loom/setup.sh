@@ -12,7 +12,7 @@ set -e
 echo "🚀 Loom setup starting..."
 
 # ─── Tribe-base: composer install ─────────────────────────────────────────────
-TRIBE_BASE="/applications/tribe-base"
+TRIBE_BASE="/applications/tribe"
 
 if [ ! -d "$TRIBE_BASE" ]; then
     echo "⚠️  Tribe base app not found at $TRIBE_BASE"

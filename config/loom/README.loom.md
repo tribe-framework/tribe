@@ -25,7 +25,6 @@ Before using Loom, move its files to the project root:
 
 ```bash
 mv config/loom/docker-compose.loom.yml .
-mv config/loom/docker-compose.thread.yml .
 mv config/loom/loom.sh .
 mv config/loom/.env.loom.sample .
 ```
@@ -38,20 +37,25 @@ cp .env.loom.sample .env.loom
 # Edit .env.loom — set DB_ROOT_PASSWORD, TYPESENSE_API_KEY, FILEBROWSER_PASSWORD
 
 # 2. Place Tribe app code
-# applications/tribe-base/ must contain the Tribe app before creating threads
+# applications/tribe/ must contain the Tribe app before creating threads
 
-# 3. Start shared services
+# 3. Copy the Loom-patched DB indexer into the Tribe app
+cp config/loom/index_db.php applications/tribe/config/index_db.php
+
+# 4. Start shared services
 docker compose -f docker-compose.loom.yml --env-file .env.loom up -d
 
-# 4. Make CLI executable
+# 5. Make CLI executable
 chmod +x loom.sh
 ```
+
+> **Note:** `docker-compose.thread.yml` is not used directly. Thread compose files
+> are generated and written to `threads/<name>/docker-compose.yml` by `loom.sh create`.
 
 ## Directory Layout
 
 ```
 docker-compose.loom.yml        # shared infra
-docker-compose.thread.yml      # thread template (reference)
 loom.sh                        # CLI
 .env.loom.sample               # → copy to .env.loom
 
@@ -61,8 +65,8 @@ applications/
 
 config/
   loom/
-    setup.sh                   # one-shot loom boot script
-    index_db.php               # tribe's index_db.php + collection prefix support
+    setup.sh                   # one-shot loom boot script (run by loom_setup container)
+    index_db.php               # loom-patched indexer — copy to applications/tribe/config/
   mysql/
     my.cnf
     install.sql                # schema imported into each new thread's DB
@@ -122,24 +126,24 @@ logs/
 
 Sequential, starting from `THREAD_BASE_PORT` (default `13000`).
 
-| Thread | Tribe | Junction |
-|--------|-------|----------|
-| 1st    | 13000 | 13001    |
-| 2nd    | 13002 | 13003    |
-| nth    | 13000 + (n-1)×2 | +1 |
+| Thread | Tribe           | Junction |
+| ------ | --------------- | -------- |
+| 1st    | 13000           | 13001    |
+| 2nd    | 13002           | 13003    |
+| nth    | 13000 + (n-1)×2 | +1       |
 
 Change `THREAD_BASE_PORT` in `.env.loom` before creating the first thread.
 
 ## Isolation Model
 
-| Resource | Isolation | How |
-|----------|-----------|-----|
-| MySQL | Per thread | Separate DB + user, least-privilege grant |
-| Typesense | Per thread | Collection prefix: `<name>_<type>` |
-| Uploads | Per thread | `uploads/threads/<name>/` |
-| Logs | Per thread | `logs/threads/<name>/` |
-| Ports | Per thread | 2 ports allocated at create time |
-| App code | **Shared** | `applications/tribe-base` mounted `:ro` |
+| Resource  | Isolation  | How                                       |
+| --------- | ---------- | ----------------------------------------- |
+| MySQL     | Per thread | Separate DB + user, least-privilege grant |
+| Typesense | Per thread | Collection prefix: `<name>_<type>`        |
+| Uploads   | Per thread | `uploads/threads/<name>/`                 |
+| Logs      | Per thread | `logs/threads/<name>/`                    |
+| Ports     | Per thread | 2 ports allocated at create time          |
+| App code  | **Shared** | `applications/tribe` mounted `:ro`        |
 
 ## Typesense Collection Naming
 
@@ -150,12 +154,12 @@ Controlled via `TYPESENSE_COLLECTION_PREFIX` env var, handled in `config/loom/in
 
 ## Shared Services
 
-| Service | Port (default) | Notes |
-|---------|---------------|-------|
-| phpMyAdmin | `12001` | Connects to `loom_mysql`, sees all thread DBs |
-| FileBrowser | `12005` | Root is `uploads/threads/`, sees all thread files |
-| MySQL | internal | Container `loom_mysql`, not exposed to host |
-| Typesense | internal | Container `loom_typesense`, not exposed to host |
+| Service     | Port (default) | Notes                                             |
+| ----------- | -------------- | ------------------------------------------------- |
+| phpMyAdmin  | `12001`        | Connects to `loom_mysql`, sees all thread DBs     |
+| FileBrowser | `12005`        | Root is `uploads/threads/`, sees all thread files |
+| MySQL       | internal       | Container `loom_mysql`, not exposed to host       |
+| Typesense   | internal       | Container `loom_typesense`, not exposed to host   |
 
 ## Coexistence with Standard Tribe
 
@@ -177,4 +181,4 @@ They use separate networks (`tribe_network` vs `loom_network`) and won't conflic
 - Thread `.env` is **never overwritten** by `loom.sh` after initial creation. Edit freely.
 - `loom.sh recreate-config` regenerates compose + Caddyfiles but always preserves `.env`.
 - Backups: `loom_mysql_backup` dumps `--all-databases`, covering all thread DBs in one job.
-- `applications/tribe-base/vendor/` is populated once during `loom_setup`. No per-thread composer overhead.
+- `applications/tribe/vendor/` is populated once during `loom_setup`. No per-thread composer overhead.

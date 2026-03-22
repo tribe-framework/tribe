@@ -12,9 +12,10 @@
 #   ./loom.sh status  <name>          Show container status for a Thread
 #
 # Prerequisites:
-#   - docker compose -f docker-compose.loom.yml up -d   (Loom must be running)
+#   - docker compose -f docker-compose.loom.yml --env-file .env.loom up -d
 #   - .env.loom present in this directory
-#   - applications/tribe-base/ contains the Tribe app code
+#   - applications/tribe/ contains the Tribe app code
+#
 # ══════════════════════════════════════════════════════════════════════════════
 
 set -euo pipefail
@@ -24,7 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THREADS_DIR="$SCRIPT_DIR/threads"
 REGISTRY="$THREADS_DIR/.registry.json"
 ENV_FILE="$SCRIPT_DIR/.env.loom"
-TRIBE_BASE="$SCRIPT_DIR/applications/tribe-base"
+TRIBE_BASE="$SCRIPT_DIR/applications/tribe"
 LOOM_MYSQL_CONTAINER="loom_mysql"
 LOOM_NETWORK="loom_network"
 THREAD_BASE_PORT=13000   # overridable in .env.loom
@@ -173,10 +174,14 @@ generate_tribe_caddyfile() {
     }
     respond @hidden 403
 
-    @mysql_uploads { path /uploads/mysql/* }
+    @mysql_uploads {
+        path /uploads/mysql/*
+    }
     respond @mysql_uploads 403
 
-    @uploads { path /uploads/* }
+    @uploads {
+        path /uploads/*
+    }
     route @uploads {
         try_files {path} /uploads.php{query}
     }
@@ -185,10 +190,15 @@ generate_tribe_caddyfile() {
         file
         path *.css *.gif *.ico *.webp *.jpeg *.jpg *.js *.png *.woff *.woff2 *.ttf *.eot
     }
-    header @static { Cache-Control "public, max-age=31536000, immutable" }
+    header @static {
+        Cache-Control "public, max-age=31536000, immutable"
+    }
 
     file_server
-    encode { gzip 6; minimum_length 1000 }
+    encode {
+        gzip 6
+        minimum_length 1000
+    }
 
     log {
         output file /var/log/caddy/tribe_access.log {
@@ -236,10 +246,15 @@ generate_junction_caddyfile() {
         file
         path *.css *.gif *.ico *.webp *.jpeg *.jpg *.js *.png *.woff *.woff2 *.ttf *.eot
     }
-    header @static { Cache-Control "public, max-age=31536000, immutable" }
+    header @static {
+        Cache-Control "public, max-age=31536000, immutable"
+    }
 
     file_server
-    encode { gzip 6; minimum_length 1000 }
+    encode {
+        gzip 6
+        minimum_length 1000
+    }
 
     log {
         output file /var/log/caddy/junction_access.log {
@@ -283,13 +298,12 @@ services:
       - INDEX_FOLDER=/var/www/html/uploads
       - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
-      - ../../applications/tribe-base:/var/www/html:ro
+      - ../../applications/tribe:/var/www/html
       - ../../uploads/threads/${name}:/var/www/html/uploads
       - ../../logs/threads/${name}:/var/log
-      - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
+      - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf
     command: >
       sh -c "
-        chmod +x /var/www/html/config/watcher.sh &&
         exec supervisord -c /etc/supervisor/conf.d/tribe.conf
       "
     networks:
@@ -323,9 +337,9 @@ services:
     ports:
       - "${tribe_port}:80"
     volumes:
-      - ../../applications/tribe-base:/var/www/html:ro
+      - ../../applications/tribe:/var/www/html
       - ../../uploads/threads/${name}:/var/www/html/uploads
-      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile
       - ../../logs/threads/${name}:/var/log/caddy
       - tribe_caddy_data:/data
       - tribe_caddy_config:/config
@@ -345,7 +359,7 @@ services:
     volumes:
       - ../../applications/threads/${name}/junction/dist:/var/www/html
       - ../../uploads/threads/${name}:/var/www/html/uploads
-      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile
       - ../../logs/threads/${name}:/var/log/caddy
       - junction_caddy_data:/data
       - junction_caddy_config:/config
