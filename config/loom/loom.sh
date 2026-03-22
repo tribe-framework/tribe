@@ -298,10 +298,10 @@ services:
       - INDEX_FOLDER=/var/www/html/uploads
       - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
-      - ../../applications/tribe:/var/www/html
+      - ../../applications/tribe:/var/www/html:ro
       - ../../uploads/threads/${name}:/var/www/html/uploads
       - ../../logs/threads/${name}:/var/log
-      - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf
+      - ../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
       sh -c "
         exec supervisord -c /etc/supervisor/conf.d/tribe.conf
@@ -337,9 +337,9 @@ services:
     ports:
       - "${tribe_port}:80"
     volumes:
-      - ../../applications/tribe:/var/www/html
+      - ../../applications/tribe:/var/www/html:ro
       - ../../uploads/threads/${name}:/var/www/html/uploads
-      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile
+      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
       - ../../logs/threads/${name}:/var/log/caddy
       - tribe_caddy_data:/data
       - tribe_caddy_config:/config
@@ -359,7 +359,7 @@ services:
     volumes:
       - ../../applications/threads/${name}/junction/dist:/var/www/html
       - ../../uploads/threads/${name}:/var/www/html/uploads
-      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile
+      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
       - ../../logs/threads/${name}:/var/log/caddy
       - junction_caddy_data:/data
       - junction_caddy_config:/config
