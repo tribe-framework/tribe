@@ -23,9 +23,11 @@
 //     docker-compose.yml
 //     .env
 //     config/tribe/Caddyfile
+//     config/tribe/supervisord.conf
 //     config/junction/Caddyfile
 //     config/dist/Caddyfile
 //     config/dist-php/Caddyfile
+//     config/backup.sh
 //     applications/tribe/custom/   ← per-thread Tribe customisations
 //     uploads/                     ← user-uploaded files
 //     logs/                        ← container logs
@@ -45,7 +47,9 @@ const SCRIPT_DIR  = __dirname;
 const THREADS_DIR = path.join(SCRIPT_DIR, 'threads');
 const REGISTRY    = path.join(THREADS_DIR, '.registry.json');
 const ENV_FILE    = path.join(SCRIPT_DIR, '.env');
-const TRIBE_BASE  = path.join(SCRIPT_DIR, 'applications', 'tribe');
+const TRIBE_BASE        = path.join(SCRIPT_DIR, 'applications', 'tribe');
+const SUPERVISORD_CONF  = path.join(SCRIPT_DIR, 'config', 'tribe', 'supervisord.conf');
+const BACKUP_SH         = path.join(SCRIPT_DIR, 'config', 'backup.sh');
 
 // Resolved after loadEnv()
 let LOOM_MYSQL_CONTAINER = '';
@@ -473,11 +477,11 @@ services:
       - INDEX_FOLDER=/var/www/html/uploads
       - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
-      - ../../../applications/tribe:/var/www/html:ro
-      - ./applications/tribe/custom:/var/www/html/custom
       - ./uploads:/var/www/html/uploads
+      - ./applications/tribe/custom:/var/www/html/custom
       - ./logs:/var/log
-      - ../../../config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
+      - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf
+      - ../../../applications/tribe:/var/www/html:ro
     command: >
       sh -c "
         exec supervisord -c /etc/supervisor/conf.d/tribe.conf
@@ -493,9 +497,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ../../../applications/junction/dist:/var/www/html:ro
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log
+      - ../../../applications/junction/dist:/var/www/html:ro
     command: >
       sh -c "
         if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
@@ -513,11 +517,11 @@ services:
     ports:
       - "${tribePort}:80"
     volumes:
-      - ../../../applications/tribe:/var/www/html:ro
       - ./applications/tribe/custom:/var/www/html/custom
       - ./uploads:/var/www/html/uploads
-      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./logs:/var/log/caddy
+      - ../../../applications/tribe:/var/www/html:ro
+      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
       - tribe_caddy_data:/data
       - tribe_caddy_config:/config
     depends_on:
@@ -534,10 +538,10 @@ services:
     ports:
       - "${junctionPort}:80"
     volumes:
-      - ../../../applications/junction/dist:/var/www/html:ro
       - ./uploads:/var/www/html/uploads
-      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./logs:/var/log/caddy
+      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../../applications/junction/dist:/var/www/html:ro
       - junction_caddy_data:/data
       - junction_caddy_config:/config
     depends_on:
@@ -551,7 +555,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./uploads/backups:/backups
-      - ../../../config/backup.sh:/backup.sh:ro
+      - ./config/backup.sh:/backup.sh
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
@@ -572,8 +576,8 @@ services:
       - "${distPort}:80"
     volumes:
       - ./uploads/sites/dist:/srv
-      - ./config/dist/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./logs:/var/log/caddy
+      - ./config/dist/Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - thread_network
 
@@ -605,8 +609,8 @@ services:
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
-      - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./logs:/var/log/caddy
+      - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile:ro
       - dist_php_caddy_data:/data
       - dist_php_caddy_config:/config
     depends_on:
@@ -807,20 +811,28 @@ async function cmdCreate(name) {
   // ── Directory structure ─────────────────────────────────────────────────────
   // Everything lives inside threads/<name>/ for a fully self-contained thread.
   const threadDir = path.join(THREADS_DIR, name);
-  fs.mkdirSync(path.join(threadDir, 'config', 'tribe'),             { recursive: true });
-  fs.mkdirSync(path.join(threadDir, 'config', 'junction'),          { recursive: true });
-  fs.mkdirSync(path.join(threadDir, 'config', 'dist'),          { recursive: true });
-  fs.mkdirSync(path.join(threadDir, 'config', 'dist-php'),          { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'config', 'tribe'),               { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'config', 'junction'),            { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'config', 'dist'),                { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'config', 'dist-php'),            { recursive: true });
   fs.mkdirSync(path.join(threadDir, 'applications', 'tribe', 'custom'), { recursive: true });
-  fs.mkdirSync(path.join(threadDir, 'uploads'),                     { recursive: true });
-  fs.mkdirSync(path.join(threadDir, 'logs'),                        { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'uploads'),                       { recursive: true });
+  fs.mkdirSync(path.join(threadDir, 'logs'),                          { recursive: true });
 
   // ── Generate configs ────────────────────────────────────────────────────────
   info('Generating Caddyfiles...');
   fs.writeFileSync(path.join(threadDir, 'config', 'tribe',    'Caddyfile'), generateTribeCaddyfile(name));
   fs.writeFileSync(path.join(threadDir, 'config', 'junction', 'Caddyfile'), generateJunctionCaddyfile(name));
-  fs.writeFileSync(path.join(threadDir, 'config', 'dist', 'Caddyfile'), generateDistCaddyfile(name));
+  fs.writeFileSync(path.join(threadDir, 'config', 'dist',     'Caddyfile'), generateDistCaddyfile(name));
   fs.writeFileSync(path.join(threadDir, 'config', 'dist-php', 'Caddyfile'), generateDistPhpCaddyfile(name));
+
+  info('Copying supervisord.conf...');
+  if (!fs.existsSync(SUPERVISORD_CONF)) die(`supervisord.conf not found at: ${SUPERVISORD_CONF}`);
+  fs.copyFileSync(SUPERVISORD_CONF, path.join(threadDir, 'config', 'tribe', 'supervisord.conf'));
+
+  info('Copying backup.sh...');
+  if (!fs.existsSync(BACKUP_SH)) die(`backup.sh not found at: ${BACKUP_SH}`);
+  fs.copyFileSync(BACKUP_SH, path.join(threadDir, 'config', 'backup.sh'));
 
   info('Generating docker-compose.yml...');
   fs.writeFileSync(path.join(threadDir, 'docker-compose.yml'), generateThreadCompose(name, tribePort, junctionPort, distPort, distPhpPort));
@@ -1016,6 +1028,17 @@ function cmdRecreateConfig(name) {
   fs.writeFileSync(path.join(threadDir, 'config', 'dist-php', 'Caddyfile'), generateDistPhpCaddyfile(name));
   fs.writeFileSync(path.join(threadDir, 'docker-compose.yml'),              generateThreadCompose(name, tribePort, junctionPort, distPort, distPhpPort));
 
+  if (fs.existsSync(SUPERVISORD_CONF)) {
+    fs.copyFileSync(SUPERVISORD_CONF, path.join(threadDir, 'config', 'tribe', 'supervisord.conf'));
+  } else {
+    warn(`supervisord.conf not found at ${SUPERVISORD_CONF} — skipping copy.`);
+  }
+  if (fs.existsSync(BACKUP_SH)) {
+    fs.copyFileSync(BACKUP_SH, path.join(threadDir, 'config', 'backup.sh'));
+  } else {
+    warn(`backup.sh not found at ${BACKUP_SH} — skipping copy.`);
+  }
+
   log(`Config regenerated. Run 'loom.js start ${name}' to apply.`);
 }
 
@@ -1049,8 +1072,19 @@ function cmdUpgradeDocker(name) {
   info('Regenerating Caddyfiles...');
   fs.writeFileSync(path.join(threadDir, 'config', 'tribe',    'Caddyfile'), generateTribeCaddyfile(name));
   fs.writeFileSync(path.join(threadDir, 'config', 'junction', 'Caddyfile'), generateJunctionCaddyfile(name));
-  fs.writeFileSync(path.join(threadDir, 'config', 'dist', 'Caddyfile'), generateDistCaddyfile(name));
+  fs.writeFileSync(path.join(threadDir, 'config', 'dist',     'Caddyfile'), generateDistCaddyfile(name));
   fs.writeFileSync(path.join(threadDir, 'config', 'dist-php', 'Caddyfile'), generateDistPhpCaddyfile(name));
+
+  if (fs.existsSync(SUPERVISORD_CONF)) {
+    fs.copyFileSync(SUPERVISORD_CONF, path.join(threadDir, 'config', 'tribe', 'supervisord.conf'));
+  } else {
+    warn(`supervisord.conf not found at ${SUPERVISORD_CONF} — skipping copy.`);
+  }
+  if (fs.existsSync(BACKUP_SH)) {
+    fs.copyFileSync(BACKUP_SH, path.join(threadDir, 'config', 'backup.sh'));
+  } else {
+    warn(`backup.sh not found at ${BACKUP_SH} — skipping copy.`);
+  }
 
   info('Regenerating docker-compose.yml...');
   fs.writeFileSync(composeFile, generateThreadCompose(name, tribePort, junctionPort, distPort, distPhpPort));
