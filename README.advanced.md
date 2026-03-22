@@ -33,12 +33,6 @@ config/                # Service configuration
   dist/                # Caddyfile (static site)
   dist-php/            # Caddyfile (PHP site)
   backup.sh            # MySQL backup script
-  loom/                # Loom setup, CLI template, index_db.php
-    README.loom.md     # ← Loom setup guide
-    docker-compose.loom.yml
-    docker-compose.thread.yml
-    .env.loom.sample
-    loom.sh
   tor/                 # Tor daemon config and helpers
     README.tor.md      # ← Tor setup guide
     docker-compose.tor.yml
@@ -81,17 +75,17 @@ Loom lets you run hundreds of isolated Tribe + Junction instances (Threads) on o
 **To use Loom:**
 
 ```bash
-# 1. Copy files to project root
-mv config/loom/docker-compose.loom.yml .
-mv config/loom/docker-compose.thread.yml .
-mv config/loom/loom.sh .
-mv config/loom/.env.loom.sample .
+# 1. In your .env, set LOOM_MODE=true and configure shared service credentials.
+#    Thread ports are allocated automatically starting from THREAD_BASE_PORT.
 
-# 2. Follow the guide
-# config/loom/README.loom.md
+# 2. Start shared infrastructure
+docker compose --profile loom up -d
+
+# 3. Manage Threads with loom.sh
+./loom.sh create <name>    # provision and start a new Thread
+./loom.sh list             # list all Threads with ports and status
+./loom.sh destroy <name>   # stop containers and drop DB
 ```
-
-→ Full instructions: [config/loom/README.loom.md](config/loom/README.loom.md)
 
 ---
 
