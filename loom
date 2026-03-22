@@ -732,6 +732,47 @@ function dropDb(dbName, dbUser) {
   log('Database and user removed.');
 }
 
+// ─── On-demand backup ────────────────────────────────────────────────────────
+function mysqlBackupNow(name) {
+  const dbName     = registryGet(name, 'db_name');
+  const backupDir  = path.join(THREADS_DIR, name, 'uploads', 'backups');
+  const dateTag    = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15);
+  const backupFile = path.join(backupDir, `${PROJECT_NAME}_${name}_backup_${dateTag}.sql.gz`);
+
+  fs.mkdirSync(backupDir, { recursive: true });
+
+  info(`Creating MySQL backup for '${name}' before shutdown...`);
+
+  // Run mysqldump inside the shared MySQL container and pipe through gzip on the host
+  const dump = spawnSync(
+    'docker',
+    [
+      'exec', LOOM_MYSQL_CONTAINER,
+      'mysqldump',
+      '-u', 'root', `-p${DB_ROOT_PASSWORD}`,
+      '--single-transaction', '--routines', '--triggers',
+      dbName,
+    ],
+    { stdio: ['pipe', 'pipe', 'pipe'] }
+  );
+
+  if (dump.status !== 0) {
+    warn(`Backup failed (mysqldump exited ${dump.status}): ${(dump.stderr || '').toString().trim()}`);
+    return false;
+  }
+
+  // Gzip the output
+  const gzip = spawnSync('gzip', ['-c'], { input: dump.stdout, stdio: ['pipe', 'pipe', 'pipe'] });
+  if (gzip.status !== 0) {
+    warn('Backup failed: gzip error.');
+    return false;
+  }
+
+  fs.writeFileSync(backupFile, gzip.stdout);
+  log(`Backup saved: ${backupFile}`);
+  return true;
+}
+
 // ─── Random password ─────────────────────────────────────────────────────────
 function randomPass() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -889,6 +930,8 @@ async function cmdDestroy(name) {
   const confirm = await prompt('Type the thread name to confirm: ');
   if (confirm !== name) die('Aborted.');
 
+  mysqlBackupNow(name);
+
   info('Stopping containers...');
   dockerCompose(path.join(threadDir, 'docker-compose.yml'), ['down', '-v']);
 
@@ -978,6 +1021,8 @@ function cmdStop(name) {
 
   loadEnv();
   if (!registryHas(name)) die(`Thread '${name}' not found.`);
+
+  mysqlBackupNow(name);
 
   info(`Stopping thread '${name}'...`);
   dockerCompose(path.join(THREADS_DIR, name, 'docker-compose.yml'), ['stop']);
