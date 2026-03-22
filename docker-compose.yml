@@ -135,7 +135,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - MYSQL_PWD=${DB_ROOT_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      - DB_NAME=${DB_NAME:---all-databases}
       - DB_HOST=${DB_HOST}
       - PROJECT_NAME=${PROJECT_NAME}
     command: ["bash", "/backup.sh"]
