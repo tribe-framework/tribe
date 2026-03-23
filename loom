@@ -12,6 +12,7 @@
 //   node loom status         <n>       Show container status for a Thread
 //   node loom recreate-config <n>      Regenerate compose + Caddyfiles (keeps .env)
 //   node loom upgrade-docker  <n>      Stop thread, regenerate compose, restart
+//   node loom set-junction-password <n> [pw]  Update JUNCTION_PASSWORD, restart junction
 //
 // Prerequisites:
 //   - docker compose up -d
@@ -1149,6 +1150,49 @@ function cmdUpgradeDocker(name) {
   console.log('');
 }
 
+// ─── set-junction-password ────────────────────────────────────────────────────
+// Updates JUNCTION_PASSWORD in threads/<n>/.env and restarts junction
+// containers so the change takes effect immediately.
+async function cmdSetJunctionPassword(name) {
+  if (!name) die('Usage: node loom set-junction-password <n> [password]');
+
+  loadEnv();
+  if (!registryHas(name)) die(`Thread '${name}' not found.`);
+
+  const threadDir = path.join(THREADS_DIR, name);
+  const envFile   = path.join(threadDir, '.env');
+
+  if (!fs.existsSync(envFile)) die(`No .env found for thread '${name}' at ${envFile}`);
+
+  // Use supplied arg or prompt interactively
+  let newPassword = process.argv[4] || '';
+  if (!newPassword) {
+    newPassword = await prompt('New JUNCTION_PASSWORD: ');
+  }
+  newPassword = newPassword.trim();
+  if (!newPassword) die('Password cannot be empty.');
+
+  // Read .env, replace or append JUNCTION_PASSWORD
+  let envContent = fs.readFileSync(envFile, 'utf8');
+
+  if (/^JUNCTION_PASSWORD=.*$/m.test(envContent)) {
+    envContent = envContent.replace(/^JUNCTION_PASSWORD=.*$/m, `JUNCTION_PASSWORD=${newPassword}`);
+    info('Updated existing JUNCTION_PASSWORD.');
+  } else {
+    envContent += `\nJUNCTION_PASSWORD=${newPassword}\n`;
+    warn('JUNCTION_PASSWORD was not present — appended to .env.');
+  }
+
+  fs.writeFileSync(envFile, envContent);
+  log(`.env updated for thread '${name}'.`);
+
+  // Restart only the junction containers so the new password is picked up
+  const composeFile = path.join(threadDir, 'docker-compose.yml');
+  info('Restarting junction containers...');
+  dockerCompose(composeFile, ['restart', 'php_junction', 'caddy_junction']);
+  log(`Junction containers restarted. JUNCTION_PASSWORD updated for thread '${name}'.`);
+}
+
 function usage() {
   console.log(`Usage: node loom <command> [args]
 
@@ -1159,8 +1203,9 @@ function usage() {
   stop            <n>       Stop a running Thread
   logs            <n> [svc] Tail logs (svc: php_tribe|caddy_tribe|php_junction|caddy_junction)
   status          <n>       Show container status
-  recreate-config <n>       Regenerate compose + Caddyfiles (keeps .env)
-  upgrade-docker  <n>       Stop thread, regenerate compose, pull images, restart
+  recreate-config        <n>       Regenerate compose + Caddyfiles (keeps .env)
+  upgrade-docker         <n>       Stop thread, regenerate compose, pull images, restart
+  set-junction-password  <n> [pw]  Update JUNCTION_PASSWORD in thread .env and restart junction
 `);
   process.exit(1);
 }
@@ -1178,7 +1223,8 @@ function usage() {
     case 'logs':            cmdLogs(arg1, arg2);          break;
     case 'status':          cmdStatus(arg1);              break;
     case 'recreate-config': cmdRecreateConfig(arg1);      break;
-    case 'upgrade-docker':  cmdUpgradeDocker(arg1);       break;
+    case 'upgrade-docker':        cmdUpgradeDocker(arg1);             break;
+    case 'set-junction-password': await cmdSetJunctionPassword(arg1); break;
     default:                usage();
   }
 })();
