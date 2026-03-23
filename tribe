@@ -436,7 +436,7 @@ function mysqlBackupNow() {
 
   const backupDir  = path.join(SCRIPT_DIR, 'uploads', 'backups');
   const dateTag    = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15);
-  const backupFile = path.join(backupDir, `${PROJECT_NAME}_backup_${dateTag}.sql.gz`);
+  const backupFile = path.join(backupDir, `${PROJECT_NAME}_backup_${dateTag}sql.gz`);
 
   fs.mkdirSync(backupDir, { recursive: true });
   info('Creating MySQL backup before shutdown...');
