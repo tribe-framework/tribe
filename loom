@@ -479,7 +479,7 @@ services:
     volumes:
       - ./logs:/var/log
       - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf
-      - ../../../applications/tribe:/var/www/html
+      - ../../applications/tribe:/var/www/html
       - ./applications/tribe/custom:/var/www/html/custom
       - ./uploads:/var/www/html/uploads
     command: >
@@ -499,7 +499,7 @@ services:
     volumes:
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log
-      - ../../../applications/junction/dist:/var/www/html
+      - ../../applications/junction/dist:/var/www/html
     command: >
       sh -c "
         if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
@@ -518,7 +518,7 @@ services:
       - "${tribePort}:80"
     volumes:
       - ./logs:/var/log/caddy
-      - ../../../applications/tribe:/var/www/html
+      - ../../applications/tribe:/var/www/html
       - ./applications/tribe/custom:/var/www/html/custom
       - ./uploads:/var/www/html/uploads
       - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile:ro
@@ -541,7 +541,7 @@ services:
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log/caddy
       - ./config/junction/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ../../../applications/junction/dist:/var/www/html
+      - ../../applications/junction/dist:/var/www/html
       - junction_caddy_data:/data
       - junction_caddy_config:/config
     depends_on:
@@ -560,7 +560,6 @@ services:
     env_file:
       - .env
     environment:
-      - MYSQL_PWD=\${DB_ROOT_PASSWORD}
       - DB_NAME=\${DB_NAME}
       - DB_HOST=\${DB_HOST}
       - PROJECT_NAME=${project}_${name}
@@ -655,7 +654,6 @@ BARE_URL=${BARE_URL}
 CONTACT_EMAIL=${CONTACT_EMAIL}
 
 # ─── Database ────────────────────────────────────────────────────────────────
-DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
 DB_NAME=${dbName}
 DB_USER=${dbUser}
 DB_PASS=${dbPass}
