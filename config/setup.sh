@@ -105,6 +105,7 @@ fi
 # Create directories
 mkdir -p /applications
 mkdir -p /uploads
+mkdir -p /uploads/threads
 mkdir -p /uploads/sites
 mkdir -p /uploads/backups
 mkdir -p /uploads/filebrowser
