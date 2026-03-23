@@ -46,8 +46,7 @@ services:
   # Also runs the Typesense file indexer + inotify watcher as background processes.
   # supervisord manages both php-fpm and the inotify watcher.
   php_tribe:
-    image: tribeframework/tribe-core:v1.2
-    platform: linux/amd64
+    image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     env_file:
@@ -84,8 +83,7 @@ services:
 
   # PHP 8 with FPM for Junction
   php_junction:
-    image: tribeframework/tribe-core:v1.2
-    platform: linux/amd64
+    image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
     env_file:
@@ -105,8 +103,7 @@ services:
 
   # PHP 8 with FPM for Dist PHP
   php_dist:
-    image: tribeframework/tribe-core:v1.2
-    platform: linux/amd64
+    image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
     env_file:
@@ -175,7 +172,6 @@ services:
   # phpMyAdmin for database management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5
-    platform: linux/amd64
     container_name: ${PROJECT_NAME}_phpmyadmin
     restart: unless-stopped
     ports:
