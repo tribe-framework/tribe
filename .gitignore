@@ -14,3 +14,4 @@
 *.code-workspace
 sftp-config.json
 .DS_Store
+.registry.json
