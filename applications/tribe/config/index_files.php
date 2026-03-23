@@ -99,27 +99,40 @@ function extractText(SplFileInfo $file, int $maxChars): array {
         return $doc;
     }
 
-    // PDFs — uses pdftotext (poppler-utils)
+    // In extractText(), replace the PDF block:
     if ($ext === 'pdf') {
         $doc['category'] = 'pdf';
         $doc['mime_type'] = 'application/pdf';
         $safePath = escapeshellarg($path);
-        $text = shell_exec("pdftotext -layout $safePath - 2>/dev/null");
-        $doc['content'] = mb_substr($text ?? '', 0, $maxChars);
 
-        // Also grab PDF metadata via pdfinfo
-        $info = shell_exec("pdfinfo $safePath 2>/dev/null");
-        if ($info) {
-            if (preg_match('/^Title:\s*(.+)$/m', $info, $m))  $doc['title']  = trim($m[1]);
-            if (preg_match('/^Author:\s*(.+)$/m', $info, $m)) $doc['author'] = trim($m[1]);
+        // First try native text extraction
+        $text = shell_exec("pdftotext -layout $safePath - 2>/dev/null");
+
+        // If pdftotext returned nothing (scanned PDF), OCR with Tesseract via ImageMagick
+        if (empty(trim($text ?? ''))) {
+            $tmpDir = sys_get_temp_dir() . '/ocr_' . md5($path);
+            @mkdir($tmpDir);
+            // Convert PDF pages to images, then OCR
+            shell_exec("gs -dNOPAUSE -dBATCH -sDEVICE=png16m -r150 -sOutputFile={$tmpDir}/page-%03d.png $safePath 2>/dev/null");
+            $ocrParts = [];
+            foreach (glob("{$tmpDir}/page-*.png") as $page) {
+                $safePage = escapeshellarg($page);
+                $ocrParts[] = shell_exec("tesseract $safePage stdout -l eng 2>/dev/null") ?? '';
+            }
+            $text = implode("\n", $ocrParts);
+            array_map('unlink', glob("{$tmpDir}/page-*.png"));
+            @rmdir($tmpDir);
         }
-        return $doc;
+
+        $doc['content'] = mb_substr($text ?? '', 0, $maxChars);
+        // ... pdfinfo block stays the same
     }
 
-    // IMAGES — EXIF metadata via exiftool
-    if (in_array($ext, ['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','avif','svg'])) {
+    // In extractText(), update the IMAGE block to add OCR:
+    if (in_array($ext, ['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','avif'])) {
         $doc['category'] = 'image';
         $safePath = escapeshellarg($path);
+
         $exifJson = shell_exec("exiftool -json -ImageWidth -ImageHeight -Title -Description -Artist -Keywords -Comment -DateTimeOriginal $safePath 2>/dev/null");
         if ($exifJson) {
             $exif = json_decode($exifJson, true)[0] ?? [];
@@ -144,6 +157,13 @@ function extractText(SplFileInfo $file, int $maxChars): array {
             ]);
             $doc['content'] = implode(' ', $parts);
         }
+
+        // OCR the image with Tesseract if content is still thin
+        if (mb_strlen(trim($doc['content'])) < 20 && in_array($ext, ['jpg','jpeg','png','bmp','tiff','tif','webp'])) {
+            $ocrText = shell_exec("tesseract $safePath stdout -l eng 2>/dev/null") ?? '';
+            $doc['content'] = trim($ocrText) ?: $doc['content'];
+        }
+        
         // Fallback: filename is searchable even without metadata
         if (empty(trim($doc['content']))) {
             $doc['content'] = pathinfo($file->getFilename(), PATHINFO_FILENAME);

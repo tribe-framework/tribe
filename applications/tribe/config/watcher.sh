@@ -1,37 +1,27 @@
 #!/bin/bash
-# ─── inotify watcher ───────────────────────────────────────────────────────────
-# Watches $INDEX_FOLDER for file changes and triggers the PHP indexer.
-# Uses inotifywait (inotify-tools) for efficient kernel-level file watching.
-
 INDEX_FOLDER="${INDEX_FOLDER:-/uploads}"
 INDEXER_SCRIPT="/var/www/html/config/index_files.php"
 PHP_BIN="${PHP_BIN:-php}"
-
-# Debounce: avoid hammering Typesense on bulk copy operations
 DEBOUNCE_SECONDS=2
 
-# Temp file used to pass events from the inotifywait subshell to the main loop.
-# A file is used instead of an associative array because the pipe that feeds
-# `while read` runs in a subshell — bash variables written inside it are not
-# visible to the parent, so declare -gA / unset don't work as expected.
 QUEUE_FILE=$(mktemp /tmp/watcher_queue.XXXXXX)
-trap 'rm -f "$QUEUE_FILE"' EXIT
+SWAP_FILE=$(mktemp /tmp/watcher_swap.XXXXXX)
+trap 'rm -f "$QUEUE_FILE" "$SWAP_FILE"' EXIT
 
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [watcher] $*"
-}
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [watcher] $*"; }
 
 flush_pending() {
-    # Deduplicate: keep only the last event per filepath (tail wins).
+    # Atomically swap queue → swap so the writer can keep appending
+    mv "$QUEUE_FILE" "$SWAP_FILE"
+    touch "$QUEUE_FILE"   # recreate immediately so writer never blocks
+
     declare -A seen
     while IFS='|' read -r event filepath; do
         seen["$filepath"]="$event"
-    done < "$QUEUE_FILE"
-    : > "$QUEUE_FILE"   # truncate atomically after reading
+    done < "$SWAP_FILE"
 
     for filepath in "${!seen[@]}"; do
-        event="${seen[$filepath]}"
-        log "Processing [$event]: $filepath"
+        log "Processing [${seen[$filepath]}]: $filepath"
         $PHP_BIN "$INDEXER_SCRIPT" "$filepath" &
     done
 }
@@ -39,13 +29,30 @@ flush_pending() {
 log "Starting inotify watcher on: $INDEX_FOLDER"
 log "Debounce: ${DEBOUNCE_SECONDS}s"
 
-# Run a full re-index on startup
-log "Running initial full index..."
-$PHP_BIN "$INDEXER_SCRIPT"
-log "Initial index complete. Watching for changes..."
+# ── Initial full index only if collection is empty ──────────────────────────
+# Avoids re-indexing everything on every docker restart (fixes issue 2).
+# Ask Typesense how many docs are in the 'files' collection.
+TYPESENSE_HOST="${TYPESENSE_HOST:-typesense}"
+TYPESENSE_PORT="${TYPESENSE_PORT:-8108}"
+TYPESENSE_API_KEY="${TYPESENSE_API_KEY:-xyz}"
+COLLECTION_NAME="${COLLECTION_NAME:-files}"
 
-# Background reader: write every qualifying event to QUEUE_FILE.
-# Runs in its own subshell so variable-visibility issues are irrelevant.
+count=$(curl -sf \
+    -H "X-TYPESENSE-API-KEY: ${TYPESENSE_API_KEY}" \
+    "http://${TYPESENSE_HOST}:${TYPESENSE_PORT}/collections/${COLLECTION_NAME}" \
+    2>/dev/null | grep -o '"num_documents":[0-9]*' | grep -o '[0-9]*')
+
+if [ -z "$count" ] || [ "$count" -eq 0 ]; then
+    log "Collection empty or missing — running initial full index..."
+    $PHP_BIN "$INDEXER_SCRIPT"
+    log "Initial index complete."
+else
+    log "Collection has $count documents — skipping full re-index."
+fi
+
+log "Watching for changes..."
+
+# Background inotify reader
 inotifywait \
     --monitor \
     --recursive \
@@ -56,27 +63,21 @@ inotifywait \
     --event delete \
     "$INDEX_FOLDER" 2>/dev/null | while IFS='|' read -r event filepath; do
 
-    # Skip directories, hidden files, temp files
     [[ -d "$filepath" ]]                  && continue
     [[ "$(basename "$filepath")" == .* ]] && continue
     [[ "$filepath" == *.tmp ]]            && continue
     [[ "$filepath" == *.swp ]]            && continue
     [[ "$filepath" == *~    ]]            && continue
 
-    # Skip internal dirs
     case "$filepath" in
         */filebrowser/*|*/backups/*|*/typesense/*|*/types/*|*/sites/*|*/.git/*) continue ;;
     esac
 
     echo "${event}|${filepath}" >> "$QUEUE_FILE"
-
 done &
 
 INOTIFY_PID=$!
 
-# Main debounce loop: poll the queue file every DEBOUNCE_SECONDS.
-# Only flushes when the queue is non-empty, so it stays idle at zero cost
-# when nothing is happening.
 while kill -0 "$INOTIFY_PID" 2>/dev/null; do
     sleep "$DEBOUNCE_SECONDS"
     if [[ -s "$QUEUE_FILE" ]]; then

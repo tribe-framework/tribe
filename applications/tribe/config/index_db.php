@@ -4,12 +4,14 @@
  * Typesense DB Indexer
  *
  * Backfills every row in the MySQL `data` table into Typesense.
- * Mirrors the style of index_files.php so the two scripts feel like a pair.
  *
  * Modes
  * ─────
  *   Full re-index (default)
  *     php index_db.php
+ *
+ *   Skip re-index if all collections are already populated (used by supervisord)
+ *     php index_db.php --skip-if-indexed
  *
  *   Single-object upsert (called by Core after a push/update)
  *     php index_db.php <id>
@@ -22,20 +24,11 @@
  *   TYPESENSE_HOST     container name, default "{PROJECT_NAME}_typesense"
  *   TYPESENSE_PORT     internal port,  default 8108
  *   TYPESENSE_API_KEY  default "xyz"
- *   DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASS
+ *   DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASS / DB_ROOT_PASSWORD
  *   PROJECT_NAME       used to derive container names
- *
- * Skip list (identical to reindex_db.php)
- * ────────────────────────────────────────
- *   Types in SKIP_TYPES are never indexed.
- *   Fields in STRIP_KEYS are removed before indexing.
  */
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
-// Script lives at /var/www/html/config/index_db.php — _init.php is in the same dir.
-// Composer vendor/ is also at /var/www/html/vendor/autoload.php.
-// Both paths are therefore always predictable and never need a directory crawl.
-
 $webRoot = '/var/www/html';
 
 $tribeBootstrapped = false;
@@ -44,21 +37,20 @@ if (file_exists($initFile)) {
     require $initFile;
     $tribeBootstrapped = true;
 } else {
-    echo '[' . date('Y-m-d H:i:s') . '] WARN: _init.php not found at ' . $initFile . ' — running in standalone PDO mode.' . PHP_EOL;
+    log_msg('WARN: _init.php not found at ' . $initFile . ' — running in standalone PDO mode.');
 }
 
-// ─── Composer autoload (for Typesense PHP SDK) ───────────────────────────────
 $autoload = $webRoot . '/vendor/autoload.php';
 if (file_exists($autoload)) {
     require_once $autoload;
 } else {
-    echo '[' . date('Y-m-d H:i:s') . '] FATAL: vendor/autoload.php not found at ' . $autoload . PHP_EOL;
+    log_msg('FATAL: vendor/autoload.php not found at ' . $autoload);
     exit(1);
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const MYSQL_BATCH = 500;   // rows fetched per SELECT
-const TS_BATCH    = 100;   // documents per Typesense import call
+const MYSQL_BATCH = 500;
+const TS_BATCH    = 100;
 
 const SKIP_TYPES = [
     'webapp', 'deleted_record', 'search_sync_failed', 'apikey_record',
@@ -67,14 +59,20 @@ const STRIP_KEYS = [
     'password_md5', 'mysql_access_log', 'mysql_activity_log',
 ];
 
+// ─── Logging ──────────────────────────────────────────────────────────────────
+function log_msg(string $msg): void
+{
+    echo '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL;
+}
+
 // ─── Typesense connection ─────────────────────────────────────────────────────
+use Typesense\Client as TsClient;
+
 $TS_KEY  = getenv('TYPESENSE_API_KEY') ?: ($_ENV['TYPESENSE_API_KEY'] ?? 'xyz');
 $TS_PORT = getenv('TYPESENSE_PORT')    ?: ($_ENV['TYPESENSE_PORT']    ?? '8108');
 $TS_HOST = getenv('TYPESENSE_HOST')
     ?: ($_ENV['TYPESENSE_HOST']
         ?? ((getenv('PROJECT_NAME') ?: ($_ENV['PROJECT_NAME'] ?? 'tribe')) . '_typesense'));
-
-use Typesense\Client as TsClient;
 
 $tsClient = new TsClient([
     'api_key' => $TS_KEY,
@@ -88,7 +86,28 @@ $tsClient = new TsClient([
 ]);
 
 // ─── MySQL connection ─────────────────────────────────────────────────────────
-// Prefer Tribe's MySQL class; fall back to a raw PDO connection.
+function make_pdo(): PDO
+{
+    // Prefer explicit DB_NAME; fall back to PROJECT_NAME as the database name.
+    // DB_PASS takes priority over DB_ROOT_PASSWORD so non-root users work too.
+    $host = getenv('DB_HOST') ?: 'mysql';
+    $port = getenv('DB_PORT') ?: '3306';
+    $name = getenv('DB_NAME') ?: getenv('PROJECT_NAME') ?: 'tribe';
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: getenv('DB_ROOT_PASSWORD') ?: '';
+
+    return new PDO(
+        "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4",
+        $user,
+        $pass,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 10]
+    );
+}
+
+/**
+ * Execute a raw SQL query using either the Tribe MySQL class or a PDO fallback.
+ * The PDO singleton is created on first use and reused for all subsequent calls.
+ */
 function db_query(string $sql, $tribeDb = null): array
 {
     if ($tribeDb) {
@@ -98,32 +117,14 @@ function db_query(string $sql, $tribeDb = null): array
 
     static $pdo = null;
     if (!$pdo) {
-        $host = getenv('DB_HOST') ?: 'mysql';
-        $port = getenv('DB_PORT') ?: '3306';
-        $name = getenv('DB_NAME') ?: getenv('PROJECT_NAME') ?: 'tribe';
-        $user = getenv('DB_USER') ?: 'root';
-        $pass = getenv('DB_PASS') ?: getenv('DB_ROOT_PASSWORD') ?: '';
-        $pdo  = new PDO("mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4",
-                        $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        $pdo = make_pdo();
     }
     $stmt = $pdo->query($sql);
     return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 }
 
-$tribeDb   = $tribeBootstrapped ? new \Tribe\MySQL()    : null;
-$tribeConf = $tribeBootstrapped ? new \Tribe\Config()   : null;
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function log_msg(string $msg): void
-{
-    echo '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL;
-}
-
-/**
- * Collection name convention: tribe_{type}
- * Mirrors Typesense::getCollectionName() so the two stay in sync.
- */
 function collection_name(string $type): string
 {
     return "tribe_{$type}";
@@ -131,7 +132,6 @@ function collection_name(string $type): string
 
 /**
  * Generic auto-schema for types not declared in Config::getTypes().
- * Uses Typesense's wildcard `.*` so every field is auto-indexed.
  */
 function generic_schema(string $collName): array
 {
@@ -152,14 +152,14 @@ function generic_schema(string $collName): array
 }
 
 /**
- * Ensure a Typesense collection exists, creating it when absent.
- * Uses typed schema for known Tribe types; generic auto-schema otherwise.
+ * Ensure a collection exists. Uses Tribe's typed schema when available,
+ * falls back to a generic auto-schema.
  */
 function ensure_collection(
     TsClient $ts,
     string $type,
     string $collName,
-    ?object $tribeTs  // \Tribe\Typesense instance, or null
+    ?object $tribeTs
 ): void {
     try {
         $ts->collections[$collName]->retrieve();
@@ -169,7 +169,6 @@ function ensure_collection(
     }
 
     if ($tribeTs) {
-        // Let Tribe create the properly-typed schema
         try {
             $tribeTs->createOrUpdateCollection($type);
             log_msg("  Created typed collection '{$collName}' via Tribe.");
@@ -213,15 +212,15 @@ function to_document(array $obj): array
 
     $textParts = [];
     foreach ($obj as $k => $v) {
-        if (array_key_exists($k, $doc)) continue;   // already handled
+        if (array_key_exists($k, $doc)) continue;
         if ($v === null || $v === '')   continue;
 
         if (is_bool($v))      { $doc[$k] = $v; }
         elseif (is_int($v))   { $doc[$k] = $v; }
         elseif (is_float($v)) { $doc[$k] = $v; }
         elseif (is_array($v)) {
-            $flat      = implode(', ', array_filter($v, 'is_scalar'));
-            $doc[$k]   = $flat;
+            $flat        = implode(', ', array_filter($v, 'is_scalar'));
+            $doc[$k]     = $flat;
             $textParts[] = $flat;
         } else {
             $doc[$k]     = (string)$v;
@@ -234,7 +233,26 @@ function to_document(array $obj): array
 }
 
 /**
- * Parse Typesense's JSONL import response (same logic as reindex_db.php).
+ * Hydrate full objects from raw DB rows (content column is JSON).
+ */
+function hydrate_rows(array $rows): array
+{
+    $objects = [];
+    foreach ($rows as $row) {
+        $obj = json_decode($row['content'] ?? '{}', true) ?: [];
+        $obj['id']         = (int)$row['id'];
+        $obj['updated_on'] = (int)$row['updated_on'];
+        $obj['created_on'] = (int)$row['created_on'];
+        if (!empty($row['type'])) {
+            $obj['type'] = $row['type'];
+        }
+        $objects[] = $obj;
+    }
+    return $objects;
+}
+
+/**
+ * Parse Typesense's JSONL import response.
  */
 function parse_import_response($raw): array
 {
@@ -264,7 +282,7 @@ function parse_import_response($raw): array
 }
 
 // ─── Wait for Typesense ───────────────────────────────────────────────────────
-function wait_for_typesense(TsClient $ts, int $maxWait = 60): void
+function wait_for_typesense(TsClient $ts, int $maxWait = 90): void
 {
     $waited = 0;
     while ($waited < $maxWait) {
@@ -281,27 +299,29 @@ function wait_for_typesense(TsClient $ts, int $maxWait = 60): void
     throw new \RuntimeException("Typesense did not become ready after {$maxWait}s");
 }
 
-// ─── Hydrate full objects from raw DB rows ────────────────────────────────────
-function hydrate_rows(array $rows): array
+/**
+ * Check whether Typesense already holds documents across all tribe_* collections.
+ * Used by --skip-if-indexed to avoid re-indexing on every container restart.
+ */
+function typesense_has_data(TsClient $ts): bool
 {
-    $objects = [];
-    foreach ($rows as $row) {
-        $obj = json_decode($row['content'] ?? '{}', true) ?: [];
-        $obj['id']         = (int)$row['id'];
-        $obj['updated_on'] = (int)$row['updated_on'];
-        $obj['created_on'] = (int)$row['created_on'];
-        // Prefer the real indexed `type` column over the JSON-decoded value
-        // so the type is always available even if content JSON is malformed.
-        if (!empty($row['type'])) {
-            $obj['type'] = $row['type'];
+    try {
+        $collections = $ts->collections->retrieve();
+        foreach ($collections as $coll) {
+            if (str_starts_with($coll['name'] ?? '', 'tribe_') && ($coll['num_documents'] ?? 0) > 0) {
+                return true;
+            }
         }
-        $objects[] = $obj;
+    } catch (\Exception $e) {
+        // If we can't check, assume empty and let the indexer run.
     }
-    return $objects;
+    return false;
 }
 
-// ─── Tribe helpers (only used when bootstrapped) ──────────────────────────────
+// ─── Bootstrap Tribe helpers ──────────────────────────────────────────────────
+$tribeDb = $tribeBootstrapped ? new \Tribe\MySQL()  : null;
 $tribeTs = null;
+
 if ($tribeBootstrapped) {
     try {
         $tribeTs = new \Tribe\Typesense();
@@ -313,20 +333,52 @@ if ($tribeBootstrapped) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 wait_for_typesense($tsClient);
 
-$singleId = $argv[1] ?? null;
-$mode     = strtolower($argv[2] ?? '');
+// Parse argv — support both positional and flag args.
+// argv[1] is either a numeric ID, '--skip-if-indexed', or absent.
+// argv[2] is 'delete' for the single-object delete mode.
+$skipIfIndexed = false;
+$singleId      = null;
+$mode          = '';
+
+foreach (array_slice($argv, 1) as $arg) {
+    if ($arg === '--skip-if-indexed') {
+        $skipIfIndexed = true;
+    } elseif (is_numeric($arg)) {
+        $singleId = $arg;
+    } elseif (strtolower($arg) === 'delete') {
+        $mode = 'delete';
+    }
+}
 
 // ── Single-object mode ────────────────────────────────────────────────────────
 if ($singleId !== null) {
     $id = (int)$singleId;
 
     if ($mode === 'delete') {
-        // Determine type from DB before we lose the row
-        $rows = db_query("SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
+        $rows = db_query(
+            "SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1",
+            $tribeDb
+        );
+
+        // Row may already be gone after a hard delete — look up type from argv[3] if provided.
         if (empty($rows)) {
-            log_msg("Object {$id} not found in DB (already deleted?).");
+            log_msg("Object {$id} not found in DB (already hard-deleted).");
+            // Best-effort: try to delete from all tribe_ collections by ID.
+            try {
+                $collections = $tsClient->collections->retrieve();
+                foreach ($collections as $coll) {
+                    if (!str_starts_with($coll['name'] ?? '', 'tribe_')) continue;
+                    try {
+                        $tsClient->collections[$coll['name']]->documents[(string)$id]->delete();
+                    } catch (\Exception $e) { /* not in this collection — fine */ }
+                }
+                log_msg("Purged id={$id} from all tribe_* collections.");
+            } catch (\Exception $e) {
+                log_msg("WARN: Could not enumerate collections for purge: " . $e->getMessage());
+            }
             exit(0);
         }
+
         $obj  = hydrate_rows($rows)[0];
         $type = $obj['type'] ?? '';
 
@@ -345,8 +397,12 @@ if ($singleId !== null) {
         exit(0);
     }
 
-    // Upsert mode (create or update)
-    $rows = db_query("SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1", $tribeDb);
+    // Upsert mode
+    $rows = db_query(
+        "SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data` WHERE `id`={$id} LIMIT 1",
+        $tribeDb
+    );
+
     if (empty($rows)) {
         log_msg("Object {$id} not found in DB.");
         exit(1);
@@ -374,7 +430,16 @@ if ($singleId !== null) {
     exit(0);
 }
 
-// ── Full re-index mode ────────────────────────────────────────────────────────
+// ── Full re-index mode ─────────────────────────────────────────────────────────
+
+// --skip-if-indexed: exit early when collections already have data.
+// This prevents a full re-index on every container restart when supervisord
+// starts this script unconditionally.
+if ($skipIfIndexed && typesense_has_data($tsClient)) {
+    log_msg("--skip-if-indexed: Typesense already has data — skipping full re-index.");
+    exit(0);
+}
+
 $skipList = implode("','", SKIP_TYPES);
 
 log_msg("Starting full DB re-index…");
@@ -383,7 +448,6 @@ $stats  = [];
 $offset = 0;
 
 do {
-    // Fetch a batch of raw rows directly (content column is JSON)
     $rows = db_query(
         "SELECT `id`, `type`, `content`, `updated_on`, `created_on` FROM `data`
          WHERE `type` NOT IN ('{$skipList}')
@@ -398,7 +462,7 @@ do {
 
     $objects = hydrate_rows($rows);
 
-    // Group by type for batch import
+    // Group by type so we can batch-import per collection.
     $byType = [];
     foreach ($objects as $obj) {
         $t = $obj['type'] ?? null;
@@ -445,8 +509,8 @@ foreach ($stats as $type => $s) {
     $fail = $s['fail'] ?? 0;
     $totalOk   += $ok;
     $totalFail += $fail;
-    $icon = $fail > 0 ? '⚠' : '✓';
-    log_msg("  {$icon}  " . collection_name($type) . ": {$ok} indexed, {$fail} failed");
+    $icon = $fail > 0 ? '!' : 'OK';
+    log_msg("  [{$icon}]  " . collection_name($type) . ": {$ok} indexed, {$fail} failed");
 }
 
 log_msg("\nTotal indexed: {$totalOk}  |  Total failed: {$totalFail}");
