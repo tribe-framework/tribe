@@ -515,7 +515,7 @@ function cmdLogs(service) {
   const validServices = [
     'mysql', 'setup', 'php_tribe', 'php_junction', 'php_dist',
     'mysql_backup', 'caddy_tribe', 'phpmyadmin', 'caddy_junction',
-    'caddy_dist', 'caddy_php_dist', 'filebrowser', 'typesense',
+    'caddy_dist', 'caddy_php_dist', 'filebrowser', 'deepsearch',
   ];
 
   if (service && !validServices.includes(service)) {
@@ -788,7 +788,7 @@ ${BOLD}Domain / SSL${NC} (A or CNAME must already point at this server):
 ${BOLD}Valid service names for logs:${NC}
   mysql  setup  php_tribe  php_junction  php_dist  mysql_backup
   caddy_tribe  phpmyadmin  caddy_junction  caddy_dist  caddy_php_dist
-  filebrowser  typesense
+  filebrowser  deepsearch
 `);
   process.exit(1);
 }

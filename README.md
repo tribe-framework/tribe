@@ -53,7 +53,7 @@ docker compose logs -f     # tail logs
 | **MySQL** | Relational database storing all Tribe content and data |
 | **phpMyAdmin** | Web UI for browsing and managing MySQL databases |
 | **Caddy** | Web server / reverse proxy — handles HTTP, routes to PHP-FPM |
-| **Typesense** | Fast search engine — indexes Tribe content for full-text search |
+| **Deepsearch** | Search engine powered by Meilisearch — indexes Tribe content and uploads for full-text search |
 | **FileBrowser** | Web UI for browsing and managing uploaded files |
 | **Loom** | Multi-tenant mode — one shared infrastructure hosting many Threads |
 | **Thread** | A single Tribe + Junction instance inside a Loom setup |
@@ -88,7 +88,7 @@ uploads/               # All runtime data (gitignored)
     dist-php/          # PHP site files
   threads/             # Per-thread uploads (Loom mode)
   backups/             # Automated MySQL dumps
-  typesense/           # Typesense data
+  deepsearch/          # Meilisearch data
   filebrowser/         # FileBrowser database
   tor/                 # .onion keys and hostnames
 
@@ -112,7 +112,7 @@ docker-compose.yml     # Standard single-project setup
 
 #### Loom — Multi-tenant hosting
 
-Loom lets you run hundreds of isolated Tribe + Junction instances (Threads) on one shared set of services (MySQL, Typesense, Caddy, phpMyAdmin, FileBrowser).
+Loom lets you run hundreds of isolated Tribe + Junction instances (Threads) on one shared set of services (MySQL, Deepsearch, Caddy, phpMyAdmin, FileBrowser).
 
 **To use Loom:**
 

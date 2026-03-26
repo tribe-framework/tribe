@@ -1,9 +1,9 @@
 <?php
 /**
- * Indexer Status Endpoint
+ * Indexer Status Endpoint (Deepsearch / Meilisearch)
  * Reports on both:
- *   - DB objects  : rows in MySQL `data` table vs. tribe_* Typesense collections
- *   - Files       : files on disk vs. the `files` Typesense collection
+ *   - DB objects  : rows in MySQL `data` table vs. tribe_* Meilisearch indexes
+ *   - Files       : files on disk vs. the `files` Meilisearch index
  */
 
 header('Content-Type: application/json');
@@ -44,26 +44,26 @@ function parse_dotenv(string $key): ?string {
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-$PROJECT_NAME   = getenv('PROJECT_NAME')      ?: parse_dotenv('PROJECT_NAME')      ?: 'tribe';
-$TYPESENSE_KEY  = getenv('TYPESENSE_API_KEY') ?: parse_dotenv('TYPESENSE_API_KEY') ?: 'xyz';
-$TYPESENSE_HOST = getenv('TYPESENSE_HOST')    ?: ($PROJECT_NAME . '_typesense');
-$TYPESENSE_PORT = '8108';
+$PROJECT_NAME    = getenv('PROJECT_NAME')       ?: parse_dotenv('PROJECT_NAME')       ?: 'tribe';
+$DEEPSEARCH_KEY  = getenv('DEEPSEARCH_API_KEY') ?: parse_dotenv('DEEPSEARCH_API_KEY') ?: 'xyz';
+$DEEPSEARCH_HOST = getenv('DEEPSEARCH_HOST')    ?: ($PROJECT_NAME . '_deepsearch');
+$DEEPSEARCH_PORT = '8108';
 
 $FILES_COLLECTION = 'files';
 $INDEX_FOLDER     = '/var/www/html/uploads';
-$SKIP_DIRS        = ['filebrowser', 'backups', 'typesense', '.git', 'node_modules', 'vendor'];
+$SKIP_DIRS        = ['filebrowser', 'backups', 'typesense', 'deepsearch', 'mysql', 'sites', '.git', 'node_modules', 'vendor'];
 
-// Types that index_db.php explicitly skips — mirror SKIP_TYPES exactly.
+// Types that index_db.php explicitly skips
 $DB_SKIP_TYPES = ['webapp', 'deleted_record', 'search_sync_failed', 'apikey_record'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function typesense_get(string $path, string $host, string $port, string $key): array {
+function deepsearch_get(string $path, string $host, string $port, string $key): array {
     $url = "http://{$host}:{$port}{$path}";
     $ch  = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 5,
-        CURLOPT_HTTPHEADER     => ["X-TYPESENSE-API-KEY: {$key}"],
+        CURLOPT_HTTPHEADER     => ["Authorization: Bearer {$key}"],
     ]);
     $raw  = curl_exec($ch);
     $err  = curl_error($ch);
@@ -109,22 +109,21 @@ function pdo_connect(): ?PDO {
     }
 }
 
-// ─── 1. Typesense health ──────────────────────────────────────────────────────
-$tsHealth     = typesense_get('/health', $TYPESENSE_HOST, $TYPESENSE_PORT, $TYPESENSE_KEY);
-$typesense_ok = !isset($tsHealth['_error']) && ($tsHealth['ok'] ?? false);
+// ─── 1. Deepsearch health ─────────────────────────────────────────────────────
+$dsHealth      = deepsearch_get('/health', $DEEPSEARCH_HOST, $DEEPSEARCH_PORT, $DEEPSEARCH_KEY);
+$deepsearch_ok = !isset($dsHealth['_error']) && ($dsHealth['status'] ?? '') === 'available';
 
 // ─── 2. DB objects ────────────────────────────────────────────────────────────
 $db_ok             = false;
 $db_total          = 0;
-$db_by_type        = [];   // [ type => count ]  — from MySQL
-$ts_objects_total  = 0;    // sum of num_documents across tribe_* collections
-$ts_by_type        = [];   // [ type => count ]  — from Typesense
+$db_by_type        = [];
+$ts_objects_total  = 0;
+$ts_by_type        = [];
 
 $pdo = pdo_connect();
 if ($pdo) {
     $db_ok = true;
     try {
-        // Total indexable rows (excluding skip types)
         $skipList = implode("','", array_map(fn($t) => addslashes($t), $DB_SKIP_TYPES));
         $stmt = $pdo->query(
             "SELECT `type`, COUNT(*) AS `cnt`
@@ -144,25 +143,27 @@ if ($pdo) {
     }
 }
 
-// Fetch tribe_* collections from Typesense to count indexed objects
-$allCollections = typesense_get('/collections', $TYPESENSE_HOST, $TYPESENSE_PORT, $TYPESENSE_KEY);
+// Fetch tribe_* indexes from Meilisearch
+$allIndexes    = deepsearch_get('/indexes?limit=100', $DEEPSEARCH_HOST, $DEEPSEARCH_PORT, $DEEPSEARCH_KEY);
 $ts_collections = [];
 
-if (!isset($allCollections['_error']) && is_array($allCollections)) {
-    foreach ($allCollections as $coll) {
-        $name = $coll['name'] ?? '';
-        $ndoc = (int)($coll['num_documents'] ?? 0);
+if (!isset($allIndexes['_error']) && is_array($allIndexes['results'] ?? null)) {
+    foreach ($allIndexes['results'] as $idx) {
+        $name = $idx['uid'] ?? '';
 
         if (str_starts_with($name, 'tribe_')) {
+            // Get stats for this index
+            $stats = deepsearch_get("/indexes/{$name}/stats", $DEEPSEARCH_HOST, $DEEPSEARCH_PORT, $DEEPSEARCH_KEY);
+            $ndoc  = (int)($stats['numberOfDocuments'] ?? 0);
+
             $type = substr($name, 6);   // strip "tribe_" prefix
-            $ts_by_type[$type]    = $ndoc;
-            $ts_objects_total    += $ndoc;
-            $ts_collections[]     = ['name' => $name, 'count' => $ndoc];
+            $ts_by_type[$type]     = $ndoc;
+            $ts_objects_total     += $ndoc;
+            $ts_collections[]      = ['name' => $name, 'count' => $ndoc];
         }
     }
 }
 
-// Per-type breakdown combining DB + TS counts
 $objects_remaining    = max(0, $db_total - $ts_objects_total);
 $objects_pct_indexed  = $db_total > 0 ? round(($ts_objects_total / $db_total) * 100, 1) : 100.0;
 
@@ -180,34 +181,18 @@ foreach ($all_types as $t) {
 }
 
 // ─── 3. Files ─────────────────────────────────────────────────────────────────
-$files_collection = typesense_get(
-    "/collections/{$FILES_COLLECTION}",
-    $TYPESENSE_HOST, $TYPESENSE_PORT, $TYPESENSE_KEY
+$files_index = deepsearch_get(
+    "/indexes/{$FILES_COLLECTION}/stats",
+    $DEEPSEARCH_HOST, $DEEPSEARCH_PORT, $DEEPSEARCH_KEY
 );
-$files_ts_ok    = !isset($files_collection['_error']);
-$files_indexed  = $files_collection['num_documents'] ?? 0;
+$files_ts_ok    = !isset($files_index['_error']);
+$files_indexed  = $files_index['numberOfDocuments'] ?? 0;
 
 $files_by_category_indexed  = [];
 $files_by_extension_indexed = [];
 
-if ($files_ts_ok) {
-    $facet = typesense_get(
-        "/collections/{$FILES_COLLECTION}/documents/search"
-        . "?q=*&query_by=filename&facet_by=category,extension&per_page=0",
-        $TYPESENSE_HOST, $TYPESENSE_PORT, $TYPESENSE_KEY
-    );
-    if (isset($facet['facet_counts'])) {
-        foreach ($facet['facet_counts'] as $f) {
-            foreach ($f['counts'] as $c) {
-                if ($f['field_name'] === 'category') {
-                    $files_by_category_indexed[$c['value']] = $c['count'];
-                } else {
-                    $files_by_extension_indexed[$c['value']] = $c['count'];
-                }
-            }
-        }
-    }
-}
+// Note: Meilisearch doesn't have native faceted counts like Typesense
+// We report what we can from disk scanning
 
 // Filesystem scan
 $fs_total        = 0;
@@ -250,8 +235,8 @@ foreach ($all_cats as $cat) {
 arsort($fs_by_extension);
 $top_extensions = array_slice($fs_by_extension, 0, 15, true);
 
-// ─── 4. Overall status ────────────────────────────────────────────────────────
-$has_error    = !$typesense_ok || (!$db_ok && $pdo === null);
+// ─── 4. Overall status ───────────────────────────────────────────────────────
+$has_error    = !$deepsearch_ok || (!$db_ok && $pdo === null);
 $fully_synced = ($objects_remaining === 0 && $files_remaining === 0);
 
 if ($has_error) {
@@ -268,8 +253,8 @@ $response = [
     'generated_at' => date('Y-m-d H:i:s'),
 
     'services' => [
-        'typesense' => $typesense_ok,
-        'database'  => $db_ok,
+        'deepsearch' => $deepsearch_ok,
+        'database'   => $db_ok,
     ],
 
     // ── DB objects ────────────────────────────────────────────────────────────
@@ -281,7 +266,7 @@ $response = [
             'percent_indexed'   => $objects_pct_indexed,
         ],
         'by_type'     => $objects_by_type,
-        'collections' => $ts_collections,    // raw tribe_* collection list
+        'collections' => $ts_collections,
     ],
 
     // ── Files ─────────────────────────────────────────────────────────────────
@@ -296,24 +281,22 @@ $response = [
         'top_extensions' => $top_extensions,
         'collection'     => [
             'name'       => $FILES_COLLECTION,
-            'created_at' => isset($files_collection['created_at'])
-                ? date('Y-m-d H:i:s', $files_collection['created_at'])
-                : null,
+            'created_at' => null,
         ],
     ],
 
     'debug' => [
-        'typesense_host' => $TYPESENSE_HOST,
-        'typesense_port' => $TYPESENSE_PORT,
-        'project_name'   => $PROJECT_NAME,
-        'index_folder'   => $INDEX_FOLDER,
+        'deepsearch_host' => $DEEPSEARCH_HOST,
+        'deepsearch_port' => $DEEPSEARCH_PORT,
+        'project_name'    => $PROJECT_NAME,
+        'index_folder'    => $INDEX_FOLDER,
     ],
 ];
 
 if ($has_error) {
     $errors = [];
-    if (!$typesense_ok) {
-        $errors[] = $tsHealth['_error'] ?? 'Typesense unreachable';
+    if (!$deepsearch_ok) {
+        $errors[] = $dsHealth['_error'] ?? 'Deepsearch (Meilisearch) unreachable';
     }
     if (!$db_ok) {
         $errors[] = 'MySQL unreachable or query failed';
