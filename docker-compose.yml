@@ -116,41 +116,6 @@ services:
     networks:
       - tribe_network
 
-  # Deepsearch Indexer — runs every 60s via cron.
-  # Handles both DB objects and filesystem files with delta indexing
-  # (only items newer than the last run are processed after the initial backfill).
-  # To force a full re-index: docker exec <container> php /indexer.php --full
-  indexer:
-    image: tribeframework/tribe-core:v1.3
-    container_name: ${PROJECT_NAME}_indexer
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - PROJECT_NAME=${PROJECT_NAME}
-      - DEEPSEARCH_HOST=${PROJECT_NAME}_deepsearch
-      - DEEPSEARCH_PORT=8108
-      - DEEPSEARCH_API_KEY=${DEEPSEARCH_API_KEY:-xyz}
-      - COLLECTION_NAME=files
-      - INDEX_FOLDER=/var/www/html/uploads
-    volumes:
-      - ./uploads:/var/www/html/uploads
-      - ./config/indexer.php:/indexer.php:ro
-    command: >
-      sh -c "
-        echo '* * * * * php /indexer.php >> /var/log/indexer.log 2>&1' | crontab - &&
-        crond -f
-      "
-    depends_on:
-      setup:
-        condition: service_healthy
-      deepsearch:
-        condition: service_started
-      mysql:
-        condition: service_healthy
-    networks:
-      - tribe_network
-
   # MySQL Daily Backup Service
   mysql_backup:
     image: mysql:9
