@@ -53,25 +53,6 @@ function checkPHPFPM(): array {
     return ['ok' => true, 'detail' => "PHP $version via $sapi"];
 }
 
-function checkDeepsearch(): array {
-    $host = 'deepsearch'; // internal docker hostname
-    $port = env('DEEPSEARCH_PORT', '8108');
-    $apiKey = env('DEEPSEARCH_API_KEY', 'xyz');
-
-    $url = "http://$host:$port/health";
-    $ctx = stream_context_create(['http' => [
-        'timeout' => 3,
-        'header'  => "Authorization: Bearer $apiKey\r\n",
-    ]]);
-    $result = @file_get_contents($url, false, $ctx);
-    if ($result !== false) {
-        $json = json_decode($result, true);
-        $ok = ($json['status'] ?? '') === 'available';
-        return ['ok' => $ok, 'detail' => $ok ? "Deepsearch (Meilisearch) is healthy @ $host:$port" : "Unhealthy response: $result"];
-    }
-    return ['ok' => false, 'detail' => "Could not reach Deepsearch @ $host:$port"];
-}
-
 function checkCaddy(string $label, string $host, int $port): array {
     $sock = @fsockopen($host, $port, $errno, $errstr, 2);
     if ($sock) {
@@ -123,7 +104,6 @@ function checkWritableDirs(): array {
 $checks = [
     'PHP-FPM'          => checkPHPFPM(),
     'MySQL'            => checkMySQL(),
-    'Deepsearch'       => checkDeepsearch(),
     'Caddy (Tribe)'    => checkCaddy('Caddy Tribe',    'caddy_tribe',    80),
     'Caddy (Junction)' => checkCaddy('Caddy Junction', 'caddy_junction', 80),
     'Caddy (Dist)'     => checkCaddy('Caddy Dist',     'caddy_dist',     80),
