@@ -60,7 +60,6 @@ let THREAD_BASE_PORT     = 13000;
 // Env values populated by loadEnv()
 let PROJECT_NAME      = 'tribe';
 let DB_ROOT_PASSWORD  = 'rootpassword';
-let DEEPSEARCH_API_KEY = 'xyz';
 let BARE_URL          = 'localhost';
 let CONTACT_EMAIL     = 'your@email.com';
 let DEFAULT_TIMEZONE  = 'Asia/Kolkata';
@@ -101,7 +100,6 @@ function loadEnv() {
   THREAD_BASE_PORT    = parseInt(process.env.THREAD_BASE_PORT  || '13000', 10);
   DB_ROOT_PASSWORD    = process.env.DB_ROOT_PASSWORD            || 'rootpassword';
   PROJECT_NAME        = process.env.PROJECT_NAME                || 'tribe';
-  DEEPSEARCH_API_KEY   = process.env.DEEPSEARCH_API_KEY           || 'xyz';
   BARE_URL            = process.env.BARE_URL                    || 'localhost';
   CONTACT_EMAIL       = process.env.CONTACT_EMAIL               || 'your@email.com';
   DEFAULT_TIMEZONE    = process.env.DEFAULT_TIMEZONE            || 'Asia/Kolkata';
@@ -463,10 +461,8 @@ ${siteAddr} {
 
 function generateThreadCompose(name, tribePort, junctionPort, distPort, distPhpPort, domains) {
   const d       = domains || {};
-  const dsKey   = DEEPSEARCH_API_KEY;
   const project = PROJECT_NAME;
   const network = `${project}_network`;
-  const dsHost  = `${project}_deepsearch`;
 
   // All mounts are relative to the thread directory itself — everything
   // lives under threads/<name>/ so the folder is fully self-contained.
@@ -484,11 +480,6 @@ services:
       - .env
     environment:
       - PROJECT_NAME=${project}_${name}
-      - DEEPSEARCH_HOST=${dsHost}
-      - DEEPSEARCH_PORT=8108
-      - DEEPSEARCH_API_KEY=${dsKey}
-      - DEEPSEARCH_COLLECTION_PREFIX=${name}
-      - COLLECTION_NAME=${name}_files
       - INDEX_FOLDER=/var/www/html/uploads
       - INDEX_DB_SCRIPT=/var/www/html/config/index_db.php
     volumes:
@@ -686,12 +677,6 @@ JUNCTION_SLUG=junction
 JUNCTION_PASSWORD=password
 TRIBE_API_URL=http://localhost:${tribePort}
 TRIBE_API_KEY=
-
-# ─── Deepsearch (Meilisearch) ───────────────────────────────────────────────────────────────
-DEEPSEARCH_API_KEY=${DEEPSEARCH_API_KEY}
-DEEPSEARCH_ENABLED=true
-DEEPSEARCH_SHOW_PUBLIC_OBJECTS_ONLY=true
-DEEPSEARCH_SHOW_UPLOADS_FOLDER_RESULTS=false
 `;
 }
 
