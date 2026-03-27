@@ -10,12 +10,15 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="msapplication-config" content="/browserconfig.xml" />
 
-    <meta name="junction/config/environment" content="%7B%22modulePrefix%22%3A%22junction%22%2C%22environment%22%3A%22production%22%2C%22rootURL%22%3A%22%2F%22%2C%22locationType%22%3A%22history%22%2C%22EmberENV%22%3A%7B%22EXTEND_PROTOTYPES%22%3Afalse%2C%22FEATURES%22%3A%7B%7D%2C%22_APPLICATION_TEMPLATE_WRAPPER%22%3Afalse%2C%22_DEFAULT_ASYNC_OBSERVERS%22%3Atrue%2C%22_JQUERY_INTEGRATION%22%3Afalse%2C%22_NO_IMPLICIT_ROUTE_MODEL%22%3Atrue%2C%22_TEMPLATE_ONLY_GLIMMER_COMPONENTS%22%3Atrue%7D%2C%22APP%22%3A%7B%22name%22%3A%22junction%22%2C%22version%22%3A%222.0.0%2B831da3c8%22%7D%2C%22TribeENV%22%3A%7B%7D%7D" />
+    <meta name="junction/config/environment" content="%7B%22modulePrefix%22%3A%22junction%22%2C%22environment%22%3A%22production%22%2C%22rootURL%22%3A%22%2F%22%2C%22locationType%22%3A%22history%22%2C%22EmberENV%22%3A%7B%22EXTEND_PROTOTYPES%22%3Afalse%2C%22FEATURES%22%3A%7B%7D%2C%22_APPLICATION_TEMPLATE_WRAPPER%22%3Afalse%2C%22_DEFAULT_ASYNC_OBSERVERS%22%3Atrue%2C%22_JQUERY_INTEGRATION%22%3Afalse%2C%22_NO_IMPLICIT_ROUTE_MODEL%22%3Atrue%2C%22_TEMPLATE_ONLY_GLIMMER_COMPONENTS%22%3Atrue%7D%2C%22APP%22%3A%7B%22name%22%3A%22junction%22%2C%22version%22%3A%222.0.3%2B637df942%22%7D%2C%22TribeENV%22%3A%7B%7D%7D" />
 <meta name="theme-color" content="#41B3FF">
 <link rel="apple-touch-icon-precomposed" href="/favicon.png" sizes="512x512">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Junction">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="msapplication-config" content="/browserconfig.xml">
 
     <link integrity="" rel="stylesheet" href="/assets/vendor.css" />
     <link
@@ -98,10 +101,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/js/all.min.js"></script>
     <script src="https://unpkg.com/@root/passphrase"></script>
-    <script src="/assets/vendor.js" integrity="sha256-xYff6T7uDCo2dAcC6Li6oomgn0td4dZmskklCLKArrk= sha512-1P1AYTAX2T1ClIR8Vl6Te9xD9YXE81WGRkMIMFgI5q6A2Br6XbK6nBAWrBhSIRNiwAyXElyGSVzknQtr6qePxQ==" ></script>
-<script src="/assets/chunk.503.b4e1a60e1da153173072.js" integrity="sha256-t5i1WwvJE6oZcMH/POR8XBpKHQb3X8e/mvnMmzsQvaA= sha512-Hc8LkWS2yM3PJYQxOPLiVi8yh2ygmrKgRnYXvbak+GjWi5Gg7os0LawFYyX8ffkQAeBnBhebHAGkLGs7ogVXHw==" ></script>
-<script src="/assets/chunk.524.d412010b9b6cab69e940.js" integrity="sha256-Fr34KdnzSzX+HU4PSIN7hQtjhVWPK5LeSehva345IRw= sha512-HiTp2kTKPywf/rK9ixUF6Y+9MkNl0/782HCry/iOuleZKkaizWfG5bqmSUyuIdys51fDJ3p3XuNXONnjznnxeg==" ></script>
-    <script src="/assets/junction.js" integrity="sha256-2miUrUV/e2dyA4zQ26oqH53wb+loR9BtKr9MqcOZzxA= sha512-A2ES29mpcjahrvB8ruyZsIx7SJo4h4/6vPUA0pItE+JdFP3ww1Ru3FS4GZxZ5mczi6PgqRF2G4GaekEt/+QrUw==" ></script>
+    <script src="/assets/vendor.js" integrity="sha256-0RdaPqrQdShFc9NJta3dIvQ5XAkEFDV4J/PX8Fnkoiw= sha512-w4vzz8HMM3lJSk/lXU4DzR7d9gSGqZllUGu79e2WxhR+g1Be4jyftU4R/cCIpNHMEWHxvMmc2ywwFhAbv3ZtRA==" ></script>
+<script src="/assets/chunk.581.d835a695939491499d37.js" integrity="sha256-2ne/F/7WUgcElkQT9eOiDUHSh99Hu1a6z+2tBrnU/5k= sha512-XU1Y5vegTZABKqq84DUL3fx6gT9V6m5hnI5arJ4JYEwb+nODvcgme927rjIiexFlG9w2EVJUJ7sY6Fg8PptMqA==" ></script>
+<script src="/assets/chunk.524.17c2df81fca8fc68dec3.js" integrity="sha256-1rURsu0kX9nBDZh2m2L+e+PV4pG0Irqk1NX/H+U/ECQ= sha512-fbu47jO9pO/sPqiV04orQB8DAPxDKukxqCSPbmzVS4yftMaJudkjrCgHb0jaeRx6vBsgepto7pJYnEf0zVPSXQ==" ></script>
+    <script src="/assets/junction.js" integrity="sha256-Ik44xqjc4ukItwQU3n+Y9VQpr9NNJpIiyx5ONGNNkcw= sha512-5AxsG3jVPUjfpzqD03TTaaxXEnBmFxyyhuCeYCRoIL4sZwoWg0ZD6j0bG3ghx9aPujT+mIbOhpjS10piNuhLlA==" ></script>
     <script>
       document.addEventListener("focusin", (e) => {
         if (
