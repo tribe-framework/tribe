@@ -56,11 +56,9 @@ services:
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log
       - ./applications/tribe/index.php:/var/www/html/index.php
-      - ./config/tribe/supervisord.conf:/etc/supervisor/conf.d/tribe.conf:ro
     command: >
-      sh -c "
-        composer install --no-interaction --optimize-autoloader &&
-        exec supervisord -c /etc/supervisor/conf.d/tribe.conf
+      sh -c "composer install --no-interaction --optimize-autoloader &&
+           php-fpm
       "
     depends_on:
       setup:
@@ -257,6 +255,29 @@ services:
       - FB_ROOT=/srv
       - FB_PORT=80
       - FB_ADDRESS=0.0.0.0
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  # Cronicle - Cron Scheduler with Web UI
+  cronicle:
+    image: soulteary/cronicle:latest
+    container_name: ${PROJECT_NAME}_cronicle
+    restart: unless-stopped
+    ports:
+      - "${CRONICLE_PORT:-12006}:3012"
+    volumes:
+      - ./uploads/cronicle/data:/opt/cronicle/data
+      - ./uploads/cronicle/logs:/opt/cronicle/logs
+      - ./uploads/cronicle/plugins:/opt/cronicle/plugins
+    environment:
+      - CRONICLE_base_app_url=http://${BARE_URL:-localhost}:${CRONICLE_PORT:-12006}
+      - CRONICLE_secret_key=${CRONICLE_SECRET_KEY:-changeme_secret_key}
+      - CRONICLE_log_dir=/opt/cronicle/logs
+      - CRONICLE_log_keep_days=${CRONICLE_LOG_KEEP_DAYS:-30}
+      - TZ=${DEFAULT_TIMEZONE:-Asia/Kolkata}
     depends_on:
       setup:
         condition: service_healthy
