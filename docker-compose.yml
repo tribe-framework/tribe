@@ -274,7 +274,7 @@ services:
       - ./uploads/cronicle/plugins:/opt/cronicle/plugins
     environment:
       - CRONICLE_base_app_url=http://${BARE_URL:-localhost}:${CRONICLE_PORT:-12007}
-      - CRONICLE_secret_key=${CRONICLE_SECRET_KEY:-changeme_secret_key}
+      - CRONICLE_secret_key=${CRONICLE_SECRET_KEY:-changeme_cronicle_key}
       - CRONICLE_log_dir=/opt/cronicle/logs
       - CRONICLE_log_keep_days=${CRONICLE_LOG_KEEP_DAYS:-30}
       - TZ=${DEFAULT_TIMEZONE:-Asia/Kolkata}

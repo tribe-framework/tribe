@@ -11,18 +11,21 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 /* Dist deployment actions */
 if ($action === 'dist_upload') {
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($uploads->handleDistUpload($_FILES ?? []));
+	$target = $_GET['target'] ?? 'dist';
+	echo json_encode($uploads->handleDistUpload($_FILES ?? [], $_POST ?? [], $target));
 }
 
 else if ($action === 'dist_versions') {
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($uploads->getDistVersions());
+	$target = $_GET['target'] ?? 'dist';
+	echo json_encode($uploads->getDistVersions($target));
 }
 
 else if ($action === 'dist_revert') {
 	header('Content-type: application/json; charset=utf-8');
 	$timestamp = $_POST['timestamp'] ?? '';
-	echo json_encode($uploads->revertDistVersion($timestamp));
+	$target    = $_POST['target']    ?? 'dist';
+	echo json_encode($uploads->revertDistVersion($timestamp, $target));
 }
 
 /* New code that handles file uploading */

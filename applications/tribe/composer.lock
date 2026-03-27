@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec953b1d8944776c8ba424a9e274249f",
+    "content-hash": "a035cf9784db209d74ed63bf1b2ec29d",
     "packages": [
         {
             "name": "alsvanzelf/jsonapi",
@@ -1897,16 +1897,16 @@
         },
         {
             "name": "tribe/core",
-            "version": "v5.1.7",
+            "version": "v5.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tribe-framework/tribe-core.git",
-                "reference": "db593a53656039d09416e175712bf95abf1e0412"
+                "reference": "af9e87b5d9de90dbe97f25f1a4b9ad6bc7fe6b60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/db593a53656039d09416e175712bf95abf1e0412",
-                "reference": "db593a53656039d09416e175712bf95abf1e0412",
+                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/af9e87b5d9de90dbe97f25f1a4b9ad6bc7fe6b60",
+                "reference": "af9e87b5d9de90dbe97f25f1a4b9ad6bc7fe6b60",
                 "shasum": ""
             },
             "require": {
@@ -1927,9 +1927,9 @@
             "description": "All classes to run Tribe",
             "support": {
                 "issues": "https://github.com/tribe-framework/tribe-core/issues",
-                "source": "https://github.com/tribe-framework/tribe-core/tree/v5.1.7"
+                "source": "https://github.com/tribe-framework/tribe-core/tree/v5.1.11"
             },
-            "time": "2026-03-20T11:30:33+00:00"
+            "time": "2026-03-26T20:44:07+00:00"
         },
         {
             "name": "typesense/typesense-php",
