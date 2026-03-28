@@ -1,5 +1,4 @@
 services:
-  # MySQL 9 Database - System-wide
   mysql:
     image: mysql:9
     container_name: ${DB_HOST}
@@ -18,7 +17,6 @@ services:
     networks:
       - tribe_network
 
-  # config/setup.sh
   setup:
     image: alpine:3
     container_name: ${PROJECT_NAME}_setup
@@ -42,7 +40,6 @@ services:
     networks:
       - tribe_network
 
-  # PHP 8 with FPM for Tribe
   php_tribe:
     image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_tribe
@@ -66,7 +63,6 @@ services:
     networks:
       - tribe_network
 
-  # PHP 8 with FPM for Junction
   php_junction:
     image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_junction
@@ -86,7 +82,6 @@ services:
     networks:
       - tribe_network
 
-  # PHP 8 with FPM for Dist PHP
   php_dist:
     image: tribeframework/tribe-core:v1.3
     container_name: ${PROJECT_NAME}_php_dist
@@ -106,7 +101,6 @@ services:
     networks:
       - tribe_network
 
-  # MySQL Daily Backup Service
   mysql_backup:
     image: mysql:9
     container_name: ${PROJECT_NAME}_mysql_backup
@@ -127,7 +121,6 @@ services:
     networks:
       - tribe_network
 
-  # Caddy Web Server (Tribe) with SSL
   caddy_tribe:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_tribe
@@ -154,7 +147,6 @@ services:
     networks:
       - tribe_network
 
-  # phpMyAdmin for database management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5
     container_name: ${PROJECT_NAME}_phpmyadmin
@@ -171,7 +163,6 @@ services:
     networks:
       - tribe_network
 
-  # Caddy Web Server (Junction) with SSL
   caddy_junction:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_junction
@@ -197,7 +188,6 @@ services:
     networks:
       - tribe_network
 
-  # Caddy Static Site Server - Single site from uploads/sites/dist
   caddy_dist:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_dist
@@ -214,7 +204,6 @@ services:
     networks:
       - tribe_network
 
-  # Caddy Web Server (Dist PHP) with SSL
   caddy_php_dist:
     image: caddy:2-alpine
     container_name: ${PROJECT_NAME}_caddy_php_dist
@@ -240,7 +229,6 @@ services:
     networks:
       - tribe_network
 
-  # FileBrowser for file management
   filebrowser:
     image: filebrowser/filebrowser:latest
     container_name: ${PROJECT_NAME}_filebrowser
@@ -261,7 +249,6 @@ services:
     networks:
       - tribe_network
 
-  # Cronicle - Cron Scheduler with Web UI
   cronicle:
     image: soulteary/cronicle:latest
     container_name: ${PROJECT_NAME}_cronicle
@@ -284,7 +271,32 @@ services:
     networks:
       - tribe_network
 
-# Tribe Network
+  centrifugo:
+    image: centrifugo/centrifugo:latest
+    container_name: ${PROJECT_NAME}_centrifugo
+    restart: unless-stopped
+    ports:
+      - "${CENTRIFUGO_PORT:-12008}:8000"
+    volumes:
+      - ./uploads/centrifugo:/centrifugo/data
+      - ./config/centrifugo/config.json:/centrifugo/data/config.json
+    command: centrifugo --config=/centrifugo/data/config.json
+    environment:
+      - CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY=${CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY:-changeme_centrifugo_secret}
+      - CENTRIFUGO_HTTP_API_KEY=${CENTRIFUGO_HTTP_API_KEY:-changeme_centrifugo_api_key}
+      - CENTRIFUGO_ADMIN=true
+      - CENTRIFUGO_ADMIN_PASSWORD=${CENTRIFUGO_ADMIN_PASSWORD:-changeme_admin_password}
+      - CENTRIFUGO_ADMIN_SECRET=${CENTRIFUGO_ADMIN_SECRET:-changeme_admin_secret}
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
 networks:
   tribe_network:
     driver: bridge
