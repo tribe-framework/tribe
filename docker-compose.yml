@@ -40,14 +40,32 @@ services:
     networks:
       - tribe_network
 
+  tika:
+    image: apache/tika:latest-full
+    container_name: ${PROJECT_NAME}_tika
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9998/version || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
   php_tribe:
-    image: tribeframework/tribe-core:v1.3
+    image: tribeframework/tribe-core:v1.4
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     env_file:
       - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
+      - TIKA_HOST=${PROJECT_NAME}_tika
+      - TIKA_PORT=9998
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -60,11 +78,13 @@ services:
     depends_on:
       setup:
         condition: service_healthy
+      tika:
+        condition: service_healthy
     networks:
       - tribe_network
 
   php_junction:
-    image: tribeframework/tribe-core:v1.3
+    image: tribeframework/tribe-core:v1.4
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
     env_file:
@@ -83,7 +103,7 @@ services:
       - tribe_network
 
   php_dist:
-    image: tribeframework/tribe-core:v1.3
+    image: tribeframework/tribe-core:v1.4
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
     env_file:
