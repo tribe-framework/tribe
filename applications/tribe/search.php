@@ -118,6 +118,7 @@ function handleSearch(Typesense $ts, array $params, bool $showPublicOnly): void
     $infix      = $params['infix'] ?? null;
     $highlightFields      = $params['highlight_fields'] ?? null;
     $highlightFullFields  = $params['highlight_full_fields'] ?? null;
+    $highlightAffixNumTokens = $params['highlight_affix_num_tokens'] ?? null;
     $includeFields        = $params['include_fields'] ?? null;
     $excludeFields        = $params['exclude_fields'] ?? null;
     $pinnedHits           = $params['pinned_hits'] ?? null;
@@ -158,6 +159,7 @@ function handleSearch(Typesense $ts, array $params, bool $showPublicOnly): void
             'infix'                 => $infix,
             'highlight_fields'      => $highlightFields,
             'highlight_full_fields' => $highlightFullFields,
+            'highlight_affix_num_tokens' => $highlightAffixNumTokens,
             'include_fields'        => $includeFields,
             'exclude_fields'        => $excludeFields,
             'pinned_hits'           => $pinnedHits,
@@ -186,6 +188,7 @@ function handleSearch(Typesense $ts, array $params, bool $showPublicOnly): void
         'infix'                 => $infix,
         'highlight_fields'      => $highlightFields,
         'highlight_full_fields' => $highlightFullFields,
+        'highlight_affix_num_tokens' => $highlightAffixNumTokens,
         'include_fields'        => $includeFields,
         'exclude_fields'        => $excludeFields,
         'pinned_hits'           => $pinnedHits,
