@@ -271,6 +271,24 @@ services:
     networks:
       - tribe_network
 
+  typesense:
+    image: typesense/typesense:30.1
+    container_name: ${PROJECT_NAME}_typesense
+    restart: unless-stopped
+    ports:
+      - "${TYPESENSE_PORT:-12006}:8108"
+    volumes:
+      - typesense_data:/data
+    environment:
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-xyz}
+      - TYPESENSE_DATA_DIR=/data
+      - TYPESENSE_ENABLE_CORS=true
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
   centrifugo:
     image: centrifugo/centrifugo:latest
     container_name: ${PROJECT_NAME}_centrifugo
@@ -319,4 +337,7 @@ volumes:
     name: ${PROJECT_NAME}_filebrowser_data
   mysql_data:
     name: ${PROJECT_NAME}_mysql_data
+    driver: local
+  typesense_data:
+    name: ${PROJECT_NAME}_typesense_data
     driver: local
