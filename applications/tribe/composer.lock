@@ -1897,16 +1897,16 @@
         },
         {
             "name": "tribe/core",
-            "version": "v5.2.2",
+            "version": "v5.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tribe-framework/tribe-core.git",
-                "reference": "0fc352fe2ab95548ba5670b6d2a7ad6e6d07d66c"
+                "reference": "66027703cdf32b223bddb4cf29b2f6f82ffdd882"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/0fc352fe2ab95548ba5670b6d2a7ad6e6d07d66c",
-                "reference": "0fc352fe2ab95548ba5670b6d2a7ad6e6d07d66c",
+                "url": "https://api.github.com/repos/tribe-framework/tribe-core/zipball/66027703cdf32b223bddb4cf29b2f6f82ffdd882",
+                "reference": "66027703cdf32b223bddb4cf29b2f6f82ffdd882",
                 "shasum": ""
             },
             "require": {
@@ -1927,9 +1927,9 @@
             "description": "All classes to run Tribe",
             "support": {
                 "issues": "https://github.com/tribe-framework/tribe-core/issues",
-                "source": "https://github.com/tribe-framework/tribe-core/tree/v5.2.2"
+                "source": "https://github.com/tribe-framework/tribe-core/tree/v5.2.5"
             },
-            "time": "2026-03-28T18:28:48+00:00"
+            "time": "2026-03-29T12:41:08+00:00"
         },
         {
             "name": "typesense/typesense-php",

@@ -99,11 +99,90 @@ function checkWritableDirs(): array {
     return ['ok' => false, 'detail' => 'Not writable: ' . implode(', ', $bad)];
 }
 
+function checkTika(): array {
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_tika';
+    $port    = 9998;
+    $url     = "http://$host:$port/version";
+
+    $ctx = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
+    $body = @file_get_contents($url, false, $ctx);
+
+    if ($body !== false && strlen(trim($body)) > 0) {
+        $version = trim($body);
+        return ['ok' => true, 'detail' => "Tika $version @ $host:$port"];
+    }
+
+    // Fallback: plain TCP reachability
+    $sock = @fsockopen($host, $port, $errno, $errstr, 2);
+    if ($sock) {
+        fclose($sock);
+        return ['ok' => true, 'detail' => "Tika reachable @ $host:$port (version unavailable)"];
+    }
+    return ['ok' => false, 'detail' => "Tika unreachable @ $host:$port — $errstr ($errno)"];
+}
+
+function checkTypesense(): array {
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_typesense';
+    $port    = 8108;
+    $apiKey  = env('TYPESENSE_API_KEY', 'xyz');
+    $url     = "http://$host:$port/health";
+
+    $ctx = stream_context_create([
+        'http' => [
+            'timeout'       => 3,
+            'ignore_errors' => true,
+            'header'        => "X-TYPESENSE-API-KEY: $apiKey\r\n",
+        ],
+    ]);
+    $body = @file_get_contents($url, false, $ctx);
+
+    if ($body !== false) {
+        $json = @json_decode($body, true);
+        if (isset($json['ok']) && $json['ok'] === true) {
+            return ['ok' => true, 'detail' => "Typesense healthy @ $host:$port"];
+        }
+        $msg = $json['message'] ?? trim($body);
+        return ['ok' => false, 'detail' => "Typesense @ $host:$port — $msg"];
+    }
+
+    return ['ok' => false, 'detail' => "Typesense unreachable @ $host:$port"];
+}
+
+function checkCentrifugo(): array {
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_centrifugo';
+    $port    = 8000;
+    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
+    if ($sock) {
+        fclose($sock);
+        return ['ok' => true, 'detail' => "Centrifugo reachable @ $host:$port"];
+    }
+    return ['ok' => false, 'detail' => "Centrifugo unreachable @ $host:$port — $errstr ($errno)"];
+}
+
+function checkCronicle(): array {
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_cronicle';
+    $port    = 3012;
+    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
+    if ($sock) {
+        fclose($sock);
+        return ['ok' => true, 'detail' => "Cronicle reachable @ $host:$port"];
+    }
+    return ['ok' => false, 'detail' => "Cronicle unreachable @ $host:$port — $errstr ($errno)"];
+}
+
 // ── Run All Checks ───────────────────────────────────────────────────────────
 
 $checks = [
     'PHP-FPM'          => checkPHPFPM(),
     'MySQL'            => checkMySQL(),
+    'Tika'             => checkTika(),
+    'Typesense'        => checkTypesense(),
+    'Centrifugo'       => checkCentrifugo(),
+    'Cronicle'         => checkCronicle(),
     'Caddy (Tribe)'    => checkCaddy('Caddy Tribe',    'caddy_tribe',    80),
     'Caddy (Junction)' => checkCaddy('Caddy Junction', 'caddy_junction', 80),
     'Caddy (Dist)'     => checkCaddy('Caddy Dist',     'caddy_dist',     80),
