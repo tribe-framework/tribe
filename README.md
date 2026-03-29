@@ -21,14 +21,14 @@ That's it. Tribe is running at `http://localhost:12000`.
 
 ## Default Ports
 
-| Service      | Port    |
-|--------------|---------|
-| Tribe        | `12000` |
-| phpMyAdmin   | `12001` |
-| Junction     | `12002` |
-| Dist (static)| `12003` |
-| Dist (PHP)   | `12004` |
-| FileBrowser  | `12005` |
+| Service       | Port    |
+| ------------- | ------- |
+| Tribe         | `12000` |
+| phpMyAdmin    | `12001` |
+| Junction      | `12002` |
+| Dist (static) | `12003` |
+| Dist (PHP)    | `12004` |
+| FileBrowser   | `12005` |
 
 All ports are configurable in `.env`.
 
@@ -44,19 +44,19 @@ docker compose logs -f     # tail logs
 
 ### Glossary
 
-| Term | Definition |
-|------|------------|
-| **Tribe** | PHP content/app framework — core backend and UI engine |
-| **Junction** | CMS layer connecting to Tribe via API |
-| **Docker** | Containerisation platform; `docker-compose.yml` defines all services |
-| **.env** | Environment file holding secrets and config |
-| **MySQL** | Relational database storing all Tribe content and data |
-| **phpMyAdmin** | Web UI for browsing and managing MySQL databases |
-| **Caddy** | Web server / reverse proxy — handles HTTP, routes to PHP-FPM |
-| **FileBrowser** | Web UI for browsing and managing uploaded files |
-| **Loom** | Multi-tenant mode — one shared infrastructure hosting many Threads |
-| **Thread** | A single Tribe + Junction instance inside a Loom setup |
-| **Tor** | Overlay mode routing all traffic through `.onion` hidden services |
+| Term            | Definition                                                           |
+| --------------- | -------------------------------------------------------------------- |
+| **Tribe**       | PHP content/app framework — core backend and UI engine               |
+| **Junction**    | CMS layer connecting to Tribe via API                                |
+| **Docker**      | Containerisation platform; `docker-compose.yml` defines all services |
+| **.env**        | Environment file holding secrets and config                          |
+| **MySQL**       | Relational database storing all Tribe content and data               |
+| **phpMyAdmin**  | Web UI for browsing and managing MySQL databases                     |
+| **Caddy**       | Web server / reverse proxy — handles HTTP, routes to PHP-FPM         |
+| **FileBrowser** | Web UI for browsing and managing uploaded files                      |
+| **Loom**        | Multi-tenant mode — one shared infrastructure hosting many Threads   |
+| **Thread**      | A single Tribe + Junction instance inside a Loom setup               |
+| **Tor**         | Overlay mode routing all traffic through `.onion` hidden services    |
 
 ---
 
@@ -73,7 +73,6 @@ config/                # Service configuration
   junction/            # Caddyfile
   dist/                # Caddyfile (static site)
   dist-php/            # Caddyfile (PHP site)
-  backup.sh            # MySQL backup script
   tor/                 # Tor daemon config and helpers
     README.tor.md      # ← Tor setup guide
     docker-compose.tor.yml
@@ -86,7 +85,6 @@ uploads/               # All runtime data (gitignored)
     dist/              # Static site files
     dist-php/          # PHP site files
   threads/             # Per-thread uploads (Loom mode)
-  backups/             # Automated MySQL dumps
   filebrowser/         # FileBrowser database
   tor/                 # .onion keys and hostnames
 

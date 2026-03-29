@@ -107,7 +107,6 @@ mkdir -p /applications
 mkdir -p /uploads
 mkdir -p /uploads/threads
 mkdir -p /uploads/sites
-mkdir -p /uploads/backups
 mkdir -p /uploads/filebrowser
 
 echo "📁 Created necessary directories"

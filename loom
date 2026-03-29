@@ -27,7 +27,6 @@
 //     config/junction/Caddyfile
 //     config/dist/Caddyfile
 //     config/dist-php/Caddyfile
-//     config/backup.sh
 //     applications/tribe/custom/   ← per-thread Tribe customisations
 //     uploads/                     ← user-uploaded files
 //     logs/                        ← container logs
@@ -48,7 +47,6 @@ const THREADS_DIR = path.join(SCRIPT_DIR, 'threads');
 const REGISTRY    = path.join(THREADS_DIR, '.registry.json');
 const ENV_FILE    = path.join(SCRIPT_DIR, '.env');
 const TRIBE_BASE        = path.join(SCRIPT_DIR, 'applications', 'tribe');
-const BACKUP_SH         = path.join(SCRIPT_DIR, 'config', 'backup.sh');
 
 // Resolved after loadEnv()
 let LOOM_MYSQL_CONTAINER = '';
@@ -470,7 +468,7 @@ function generateThreadCompose(name, tribePort, junctionPort, distPort, distPhpP
 services:
 
   php_tribe:
-    image: tribeframework/tribe-core:v1.4
+    image: tribeframework/tribe-core:v1.5
     container_name: ${project}_${name}_php_tribe
     restart: unless-stopped
     env_file:
@@ -493,7 +491,7 @@ services:
       - thread_network
 
   php_junction:
-    image: tribeframework/tribe-core:v1.4
+    image: tribeframework/tribe-core:v1.5
     container_name: ${project}_${name}_php_junction
     restart: unless-stopped
     env_file:
@@ -565,7 +563,7 @@ services:
       - thread_network
 
   php_dist:
-    image: tribeframework/tribe-core:v1.4
+    image: tribeframework/tribe-core:v1.5
     container_name: ${project}_${name}_php_dist
     restart: unless-stopped
     env_file:
@@ -865,9 +863,8 @@ async function cmdDestroy(name) {
 
   console.log('');
   warn(`This will stop Thread '${name}' and drop its database.`);
-  warn(`Thread directory will be archived to uploads/threads/time()-${name}.`);
+  warn(`Thread directory threads/${name}/ will be permanently DELETED, including uploads.`);
   warn(`Database '${dbName}' will be DROPPED.`);
-  warn(`The entire thread directory threads/${name}/ will be removed, including uploads.`);
   console.log('');
 
   const confirm = await prompt('Type the thread name to confirm: ');
@@ -878,13 +875,9 @@ async function cmdDestroy(name) {
 
   dropDb(dbName, dbUser);
 
-  info('Archiving thread directory...');
-  const uploadsThreadsDir = path.join(SCRIPT_DIR, 'uploads', 'threads');
-  fs.mkdirSync(uploadsThreadsDir, { recursive: true });
-  const archiveName = `${Date.now()}-${name}`;
-  const archiveDest = path.join(uploadsThreadsDir, archiveName);
-  fs.renameSync(threadDir, archiveDest);
-  log(`Thread directory archived to uploads/threads/${archiveName}`);
+  info('Deleting thread directory...');
+  fs.rmSync(threadDir, { recursive: true, force: true });
+  log(`Thread directory threads/${name}/ deleted.`);
 
   registryRemove(name);
 
