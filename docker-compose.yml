@@ -41,9 +41,20 @@ services:
       - tribe_network
 
   tika:
-    image: apache/tika:latest-full
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM apache/tika:latest-full
+        USER root
+        RUN apt-get update && \
+            apt-get install -y --no-install-recommends tesseract-ocr-hin && \
+            rm -rf /var/lib/apt/lists/*
+        USER 35002
+    image: ${PROJECT_NAME}_tika:latest
     container_name: ${PROJECT_NAME}_tika
     restart: unless-stopped
+    environment:
+      - TIKA_OCR_STRATEGY=OCR_AND_TEXT_EXTRACTION
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9998/version || exit 1"]
       interval: 15s
