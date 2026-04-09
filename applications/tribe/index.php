@@ -23,8 +23,28 @@ function loadEnv(string $path): void {
 
 loadEnv(__DIR__ . '/.env');
 
+$projectName = env('PROJECT_NAME', 'tribe');
+if (str_contains($projectName, '_')) {
+    // Being served by a thread's php-fpm — redirect to correct port
+    $threadPort = env('TRIBE_PORT', '');
+    header("Location: http://{$_SERVER['HTTP_HOST']}:$threadPort/", true, 302);
+    exit;
+}
+
 function env(string $key, string $default = ''): string {
     return $_ENV[$key] ?? getenv($key) ?: $default;
+}
+
+function rootProject(): string {
+    $full = env('PROJECT_NAME', 'tribe');
+    // Thread .env always has DB_USER; root .env does not set it
+    $isThread = env('DB_USER', '') !== '';
+    if (!$isThread) return $full;
+    // Thread PROJECT_NAME is "{root}_{threadname}"; root is everything before
+    // the last underscore-delimited segment that looks like a thread name.
+    // Simplest reliable approach: strip the last "_<segment>" from the name.
+    $pos = strrpos($full, '_');
+    return $pos !== false ? substr($full, 0, $pos) : $full;
 }
 
 // ── Check Functions ──────────────────────────────────────────────────────────
@@ -32,13 +52,23 @@ function env(string $key, string $default = ''): string {
 function checkMySQL(): array {
     $host = env('DB_HOST', 'mysql');
     $port = (int) env('DB_PORT', '3306');
-    $pass = env('DB_ROOT_PASSWORD', 'rootpassword');
+    $db   = env('DB_NAME', '');
+
+    $user = env('DB_USER', '');
+    $pass = env('DB_PASS', '');
+    if ($user === '') {
+        $user = 'root';
+        $pass = env('DB_ROOT_PASSWORD', 'rootpassword');
+    }
 
     try {
-        $dsn = "mysql:host=$host;port=$port";
-        $pdo = new PDO($dsn, 'root', $pass, [PDO::ATTR_TIMEOUT => 3]);
+        $dsn = "mysql:host=$host;port=$port" . ($db !== '' ? ";dbname=$db" : '');
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_TIMEOUT    => 3,
+            PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION,
+        ]);
         $version = $pdo->query('SELECT VERSION()')->fetchColumn();
-        return ['ok' => true, 'detail' => "MySQL $version @ $host:$port"];
+        return ['ok' => true, 'detail' => "MySQL $version @ $host:$port (user: $user)"];
     } catch (Throwable $e) {
         return ['ok' => false, 'detail' => $e->getMessage()];
     }
@@ -62,8 +92,35 @@ function checkCaddy(string $label, string $host, int $port): array {
     return ['ok' => false, 'detail' => "$label unreachable @ $host:$port — $errstr ($errno)"];
 }
 
+// Shows the container's network interfaces — useful on multi-project servers
+// to confirm the custom IPAM subnet is active and which IP MySQL sees.
+function checkNetwork(): array {
+    $interfaces = @file('/proc/net/fib_trie', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $ips = [];
+    if ($interfaces) {
+        foreach ($interfaces as $line) {
+            if (preg_match('/32 host LOCAL/', $line)) {
+                // The IP is on the preceding line
+                continue;
+            }
+        }
+    }
+    // Simpler: use hostname/gethostbyname
+    $hostname = gethostname();
+    $ip       = gethostbyname($hostname);
+    $rootProj = rootProject();
+    $isThread = env('DB_USER', '') !== '';
+    $context  = $isThread
+        ? 'thread (' . env('PROJECT_NAME', '?') . ')'
+        : 'root (' . $rootProj . ')';
+    return [
+        'ok'     => true,
+        'detail' => "Container IP: $ip | hostname: $hostname | context: $context",
+    ];
+}
+
 function checkFileBrowser(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_filebrowser';
     $port    = 80;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -72,7 +129,7 @@ function checkFileBrowser(): array {
 }
 
 function checkPhpMyAdmin(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_phpmyadmin';
     $port    = 80;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -102,7 +159,7 @@ function checkWritableDirs(): array {
 }
 
 function checkTika(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_tika';
     $port    = 9998;
     $url     = "http://$host:$port/version";
@@ -124,7 +181,7 @@ function checkTika(): array {
 }
 
 function checkTypesense(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_typesense';
     $port    = 8108;
     $apiKey  = env('TYPESENSE_API_KEY', 'xyz');
@@ -152,7 +209,7 @@ function checkTypesense(): array {
 }
 
 function checkCentrifugo(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_centrifugo';
     $port    = 8000;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -164,7 +221,7 @@ function checkCentrifugo(): array {
 }
 
 function checkCronicle(): array {
-    $project = env('PROJECT_NAME', 'tribe');
+    $project = rootProject();
     $host    = $project . '_cronicle';
     $port    = 3012;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -181,6 +238,7 @@ $project = env('PROJECT_NAME', 'tribe');
 
 $checks = [
     'PHP-FPM'          => checkPHPFPM(),
+    'Network'          => checkNetwork(),
     'MySQL'            => checkMySQL(),
     'Tika'             => checkTika(),
     'Typesense'        => checkTypesense(),

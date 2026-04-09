@@ -60,6 +60,10 @@ let BARE_URL          = 'localhost';
 let CONTACT_EMAIL     = 'your@email.com';
 let DEFAULT_TIMEZONE  = 'Asia/Kolkata';
 
+// IPAM config parsed from root docker-compose.yml (if present)
+// { subnet: '172.30.0.0/24', gateway: '172.30.0.1' } or null
+let ROOT_NETWORK_IPAM = null;
+
 // ─── Colours ─────────────────────────────────────────────────────────────────
 const RED    = '\x1b[0;31m';
 const GREEN  = '\x1b[0;32m';
@@ -102,6 +106,52 @@ function loadEnv() {
 
   LOOM_MYSQL_CONTAINER = `${PROJECT_NAME}_mysql`;
   LOOM_NETWORK         = `${PROJECT_NAME}_network`;
+
+  // Parse IPAM from root docker-compose.yml if present
+  ROOT_NETWORK_IPAM = parseRootNetworkIpam();
+}
+
+
+// ─── Parse IPAM from root docker-compose.yml ──────────────────────────────────
+function parseRootNetworkIpam() {
+  const composeFile = path.join(SCRIPT_DIR, 'docker-compose.yml');
+  if (!fs.existsSync(composeFile)) return null;
+
+  const lines = fs.readFileSync(composeFile, 'utf8').split('\n');
+  let inNetworks = false;
+  let inIpam     = false;
+  let inConfig   = false;
+  let subnet     = null;
+  let gateway    = null;
+
+  for (const raw of lines) {
+    const line    = raw.replace(/\t/g, '  ');
+    const trimmed = line.trimStart();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const indent  = line.length - trimmed.length;
+
+    if (!inNetworks) {
+      if (indent === 0 && trimmed === 'networks:') inNetworks = true;
+      continue;
+    }
+    // New top-level key exits the networks block
+    if (indent === 0 && trimmed !== 'networks:' && !trimmed.startsWith('-')) {
+      break;
+    }
+
+    if (trimmed.startsWith('ipam:'))             { inIpam = true; inConfig = false; continue; }
+    if (inIpam && trimmed.startsWith('config:')) { inConfig = true; continue; }
+
+    if (inConfig) {
+      const sm = trimmed.match(/^subnet:\s*(.+)$/);
+      const gm = trimmed.match(/^gateway:\s*(.+)$/);
+      if (sm) subnet  = sm[1].trim().replace(/['"]/g, '');
+      if (gm) gateway = gm[1].trim().replace(/['"]/g, '');
+    }
+  }
+
+  if (!subnet) return null;
+  return { subnet, gateway: gateway || null };
 }
 
 // ─── Registry helpers ─────────────────────────────────────────────────────────
@@ -217,6 +267,24 @@ function checkPrerequisites() {
   // tribe base dir exists?
   if (!fs.existsSync(TRIBE_BASE)) {
     die(`Tribe base app not found at: ${TRIBE_BASE}\nPlace the Tribe app code there before creating threads.`);
+  }
+
+  // IPAM awareness: warn if custom subnet detected but MySQL bind-address may block it
+  if (ROOT_NETWORK_IPAM) {
+    info(`Custom IPAM subnet detected: ${ROOT_NETWORK_IPAM.subnet}${ROOT_NETWORK_IPAM.gateway ? ' (gateway: ' + ROOT_NETWORK_IPAM.gateway + ')' : ''}`);
+    const bindCheck = spawnSync('docker', [
+      'exec', LOOM_MYSQL_CONTAINER,
+      'mysql', '-u', 'root', `-p${DB_ROOT_PASSWORD}`,
+      '-sN', '-e', "SELECT @@bind_address;"
+    ], { stdio: 'pipe' });
+    if (bindCheck.status === 0) {
+      const bindAddr = (bindCheck.stdout || '').toString().trim();
+      if (bindAddr && bindAddr !== '0.0.0.0' && bindAddr !== '*' && bindAddr !== '::') {
+        warn(`MySQL bind-address is '${bindAddr}', not '0.0.0.0'.`);
+        warn(`Containers on subnet ${ROOT_NETWORK_IPAM.subnet} will get "Access denied" on TCP connections.`);
+        warn(`Fix: add 'bind-address = 0.0.0.0' to config/mysql/my.cnf and restart MySQL.`);
+      }
+    }
   }
 }
 

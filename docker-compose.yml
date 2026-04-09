@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_ROOT_HOST: "%"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
@@ -330,6 +331,11 @@ networks:
   tribe_network:
     driver: bridge
     name: ${PROJECT_NAME}_network
+##  for server with multiple dockers, manage IP manually
+#   ipam:
+#     config:
+#       - subnet: 172.30.0.0/24
+#       gateway: 172.30.0.1
 
 volumes:
   junction_caddy_data:
