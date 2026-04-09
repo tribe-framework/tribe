@@ -635,10 +635,13 @@ function generateThreadEnv(name, dbName, dbUser, dbPass, tribePort, junctionPort
 PROJECT_NAME=${project}_${name}
 
 # ─── Application ─────────────────────────────────────────────────────────────
-DISPLAY_ERRORS=false
+DISPLAY_ERRORS=${process.env.DISPLAY_ERRORS || 'false'}
 DEFAULT_TIMEZONE=${DEFAULT_TIMEZONE}
 BARE_URL=${BARE_URL}
 CONTACT_EMAIL=${CONTACT_EMAIL}
+ALLOW_ALL_CONNECTIONS_DANGEROUSLY=${process.env.ALLOW_ALL_CONNECTIONS_DANGEROUSLY || 'false'}
+CACHE_WEBAPP_TOTAL_OBJECTS=${process.env.CACHE_WEBAPP_TOTAL_OBJECTS || 'false'}
+HIDE_POSTCODE_ATTRIBUTION=${process.env.HIDE_POSTCODE_ATTRIBUTION || 'false'}
 
 # ─── Database (shared MySQL) ────────────────────────────────────────────────
 DB_NAME=${dbName}
@@ -656,7 +659,7 @@ DIST_PHP_PORT=${distPhpPort}
 # ─── Junction ────────────────────────────────────────────────────────────────
 JUNCTION_SLUG=junction
 JUNCTION_PASSWORD=password
-TRIBE_API_URL=http://localhost:${tribePort}
+TRIBE_API_URL=http://${BARE_URL}:${tribePort}
 TRIBE_API_KEY=
 
 # ─── Shared Tika (root compose) ─────────────────────────────────────────────
@@ -665,6 +668,8 @@ TIKA_PORT=9998
 
 # ─── Shared Typesense (root compose) ────────────────────────────────────────
 TYPESENSE_API_KEY=${typesenseApiKey}
+TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY=${process.env.TYPESENSE_SHOW_PUBLIC_OBJECTS_ONLY || 'true'}
+TRANSCRIBE_FILE_RECORDS=${process.env.TRANSCRIBE_FILE_RECORDS || 'false'}
 
 # ─── Shared Centrifugo (root compose) ───────────────────────────────────────
 CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY=${centrifugoSecret}
@@ -842,11 +847,10 @@ async function cmdCreate(name) {
   console.log('');
   log(`Thread '${name}' is up!`);
   console.log('');
-  console.log(`  ${CYAN}Tribe:${NC}    http://localhost:${tribePort}`);
-  console.log(`  ${CYAN}Junction:${NC} http://localhost:${junctionPort}`);
-  console.log(`  ${CYAN}Dist:${NC}     http://localhost:${distPort}`);
-  console.log(`  ${CYAN}Dist PHP:${NC} http://localhost:${distPhpPort}`);
-  console.log(`  ${CYAN}DB:${NC}       ${dbName}  (user: ${dbUser})`);
+  console.log(`  ${CYAN}Tribe:${NC}    http://${BARE_URL}:${tribePort}`);
+  console.log(`  ${CYAN}Junction:${NC} http://${BARE_URL}:${junctionPort}`);
+  console.log(`  ${CYAN}Dist:${NC}     http://${BARE_URL}:${distPort}`);
+  console.log(`  ${CYAN}Dist PHP:${NC} http://${BARE_URL}:${distPhpPort}`);
   console.log('');
 }
 
@@ -1063,10 +1067,10 @@ function cmdUpgradeDocker(name) {
 
   console.log('');
   log(`Thread '${name}' upgraded and restarted.`);
-  console.log(`  ${CYAN}Tribe:${NC}    http://localhost:${tribePort}`);
-  console.log(`  ${CYAN}Junction:${NC} http://localhost:${junctionPort}`);
-  console.log(`  ${CYAN}Dist:${NC}     http://localhost:${distPort}`);
-  console.log(`  ${CYAN}Dist PHP:${NC} http://localhost:${distPhpPort}`);
+  console.log(`  ${CYAN}Tribe:${NC}    http://${BARE_URL}:${tribePort}`);
+  console.log(`  ${CYAN}Junction:${NC} http://${BARE_URL}:${junctionPort}`);
+  console.log(`  ${CYAN}Dist:${NC}     http://${BARE_URL}:${distPort}`);
+  console.log(`  ${CYAN}Dist PHP:${NC} http://${BARE_URL}:${distPhpPort}`);
   console.log('');
 }
 

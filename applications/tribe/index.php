@@ -63,17 +63,19 @@ function checkCaddy(string $label, string $host, int $port): array {
 }
 
 function checkFileBrowser(): array {
-    $host = 'filebrowser';
-    $port = 80;
-    $sock = @fsockopen($host, $port, $errno, $errstr, 2);
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_filebrowser';
+    $port    = 80;
+    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
     if ($sock) { fclose($sock); return ['ok' => true, 'detail' => "FileBrowser reachable @ $host:$port"]; }
     return ['ok' => false, 'detail' => "FileBrowser unreachable — $errstr ($errno)"];
 }
 
 function checkPhpMyAdmin(): array {
-    $host = 'phpmyadmin';
-    $port = 80;
-    $sock = @fsockopen($host, $port, $errno, $errstr, 2);
+    $project = env('PROJECT_NAME', 'tribe');
+    $host    = $project . '_phpmyadmin';
+    $port    = 80;
+    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
     if ($sock) { fclose($sock); return ['ok' => true, 'detail' => "phpMyAdmin reachable @ $host:$port"]; }
     return ['ok' => false, 'detail' => "phpMyAdmin unreachable — $errstr ($errno)"];
 }
@@ -113,7 +115,6 @@ function checkTika(): array {
         return ['ok' => true, 'detail' => "Tika $version @ $host:$port"];
     }
 
-    // Fallback: plain TCP reachability
     $sock = @fsockopen($host, $port, $errno, $errstr, 2);
     if ($sock) {
         fclose($sock);
@@ -176,6 +177,8 @@ function checkCronicle(): array {
 
 // ── Run All Checks ───────────────────────────────────────────────────────────
 
+$project = env('PROJECT_NAME', 'tribe');
+
 $checks = [
     'PHP-FPM'          => checkPHPFPM(),
     'MySQL'            => checkMySQL(),
@@ -183,10 +186,10 @@ $checks = [
     'Typesense'        => checkTypesense(),
     'Centrifugo'       => checkCentrifugo(),
     'Cronicle'         => checkCronicle(),
-    'Caddy (Tribe)'    => checkCaddy('Caddy Tribe',    'caddy_tribe',    80),
-    'Caddy (Junction)' => checkCaddy('Caddy Junction', 'caddy_junction', 80),
-    'Caddy (Dist)'     => checkCaddy('Caddy Dist',     'caddy_dist',     80),
-    'Caddy (PHP Dist)' => checkCaddy('Caddy PHP Dist', 'caddy_php_dist', 80),
+    'Caddy (Tribe)'    => checkCaddy('Caddy Tribe',    $project . '_caddy_tribe',    80),
+    'Caddy (Junction)' => checkCaddy('Caddy Junction', $project . '_caddy_junction', 80),
+    'Caddy (Dist)'     => checkCaddy('Caddy Dist',     $project . '_caddy_dist',     80),
+    'Caddy (PHP Dist)' => checkCaddy('Caddy PHP Dist', $project . '_caddy_php_dist', 80),
     'phpMyAdmin'       => checkPhpMyAdmin(),
     'FileBrowser'      => checkFileBrowser(),
     'Disk Space'       => checkDiskSpace(),
@@ -196,7 +199,6 @@ $checks = [
 $allOk    = array_reduce($checks, fn($c, $v) => $c && $v['ok'], true);
 $okCount  = count(array_filter($checks, fn($v) => $v['ok']));
 $total    = count($checks);
-$project  = env('PROJECT_NAME', 'tribe');
 $now      = date('Y-m-d H:i:s T');
 
 ?><!DOCTYPE html>
