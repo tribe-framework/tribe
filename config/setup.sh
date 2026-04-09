@@ -4,23 +4,7 @@ set -e
 
 echo "🚀 Setting up development environment..."
 
-# Check if tribe-server is running
-echo "🔍 Checking if tribe-server is running..."
-if ! docker network ls | grep -q "${DB_HOST}"; then
-    echo "⚠️ ${DB_HOST} not found!"
-    echo ""
-    echo "Please ensure tribe-server is running first:"
-    echo "  1. Clone or create the tribe-server project"
-    echo "  2. Run: docker compose up -d"
-    echo "  3. Then run this project setup"
-    echo ""
-    echo "The tribe-server provides MySQL and Syncthing services for all projects."
-    exit 1
-else
-    echo "✅ ${DB_HOST} found - tribe-server is running!"
-fi
-
-# Load environment variables
+# Load environment variables first so checks below have correct values
 set -a
 [ -f .env ] && source .env
 set +a
