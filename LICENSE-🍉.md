@@ -1,4 +1,4 @@
-# 🍉 Watermelon License v1.0
+# 🍉 Watermelon License v0.1
 
 ## Preamble
 
