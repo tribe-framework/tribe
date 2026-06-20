@@ -18,6 +18,9 @@
 //   - docker compose up -d
 //   - applications/tribe/ contains the Tribe code
 //   - applications/junction/ contains the Junction code
+//   - (optional) host nginx + certbot installed, and THREAD_BASE_URL set in .env,
+//     to expose each thread at <thread>.<svc>.<base> with auto-SSL. If Cloudflare
+//     creds are also set, the CNAME records are created/deleted automatically.
 //
 // Thread directory layout (everything self-contained under threads/<name>/):
 //   threads/<name>/
@@ -37,6 +40,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const https = require('https');
 const { execSync, spawnSync, spawn } = require('child_process');
 const readline = require('readline');
 const crypto = require('crypto');
@@ -59,6 +63,18 @@ let DB_ROOT_PASSWORD  = 'rootpassword';
 let BARE_URL          = 'localhost';
 let CONTACT_EMAIL     = 'your@email.com';
 let DEFAULT_TIMEZONE  = 'Asia/Kolkata';
+
+// Base domain for thread subdomains: <thread>.<svc>.THREAD_BASE_URL
+let THREAD_BASE_URL   = '';
+
+let CF_API_EMAIL      = '';
+let CF_API_KEY        = '';
+let CF_ZONE_ID        = '';
+let CF_SERVER         = '';
+
+// Host nginx paths (loom installs host-level reverse proxies for threads too).
+const NGINX_AVAILABLE = '/etc/nginx/sites-available';
+const NGINX_ENABLED   = '/etc/nginx/sites-enabled';
 
 // IPAM config parsed from root docker-compose.yml (if present)
 // { subnet: '172.30.0.0/24', gateway: '172.30.0.1' } or null
@@ -103,6 +119,13 @@ function loadEnv() {
   BARE_URL            = process.env.BARE_URL                    || 'localhost';
   CONTACT_EMAIL       = process.env.CONTACT_EMAIL               || 'your@email.com';
   DEFAULT_TIMEZONE    = process.env.DEFAULT_TIMEZONE            || 'Asia/Kolkata';
+
+  THREAD_BASE_URL     = process.env.THREAD_BASE_URL            || '';
+
+  CF_API_EMAIL        = process.env.CLOUDFLARE_API_EMAIL        || '';
+  CF_API_KEY          = process.env.CLOUDFLARE_API_KEY          || '';
+  CF_ZONE_ID          = process.env.CLOUDFLARE_ZONE_ID          || '';
+  CF_SERVER           = process.env.CLOUDFLARE_SERVER           || process.env.BARE_URL || '';
 
   LOOM_MYSQL_CONTAINER = `${PROJECT_NAME}_mysql`;
   LOOM_NETWORK         = `${PROJECT_NAME}_network`;
@@ -206,6 +229,7 @@ function registryAdd(name, tribePort, junctionPort, distPort, distPhpPort, dbNam
     junction_domain:  '',
     dist_domain:      '',
     dist_php_domain:  '',
+    dns_record_ids:   '',
   };
   data.next_port = basePort + 10;  // reserve a full block of 10
   registryWrite(data);
@@ -866,13 +890,22 @@ function randomPass() {
 }
 
 // ─── Prompt helper ────────────────────────────────────────────────────────────
+// Line-queue reader: works for both interactive TTYs and piped stdin.
+let _rl = null, _queue = [], _waiters = [], _closed = false;
+function rlEnsure() {
+  if (_rl) return;
+  _rl = readline.createInterface({ input: process.stdin });
+  _rl.on('line', (l) => { if (_waiters.length) _waiters.shift()(l); else _queue.push(l); });
+  _rl.on('close', () => { _closed = true; while (_waiters.length) _waiters.shift()(''); });
+}
+function rlClose() { if (_rl) { _rl.close(); _rl = null; } }
 function prompt(question) {
-  return new Promise(resolve => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question(question, answer => {
-      rl.close();
-      resolve(answer);
-    });
+  rlEnsure();
+  if (question) process.stdout.write(question);
+  return new Promise((resolve) => {
+    if (_queue.length) return resolve(String(_queue.shift()));
+    if (_closed) return resolve('');
+    _waiters.push((l) => resolve(String(l)));
   });
 }
 
@@ -884,6 +917,225 @@ function dockerCompose(composeFile, args, inherit = true) {
     { stdio: inherit ? 'inherit' : 'pipe' }
   );
   return result.status === 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  HOST REVERSE PROXY + CLOUDFLARE DNS (for thread subdomains)
+//      <thread>.tribe.<base>      → 127.0.0.1:<tribe_port>
+//      <thread>.junction.<base>   → 127.0.0.1:<junction_port>
+//      <thread>.dist.<base>       → 127.0.0.1:<dist_port>
+//      <thread>.dist-php.<base>   → 127.0.0.1:<dist_php_port>
+//  If Cloudflare creds are present, matching CNAME records are created
+//  (unproxied for ACME issuance, then flipped to proxied) on create and removed
+//  on destroy. Existing nginx files are never overwritten.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function cloudflareEnabled() {
+  return Boolean(CF_API_EMAIL && CF_API_KEY && CF_ZONE_ID && CF_SERVER);
+}
+
+function cfErr(resp) {
+  if (!resp) return 'no response';
+  if (resp.errors && resp.errors.length) return resp.errors.map(e => e.message).join('; ');
+  return 'unknown error';
+}
+
+function cfRequest(method, urlPath, body) {
+  return new Promise((resolve) => {
+    const payload = body ? JSON.stringify(body) : null;
+    const opts = {
+      method,
+      hostname: 'api.cloudflare.com',
+      path: `/client/v4${urlPath}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Email': CF_API_EMAIL,
+        'X-Auth-Key':   CF_API_KEY,
+      },
+    };
+    if (payload) opts.headers['Content-Length'] = Buffer.byteLength(payload);
+    const req = https.request(opts, (res) => {
+      let data = '';
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => {
+        try { resolve(JSON.parse(data || '{}')); }
+        catch { resolve({ success: false, errors: [{ message: 'invalid JSON from Cloudflare' }] }); }
+      });
+    });
+    req.on('error', (e) => resolve({ success: false, errors: [{ message: e.message }] }));
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+async function cfCreateCname(name, proxied) {
+  const resp = await cfRequest('POST', `/zones/${CF_ZONE_ID}/dns_records`, {
+    type: 'CNAME', name, content: CF_SERVER, proxied: Boolean(proxied), ttl: 3600,
+  });
+  if (resp && resp.success && resp.result && resp.result.id) {
+    info(`Cloudflare: created ${name} → ${CF_SERVER} (proxied=${Boolean(proxied)})`);
+    return resp.result.id;
+  }
+  warn(`Cloudflare: could not create ${name}: ${cfErr(resp)}`);
+  return '';
+}
+
+async function cfSetProxied(recordId, name, proxied) {
+  if (!recordId) return;
+  const resp = await cfRequest('PATCH', `/zones/${CF_ZONE_ID}/dns_records/${recordId}`, {
+    proxied: Boolean(proxied),
+  });
+  if (resp && resp.success) info(`Cloudflare: ${name} proxied=${Boolean(proxied)}`);
+  else warn(`Cloudflare: could not update ${name}: ${cfErr(resp)}`);
+}
+
+async function cfDeleteById(recordId, name) {
+  if (!recordId) return;
+  const resp = await cfRequest('DELETE', `/zones/${CF_ZONE_ID}/dns_records/${recordId}`);
+  if (resp && resp.success) info(`Cloudflare: deleted ${name}`);
+  else warn(`Cloudflare: could not delete ${name}: ${cfErr(resp)}`);
+}
+
+async function cfFindRecordId(name) {
+  const resp = await cfRequest('GET',
+    `/zones/${CF_ZONE_ID}/dns_records?type=CNAME&name=${encodeURIComponent(name)}`);
+  if (resp && resp.success && Array.isArray(resp.result) && resp.result.length) {
+    return resp.result[0].id;
+  }
+  return '';
+}
+
+function nginxThreadConfig(serviceLabel, fqdn, port) {
+  return `# Auto-generated by loom for thread service: ${serviceLabel}
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${fqdn};
+    client_max_body_size 2048M;
+    location / {
+        proxy_pass         http://127.0.0.1:${port};
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        "upgrade";
+        proxy_set_header   Host              $host;
+        proxy_set_header   Referer           $scheme://$host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+}
+`;
+}
+
+function nginxAvail(domain) { return path.join(NGINX_AVAILABLE, domain); }
+function nginxLink(domain)  { return path.join(NGINX_ENABLED,   domain); }
+function nginxFileExists(domain) {
+  return fs.existsSync(nginxAvail(domain)) || fs.existsSync(nginxLink(domain));
+}
+
+function writeNginxThreadSite(serviceLabel, fqdn, port) {
+  const target = nginxAvail(fqdn);
+  fs.writeFileSync(target, nginxThreadConfig(serviceLabel, fqdn, port));
+  const link = nginxLink(fqdn);
+  try { fs.unlinkSync(link); } catch { /* */ }
+  fs.symlinkSync(target, link);
+  log(`nginx: ${fqdn} → 127.0.0.1:${port}`);
+}
+
+function nginxReload() {
+  const test = spawnSync('nginx', ['-t'], { stdio: 'inherit' });
+  if (test.status !== 0) { warn('nginx -t failed; skipping reload.'); return false; }
+  const reload = spawnSync('systemctl', ['reload', 'nginx'], { stdio: 'inherit' });
+  if (reload.status !== 0) spawnSync('nginx', ['-s', 'reload'], { stdio: 'inherit' });
+  return true;
+}
+
+function runCertbot(fqdn) {
+  const args = ['--nginx', '--non-interactive', '--agree-tos',
+                '-m', CONTACT_EMAIL, '--redirect', '-d', fqdn];
+  info(`certbot --nginx -d ${fqdn}`);
+  const res = spawnSync('certbot', args, { stdio: 'inherit' });
+  if (res.status === 0) { log(`Certificate obtained for ${fqdn}`); return true; }
+  warn(`certbot failed for ${fqdn} (nginx still serving :80; re-run later).`);
+  return false;
+}
+
+// Build the four FQDNs for a thread from THREAD_BASE_URL.
+function threadFqdns(name) {
+  const base = THREAD_BASE_URL;
+  return {
+    tribe:   `${name}.tribe.${base}`,
+    junction:`${name}.junction.${base}`,
+    dist:    `${name}.dist.${base}`,
+    distPhp: `${name}.dist-php.${base}`,
+  };
+}
+
+// Provision host nginx + certbot + Cloudflare DNS for every service of a thread.
+// Skips any whose nginx file already exists. Stores DNS record ids in registry.
+async function provisionThreadProxy(name, ports) {
+  if (!THREAD_BASE_URL) {
+    warn('THREAD_BASE_URL not set in .env — skipping nginx/DNS for this thread.');
+    return;
+  }
+  const fqdns = threadFqdns(name);
+  const map = [
+    ['tribe',    fqdns.tribe,   ports.tribe],
+    ['junction', fqdns.junction,ports.junction],
+    ['dist',     fqdns.dist,    ports.dist],
+    ['dist-php', fqdns.distPhp, ports.distPhp],
+  ];
+  const dnsIds = {};
+
+  for (const [label, fqdn, port] of map) {
+    if (nginxFileExists(fqdn)) {
+      warn(`Skipping ${fqdn} — nginx file already exists.`);
+      continue;
+    }
+    // DNS unproxied first so ACME HTTP-01 reaches the host.
+    if (cloudflareEnabled()) {
+      dnsIds[fqdn] = await cfCreateCname(fqdn, false);
+    }
+    writeNginxThreadSite(label, fqdn, port);
+    nginxReload();
+    const ok = runCertbot(fqdn);
+    if (cloudflareEnabled() && dnsIds[fqdn]) {
+      if (ok) await cfSetProxied(dnsIds[fqdn], fqdn, true);
+      else warn(`Leaving ${fqdn} unproxied (certbot incomplete).`);
+    }
+  }
+
+  if (cloudflareEnabled() && Object.keys(dnsIds).length) {
+    registrySetDomain(name, 'dns_record_ids', JSON.stringify(dnsIds));
+  }
+}
+
+// Tear down host nginx + Cloudflare DNS for a thread.
+async function deprovisionThreadProxy(name) {
+  if (!THREAD_BASE_URL) return;
+  const fqdns = Object.values(threadFqdns(name));
+
+  // Remove nginx site files / symlinks.
+  for (const fqdn of fqdns) {
+    try { fs.unlinkSync(nginxLink(fqdn)); } catch { /* */ }
+    try { fs.unlinkSync(nginxAvail(fqdn)); log(`nginx: removed ${fqdn}`); } catch { /* */ }
+  }
+  nginxReload();
+
+  // Remove DNS using stored ids if present, else look them up by name.
+  if (cloudflareEnabled()) {
+    let stored = {};
+    try { stored = JSON.parse(registryGet(name, 'dns_record_ids') || '{}'); } catch { stored = {}; }
+    for (const fqdn of fqdns) {
+      let id = stored[fqdn];
+      if (!id) id = await cfFindRecordId(fqdn);
+      if (id) await cfDeleteById(id, fqdn);
+      else warn(`Cloudflare: no record id for ${fqdn}`);
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -999,6 +1251,11 @@ async function cmdCreate(name) {
   info('Starting Thread containers...');
   dockerCompose(path.join(threadDir, 'docker-compose.yml'), ['up', '-d']);
 
+  // ── Host reverse proxy + DNS (nginx + certbot + Cloudflare) ─────────────────
+  await provisionThreadProxy(name, {
+    tribe: tribePort, junction: junctionPort, dist: distPort, distPhp: distPhpPort,
+  });
+
   console.log('');
   log(`Thread '${name}' is up!`);
   console.log('');
@@ -1006,6 +1263,14 @@ async function cmdCreate(name) {
   console.log(`  ${CYAN}Junction:${NC} http://${BARE_URL}:${junctionPort}`);
   console.log(`  ${CYAN}Dist:${NC}     http://${BARE_URL}:${distPort}`);
   console.log(`  ${CYAN}Dist PHP:${NC} http://${BARE_URL}:${distPhpPort}`);
+  if (THREAD_BASE_URL) {
+    const f = threadFqdns(name);
+    console.log('');
+    console.log(`  ${CYAN}Tribe:${NC}    https://${f.tribe}`);
+    console.log(`  ${CYAN}Junction:${NC} https://${f.junction}`);
+    console.log(`  ${CYAN}Dist:${NC}     https://${f.dist}`);
+    console.log(`  ${CYAN}Dist PHP:${NC} https://${f.distPhp}`);
+  }
   console.log('');
 }
 
@@ -1028,6 +1293,10 @@ async function cmdDestroy(name) {
 
   const confirm = await prompt('Type the thread name to confirm: ');
   if (confirm !== name) die('Aborted.');
+
+  // Remove host nginx sites + Cloudflare DNS before tearing down containers.
+  info('Removing host reverse proxy and DNS records...');
+  await deprovisionThreadProxy(name);
 
   info('Stopping containers...');
   dockerCompose(path.join(threadDir, 'docker-compose.yml'), ['down', '-v']);
@@ -1438,4 +1707,5 @@ function usage() {
     case 'set-dist-php-domain':   cmdSetDistPhpDomain(arg1, arg2);    break;
     default:                usage();
   }
+  rlClose();
 })();

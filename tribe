@@ -1,0 +1,491 @@
+#!/usr/bin/env node
+// ══════════════════════════════════════════════════════════════════════════════
+// tribe — Host reverse-proxy installer for the BASE Tribe stack
+//
+// Unlike `loom` (which provisions per-thread Docker stacks), `tribe` does NOT
+// touch Docker at all. It assumes the root `docker-compose.yml` is already up
+// and publishing each service to a localhost port taken from `.env`:
+//
+//     TRIBE_PORT      → tribe        (default 12000)
+//     JUNCTION_PORT   → junction     (default 12002)
+//     DIST_PORT       → dist  static (default 12003)
+//     DIST_PHP_PORT   → dist-php     (default 12004)
+//
+// What `tribe` does:
+//   1. Asks for a domain for each service (dist + dist-php optional), with an
+//      optional single alias each.
+//   2. Skips any domain that already has an nginx site file — it NEVER replaces
+//      an existing nginx installation.
+//   3. Confirms the folder path the command is run from.
+//   4. Writes /etc/nginx/sites-available/<domain>, symlinks into sites-enabled,
+//      reloads nginx, then runs `certbot --nginx` for the domain (+ alias).
+//   5. If Cloudflare creds are present in `.env`, creates the DNS records first
+//      (unproxied for ACME issuance), then flips them to proxied once certbot
+//      has obtained the certificate.
+//
+// Commands:
+//   node tribe              Interactive install (same as `node tribe install`)
+//   node tribe install      Interactive install
+//   node tribe status       Show which service domains have nginx files / certs
+//   node tribe uninstall    Remove nginx files (+ DNS) for the base-stack domains
+//
+// Prerequisites:
+//   - The root docker stack is running (docker compose up -d).
+//   - Host nginx is installed and owns ports 80 + 443.
+//   - certbot + python3-certbot-nginx installed (for SSL).
+//   - Run as root (writing /etc/nginx and running certbot need privileges).
+// ══════════════════════════════════════════════════════════════════════════════
+
+'use strict';
+
+const fs       = require('fs');
+const path     = require('path');
+const https    = require('https');
+const readline = require('readline');
+const { spawnSync } = require('child_process');
+
+// ─── Paths ────────────────────────────────────────────────────────────────────
+const SCRIPT_DIR = __dirname;
+const ENV_FILE   = path.join(SCRIPT_DIR, '.env');
+
+const NGINX_AVAILABLE = '/etc/nginx/sites-available';
+const NGINX_ENABLED   = '/etc/nginx/sites-enabled';
+
+// ─── Env values (populated by loadEnv) ────────────────────────────────────────
+let PROJECT_NAME  = 'tribe';
+let CONTACT_EMAIL = 'your-name@your-collective.org';
+
+let TRIBE_PORT    = 12000;
+let JUNCTION_PORT = 12002;
+let DIST_PORT     = 12003;
+let DIST_PHP_PORT = 12004;
+
+// Cloudflare (Global API Key style, matching the reference PHP)
+let CF_API_EMAIL  = '';
+let CF_API_KEY    = '';
+let CF_ZONE_ID    = '';
+let CF_SERVER     = ''; // CNAME target / origin host the records point at
+
+// ─── Colours ──────────────────────────────────────────────────────────────────
+const RED='\x1b[0;31m', GREEN='\x1b[0;32m', YELLOW='\x1b[1;33m',
+      CYAN='\x1b[0;36m', BOLD='\x1b[1m', NC='\x1b[0m';
+
+const log  = (...a) => console.log(`${GREEN}✓${NC}  ${a.join(' ')}`);
+const warn = (...a) => console.log(`${YELLOW}⚠${NC}  ${a.join(' ')}`);
+const err  = (...a) => console.error(`${RED}✗${NC}  ${a.join(' ')}`);
+const info = (...a) => console.log(`${CYAN}→${NC}  ${a.join(' ')}`);
+const die  = (...a) => { err(...a); process.exit(1); };
+
+// ─── Load .env ────────────────────────────────────────────────────────────────
+function loadEnv() {
+  if (!fs.existsSync(ENV_FILE)) {
+    die('.env not found. Copy _env.sample to .env and fill in values.');
+  }
+  const raw = fs.readFileSync(ENV_FILE, 'utf8');
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const val = trimmed.slice(eqIdx + 1).trim().replace(/^(['"])(.*)\1$/, '$2');
+    process.env[key] = val;
+  }
+
+  PROJECT_NAME  = process.env.PROJECT_NAME  || 'tribe';
+  CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'your-name@your-collective.org';
+
+  TRIBE_PORT    = parseInt(process.env.TRIBE_PORT    || '12000', 10);
+  JUNCTION_PORT = parseInt(process.env.JUNCTION_PORT || '12002', 10);
+  DIST_PORT     = parseInt(process.env.DIST_PORT     || '12003', 10);
+  DIST_PHP_PORT = parseInt(process.env.DIST_PHP_PORT || '12004', 10);
+
+  CF_API_EMAIL  = process.env.CLOUDFLARE_API_EMAIL || '';
+  CF_API_KEY    = process.env.CLOUDFLARE_API_KEY   || '';
+  CF_ZONE_ID    = process.env.CLOUDFLARE_ZONE_ID   || '';
+  CF_SERVER     = process.env.CLOUDFLARE_SERVER    || process.env.BARE_URL || '';
+}
+
+function cloudflareEnabled() {
+  return Boolean(CF_API_EMAIL && CF_API_KEY && CF_ZONE_ID && CF_SERVER);
+}
+
+// ─── Cloudflare DNS (Global API Key auth — mirrors the reference PHP) ──────────
+// All calls are gated on cloudflareEnabled(); callers must check first.
+function cfRequest(method, urlPath, body) {
+  return new Promise((resolve) => {
+    const payload = body ? JSON.stringify(body) : null;
+    const opts = {
+      method,
+      hostname: 'api.cloudflare.com',
+      path: `/client/v4${urlPath}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Email': CF_API_EMAIL,
+        'X-Auth-Key':   CF_API_KEY,
+      },
+    };
+    if (payload) opts.headers['Content-Length'] = Buffer.byteLength(payload);
+
+    const req = https.request(opts, (res) => {
+      let data = '';
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => {
+        try { resolve(JSON.parse(data || '{}')); }
+        catch { resolve({ success: false, errors: [{ message: 'invalid JSON from Cloudflare' }] }); }
+      });
+    });
+    req.on('error', (e) => resolve({ success: false, errors: [{ message: e.message }] }));
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+// Create a CNAME → CF_SERVER. proxied flag controllable for ACME issuance.
+// Returns the new record id (or '' on failure).
+async function cfCreateCname(name, proxied) {
+  const resp = await cfRequest('POST', `/zones/${CF_ZONE_ID}/dns_records`, {
+    type: 'CNAME',
+    name,
+    content: CF_SERVER,
+    proxied: Boolean(proxied),
+    ttl: 3600,
+  });
+  if (resp && resp.success && resp.result && resp.result.id) {
+    info(`Cloudflare: created ${name} → ${CF_SERVER} (proxied=${Boolean(proxied)})`);
+    return resp.result.id;
+  }
+  warn(`Cloudflare: could not create record for ${name}: ${cfErr(resp)}`);
+  return '';
+}
+
+// Flip an existing record to proxied (orange-cloud) after issuance.
+async function cfSetProxied(recordId, name, proxied) {
+  if (!recordId) return;
+  const resp = await cfRequest('PATCH', `/zones/${CF_ZONE_ID}/dns_records/${recordId}`, {
+    proxied: Boolean(proxied),
+  });
+  if (resp && resp.success) info(`Cloudflare: ${name} proxied=${Boolean(proxied)}`);
+  else warn(`Cloudflare: could not update ${name}: ${cfErr(resp)}`);
+}
+
+// Look up a record id by exact name (used by uninstall).
+async function cfFindRecordId(name) {
+  const resp = await cfRequest('GET', `/zones/${CF_ZONE_ID}/dns_records?type=CNAME&name=${encodeURIComponent(name)}`);
+  if (resp && resp.success && Array.isArray(resp.result) && resp.result.length) {
+    return resp.result[0].id;
+  }
+  return '';
+}
+
+async function cfDeleteByName(name) {
+  const id = await cfFindRecordId(name);
+  if (!id) { warn(`Cloudflare: no record found for ${name}`); return; }
+  const resp = await cfRequest('DELETE', `/zones/${CF_ZONE_ID}/dns_records/${id}`);
+  if (resp && resp.success) info(`Cloudflare: deleted ${name}`);
+  else warn(`Cloudflare: could not delete ${name}: ${cfErr(resp)}`);
+}
+
+function cfErr(resp) {
+  if (!resp) return 'no response';
+  if (resp.errors && resp.errors.length) return resp.errors.map(e => e.message).join('; ');
+  return 'unknown error';
+}
+
+// ─── nginx site file generation ───────────────────────────────────────────────
+// Matches the server-block template the user specified.
+function nginxSiteConfig(serviceLabel, domain, alias, port) {
+  const names = alias ? `${domain} ${alias}` : `${domain}`;
+  return `# Auto-generated by tribe for service: ${serviceLabel}
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${names};
+    client_max_body_size 2048M;
+    location / {
+        proxy_pass         http://127.0.0.1:${port};
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        "upgrade";
+        proxy_set_header   Host              $host;
+        proxy_set_header   Referer           $scheme://$host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+}
+`;
+}
+
+function siteAvailablePath(domain) { return path.join(NGINX_AVAILABLE, domain); }
+function siteEnabledPath(domain)   { return path.join(NGINX_ENABLED,   domain); }
+
+// "valid nginx file" = a sites-available file already exists for that domain.
+function nginxFileExists(domain) {
+  return fs.existsSync(siteAvailablePath(domain)) || fs.existsSync(siteEnabledPath(domain));
+}
+
+function writeNginxSite(serviceLabel, domain, alias, port) {
+  const target = siteAvailablePath(domain);
+  fs.writeFileSync(target, nginxSiteConfig(serviceLabel, domain, alias, port));
+  log(`Wrote ${target}`);
+  // symlink into sites-enabled (ln -sf)
+  const link = siteEnabledPath(domain);
+  try { fs.unlinkSync(link); } catch { /* not present, fine */ }
+  fs.symlinkSync(target, link);
+  log(`Enabled ${link}`);
+}
+
+function nginxReload() {
+  info('Testing nginx config...');
+  const test = spawnSync('nginx', ['-t'], { stdio: 'inherit' });
+  if (test.status !== 0) { warn('nginx -t failed; not reloading. Fix config and retry.'); return false; }
+  const reload = spawnSync('systemctl', ['reload', 'nginx'], { stdio: 'inherit' });
+  if (reload.status !== 0) spawnSync('nginx', ['-s', 'reload'], { stdio: 'inherit' });
+  log('nginx reloaded.');
+  return true;
+}
+
+function runCertbot(domain, alias) {
+  const args = ['--nginx', '--non-interactive', '--agree-tos',
+                '-m', CONTACT_EMAIL, '--redirect', '-d', domain];
+  if (alias) args.push('-d', alias);
+  info(`certbot ${args.join(' ')}`);
+  const res = spawnSync('certbot', args, { stdio: 'inherit' });
+  if (res.status === 0) { log(`Certificate obtained for ${domain}${alias ? ' (+ ' + alias + ')' : ''}`); return true; }
+  warn(`certbot failed for ${domain}. nginx is still serving on :80; you can re-run certbot later.`);
+  return false;
+}
+
+// ─── Prompt helpers ───────────────────────────────────────────────────────────
+// A line-queue reader: works for both interactive TTYs and piped stdin, where a
+// naive readline.question() chain would stall after the first line.
+let _rl = null, _queue = [], _waiters = [], _closed = false;
+function rlEnsure() {
+  if (_rl) return;
+  _rl = readline.createInterface({ input: process.stdin });
+  _rl.on('line', (l) => { if (_waiters.length) _waiters.shift()(l); else _queue.push(l); });
+  _rl.on('close', () => { _closed = true; while (_waiters.length) _waiters.shift()(''); });
+}
+function rlClose() { if (_rl) { _rl.close(); _rl = null; } }
+function prompt(question) {
+  rlEnsure();
+  if (question) process.stdout.write(question);
+  return new Promise((resolve) => {
+    if (_queue.length) return resolve(String(_queue.shift()).trim());
+    if (_closed) return resolve('');
+    _waiters.push((l) => resolve(String(l).trim()));
+  });
+}
+async function promptYesNo(question, def = true) {
+  const hint = def ? '[Y/n]' : '[y/N]';
+  const ans = (await prompt(`${question} ${hint} `)).toLowerCase();
+  if (!ans) return def;
+  return ans === 'y' || ans === 'yes';
+}
+
+function validateDomainMaybeEmpty(domain) {
+  if (!domain) return true; // empty allowed for optional services
+  if (/\s/.test(domain) || !domain.includes('.')) {
+    warn(`'${domain}' does not look like a valid domain — skipping this service.`);
+    return false;
+  }
+  return true;
+}
+
+// ─── install ──────────────────────────────────────────────────────────────────
+async function cmdInstall() {
+  loadEnv();
+
+  console.log('');
+  console.log(`${BOLD}Install Tribe — host reverse proxy (nginx + certbot)${NC}`);
+  console.log(`Project: ${CYAN}${PROJECT_NAME}${NC}`);
+  console.log(`Cloudflare DNS: ${cloudflareEnabled() ? GREEN + 'enabled' + NC : YELLOW + 'disabled (no creds in .env)' + NC}`);
+  console.log('');
+
+  // ── Step 1: collect domains ────────────────────────────────────────────────
+  console.log(`${BOLD}Step 1${NC} — enter domain names. dist and dist-php are optional (leave empty to skip).`);
+  console.log('');
+
+  const tribeDomain    = await prompt('  Tribe domain        (required): ');
+  const junctionDomain = await prompt('  Junction domain     (required): ');
+  const distDomain     = await prompt('  Dist domain         (optional): ');
+  const distAlias      = distDomain ? await prompt('    └ Dist alias      (optional): ') : '';
+  const distPhpDomain  = await prompt('  Dist-PHP domain     (optional): ');
+  const distPhpAlias   = distPhpDomain ? await prompt('    └ Dist-PHP alias  (optional): ') : '';
+
+  if (!tribeDomain || !junctionDomain) {
+    die('Tribe and Junction domains are required.');
+  }
+
+  // Assemble the work list: { label, domain, alias, port }
+  const candidates = [
+    { label: 'tribe',    domain: tribeDomain,    alias: '',           port: TRIBE_PORT    },
+    { label: 'junction', domain: junctionDomain, alias: '',           port: JUNCTION_PORT },
+    { label: 'dist',     domain: distDomain,     alias: distAlias,    port: DIST_PORT     },
+    { label: 'dist-php', domain: distPhpDomain,  alias: distPhpAlias, port: DIST_PHP_PORT },
+  ].filter(c => c.domain && validateDomainMaybeEmpty(c.domain));
+
+  // Drop any whose nginx file already exists (never replace an existing install).
+  // Check both the primary domain and the alias.
+  const jobs = [];
+  for (const c of candidates) {
+    if (nginxFileExists(c.domain)) {
+      warn(`Skipping '${c.domain}' (${c.label}) — nginx file already exists.`);
+      continue;
+    }
+    if (c.alias && nginxFileExists(c.alias)) {
+      warn(`Skipping '${c.domain}' (${c.label}) — alias '${c.alias}' already has an nginx file.`);
+      continue;
+    }
+    jobs.push(c);
+  }
+
+  if (!jobs.length) {
+    warn('Nothing to do — all entered domains already have nginx files.');
+    process.exit(0);
+  }
+
+  // ── Step 2: confirm folder path ────────────────────────────────────────────
+  const cwd = process.cwd();
+  const folderName = path.basename(cwd);
+  console.log('');
+  console.log(`${BOLD}Step 2${NC} — confirm install location.`);
+  console.log(`  Running from: ${CYAN}${cwd}${NC}  (folder: ${folderName})`);
+  console.log('');
+  console.log('  Will configure:');
+  for (const j of jobs) {
+    console.log(`    ${j.label.padEnd(9)} ${j.domain}${j.alias ? ' , ' + j.alias : ''}  →  127.0.0.1:${j.port}`);
+  }
+  console.log('');
+  if (!(await promptYesNo('Proceed?', true))) die('Aborted.');
+
+  // ── Apply ──────────────────────────────────────────────────────────────────
+  for (const j of jobs) {
+    console.log('');
+    info(`Configuring ${j.label}: ${j.domain}${j.alias ? ' (+ ' + j.alias + ')' : ''}`);
+
+    // DNS first (unproxied) so the ACME HTTP-01 challenge reaches this host.
+    const dnsIds = {};
+    if (cloudflareEnabled()) {
+      dnsIds[j.domain] = await cfCreateCname(j.domain, false);
+      if (j.alias) dnsIds[j.alias] = await cfCreateCname(j.alias, false);
+    }
+
+    writeNginxSite(j.label, j.domain, j.alias, j.port);
+    nginxReload();
+
+    const ok = runCertbot(j.domain, j.alias);
+
+    // Flip to proxied after issuance succeeds.
+    if (cloudflareEnabled() && ok) {
+      await cfSetProxied(dnsIds[j.domain], j.domain, true);
+      if (j.alias && dnsIds[j.alias]) await cfSetProxied(dnsIds[j.alias], j.alias, true);
+    } else if (cloudflareEnabled() && !ok) {
+      warn(`Leaving ${j.domain} DNS unproxied since certbot did not complete.`);
+    }
+  }
+
+  console.log('');
+  log('Tribe host proxy install complete.');
+  console.log('');
+}
+
+// ─── status ───────────────────────────────────────────────────────────────────
+function cmdStatus() {
+  loadEnv();
+  console.log('');
+  console.log(`${BOLD}Tribe host proxy status${NC}`);
+  console.log('────────────────────────────────────────────────────────────');
+  const rows = [
+    ['tribe',    TRIBE_PORT],
+    ['junction', JUNCTION_PORT],
+    ['dist',     DIST_PORT],
+    ['dist-php', DIST_PHP_PORT],
+  ];
+  for (const [label, port] of rows) {
+    // We do not know the domain from here unless a file exists; scan enabled dir.
+    const enabled = fs.existsSync(NGINX_ENABLED)
+      ? fs.readdirSync(NGINX_ENABLED).filter(f => {
+          try {
+            const p = fs.readFileSync(path.join(NGINX_AVAILABLE, f), 'utf8');
+            return p.includes(`service: ${label}`) && p.includes(`127.0.0.1:${port}`);
+          } catch { return false; }
+        })
+      : [];
+    if (enabled.length) {
+      console.log(`  ${GREEN}●${NC} ${label.padEnd(9)} :${port}  →  ${enabled.join(', ')}`);
+    } else {
+      console.log(`  ${YELLOW}○${NC} ${label.padEnd(9)} :${port}  (no nginx site)`);
+    }
+  }
+  console.log('');
+}
+
+// ─── uninstall ────────────────────────────────────────────────────────────────
+async function cmdUninstall() {
+  loadEnv();
+  console.log('');
+  warn('This removes nginx site files for base-stack domains you name (and their DNS if Cloudflare is configured).');
+  console.log('It does NOT remove issued certificates (use `certbot delete` for that).');
+  console.log('');
+
+  const domain = await prompt('Domain to remove (exact server_name, blank to abort): ');
+  if (!domain) die('Aborted.');
+
+  const avail = siteAvailablePath(domain);
+  const link  = siteEnabledPath(domain);
+  let aliasFound = '';
+  if (fs.existsSync(avail)) {
+    const content = fs.readFileSync(avail, 'utf8');
+    const m = content.match(/server_name\s+([^;]+);/);
+    if (m) {
+      const names = m[1].trim().split(/\s+/);
+      if (names.length > 1) aliasFound = names[1];
+    }
+  } else {
+    warn(`No nginx file at ${avail}.`);
+  }
+
+  try { fs.unlinkSync(link); log(`Removed ${link}`); } catch { /* */ }
+  try { fs.unlinkSync(avail); log(`Removed ${avail}`); } catch { /* */ }
+  nginxReload();
+
+  if (cloudflareEnabled()) {
+    await cfDeleteByName(domain);
+    if (aliasFound) await cfDeleteByName(aliasFound);
+  }
+
+  log('Uninstall complete.');
+  console.log('');
+}
+
+// ─── usage / dispatch ─────────────────────────────────────────────────────────
+function usage() {
+  console.log(`Usage: node tribe [command]
+
+  install      Interactive install (default when no command given)
+  status       Show which base-stack services have nginx sites
+  uninstall    Remove an nginx site (and its DNS) by domain
+
+Reads ports from .env: TRIBE_PORT, JUNCTION_PORT, DIST_PORT, DIST_PHP_PORT.
+Cloudflare DNS is handled automatically when these are set in .env:
+  CLOUDFLARE_API_EMAIL, CLOUDFLARE_API_KEY, CLOUDFLARE_ZONE_ID, CLOUDFLARE_SERVER
+`);
+  process.exit(1);
+}
+
+(async () => {
+  const cmd = process.argv[2];
+  switch (cmd) {
+    case undefined:
+    case 'install':   await cmdInstall();   break;
+    case 'status':    cmdStatus();          break;
+    case 'uninstall': await cmdUninstall(); break;
+    default:          usage();
+  }
+  rlClose();
+})();
