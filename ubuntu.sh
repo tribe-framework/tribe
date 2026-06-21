@@ -224,14 +224,3 @@ echo "    node     $(node -v 2>/dev/null)        npm $(npm -v 2>/dev/null)"
 echo "    nginx    $(nginx -v 2>&1 | awk -F/ '{print $2}')"
 echo "    certbot  $(certbot --version 2>&1 | awk '{print $2}')"
 echo
-echo "  ${BOLD}Next steps${NC} (from your project directory):"
-if [ -n "$TARGET_USER" ]; then
-  echo "    0. Log out and back in (or run: newgrp docker) so '$TARGET_USER' can use docker without sudo"
-fi
-echo "    1. cp _env.sample .env   &&   edit .env"
-echo "    2. docker compose up -d"
-echo "    3. node tribe            # host nginx + SSL for the base stack"
-echo "    4. node loom create <thread-name>"
-echo
-warn "DNS: point your A/AAAA (or Cloudflare) records at this server before running certbot steps."
-echo
