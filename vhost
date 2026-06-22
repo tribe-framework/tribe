@@ -24,10 +24,10 @@
 //      has obtained the certificate.
 //
 // Commands:
-//   node tribe              Interactive install (same as `node tribe install`)
-//   node tribe install      Interactive install
-//   node tribe status       Show which service domains have nginx files / certs
-//   node tribe uninstall    Remove nginx files (+ DNS) for the base-stack domains
+//   node vhost              Interactive install (same as `node vhost install`)
+//   node vhost install      Interactive install
+//   node vhost status       Show which service domains have nginx files / certs
+//   node vhost uninstall    Remove nginx files (+ DNS) for the base-stack domains
 //
 // Prerequisites:
 //   - The root docker stack is running (docker compose up -d).
@@ -465,7 +465,7 @@ async function cmdUninstall() {
 
 // ─── usage / dispatch ─────────────────────────────────────────────────────────
 function usage() {
-  console.log(`Usage: node tribe [command]
+  console.log(`Usage: node vhost [command]
 
   install      Interactive install (default when no command given)
   status       Show which base-stack services have nginx sites
