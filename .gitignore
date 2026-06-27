@@ -2,7 +2,7 @@
 /.env
 .env.loom
 /uploads/*
-!/uploads/.gitkeep
+!/uploads/metadata.sh
 /logs/*
 !/logs/.gitkeep
 /node_modules
