@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
       MYSQL_ROOT_HOST: "%"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./uploads/mysql:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -25,6 +25,7 @@ services:
       - ./config:/config
       - ./applications:/applications
       - ./uploads:/uploads
+      - ./logs:/logs
       - .:/workdir
       - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /workdir
@@ -290,7 +291,7 @@ services:
     ports:
       - "${TYPESENSE_PORT:-12006}:8108"
     volumes:
-      - typesense_data:/data
+      - ./uploads/typesense:/data
     environment:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-xyz}
       - TYPESENSE_DATA_DIR=/data
@@ -335,7 +336,7 @@ networks:
 #   ipam:
 #     config:
 #       - subnet: 172.30.0.0/24
-#       gateway: 172.30.0.1
+#         gateway: 172.30.0.1
 
 volumes:
   junction_caddy_data:
@@ -352,9 +353,3 @@ volumes:
     name: ${PROJECT_NAME}_dist_php_caddy_config
   filebrowser_data:
     name: ${PROJECT_NAME}_filebrowser_data
-  mysql_data:
-    name: ${PROJECT_NAME}_mysql_data
-    driver: local
-  typesense_data:
-    name: ${PROJECT_NAME}_typesense_data
-    driver: local
