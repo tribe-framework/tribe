@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════════════════════
-# ubuntu.sh — Provision an Ubuntu (>= 24.04) host to run the Tribe / Loom stack.
+# config/ubuntu/setup.sh — Provision an Ubuntu (>= 24.04) host to run the Tribe / Loom stack.
 #
 # Installs and configures:
 #   • ufw      — firewall, opens 22 (SSH), 80, 443 (+ optional direct service ports)
@@ -11,10 +11,10 @@
 #   • helpers  — curl, unzip, git, ca-certificates, etc.
 #
 # Usage:
-#   sudo ./ubuntu.sh                 # standard install (recommended)
-#   sudo ./ubuntu.sh --open-services # ALSO open Docker service ports 12000-12008
+#   sudo ./config/ubuntu/setup.sh                 # standard install (recommended)
+#   sudo ./config/ubuntu/setup.sh --open-services # ALSO open Docker service ports 12000-12008
 #                                    # and thread range 13000-13999 in ufw
-#   sudo ./ubuntu.sh --no-firewall   # skip ufw configuration entirely
+#   sudo ./config/ubuntu/setup.sh --no-firewall   # skip ufw configuration entirely
 #
 # Safe to re-run: every step is idempotent and checks before acting.
 #
@@ -53,7 +53,7 @@ die()  { err "$*"; exit 1; }
 section() { echo; echo "${BOLD}── $* ──${NC}"; }
 
 # ─── Pre-flight ───────────────────────────────────────────────────────────────
-[ "$(id -u)" -eq 0 ] || die "Please run as root:  sudo ./ubuntu.sh"
+[ "$(id -u)" -eq 0 ] || die "Please run as root:  sudo ./config/ubuntu/setup.sh"
 
 if [ ! -r /etc/os-release ]; then die "Cannot read /etc/os-release — is this Ubuntu?"; fi
 . /etc/os-release
