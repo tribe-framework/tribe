@@ -614,7 +614,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:${tribePort}:80"
+      - "${tribePort}:80"
     volumes:
       - ./logs:/var/log/caddy
       - ../../applications/tribe:/var/www/html
@@ -641,7 +641,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:${junctionPort}:80"
+      - "${junctionPort}:80"
     volumes:
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log/caddy
@@ -665,7 +665,7 @@ services:
     container_name: ${project}_${name}_caddy_dist
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${distPort}:80"
+      - "${distPort}:80"
     volumes:
       - ./uploads/sites/dist:/srv
       - ./logs:/var/log/caddy
@@ -708,7 +708,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:${distPhpPort}:80"
+      - "${distPhpPort}:80"
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
