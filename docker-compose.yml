@@ -70,7 +70,7 @@ services:
       - tribe_network
 
   php_tribe:
-    image: tribeframework/tribe-core:v1.5
+    image: tribeframework/tribe-core:v1.6
     container_name: ${PROJECT_NAME}_php_tribe
     restart: unless-stopped
     env_file:
@@ -97,7 +97,7 @@ services:
       - tribe_network
 
   php_junction:
-    image: tribeframework/tribe-core:v1.5
+    image: tribeframework/tribe-core:v1.6
     container_name: ${PROJECT_NAME}_php_junction
     restart: unless-stopped
     env_file:
@@ -116,7 +116,7 @@ services:
       - tribe_network
 
   php_dist:
-    image: tribeframework/tribe-core:v1.5
+    image: tribeframework/tribe-core:v1.6
     container_name: ${PROJECT_NAME}_php_dist
     restart: unless-stopped
     env_file:
