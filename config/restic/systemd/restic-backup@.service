@@ -1,0 +1,10 @@
+[Unit]
+Description=restic backup of %i from server
+After=network-online.target rest-server.service tailscaled.service
+Requires=rest-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh -o BatchMode=yes -o ServerAliveInterval=60 \
+  root@server /usr/local/bin/restic-backup.sh %i
+TimeoutStartSec=infinity

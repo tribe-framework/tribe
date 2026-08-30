@@ -1,0 +1,9 @@
+**/mysql/data/**
+**/var/lib/mysql/**
+**/mysql-data/**
+**/*.ibd
+**/ib_logfile*
+**/ibdata1
+**/*.sock
+**/lost+found
+**/*.tmp
