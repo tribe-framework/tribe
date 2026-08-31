@@ -54,4 +54,4 @@ Repositories on `local`: `/media/username/WD-Internal/restic/`.
    ```
 
 Full day-to-day operation, troubleshooting, retention, and migration
-instructions are in `backup.hbs`.
+instructions are in `https://tribe-framework.org/backup`.
