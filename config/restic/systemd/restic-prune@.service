@@ -1,11 +1,7 @@
 [Unit]
-Description=restic forget+prune for %i
+Description=restic forget+prune for %f
+Documentation=https://tribe-framework.org/backup
 
 [Service]
 Type=oneshot
-Environment=RESTIC_REPOSITORY=/media/cityowl/WD-Internal/restic/%i
-Environment=RESTIC_PASSWORD_FILE=/etc/restic/password
-ExecStart=/usr/bin/restic forget --prune \
-  --keep-daily 14 --keep-weekly 8 --keep-monthly 12 --keep-yearly 3 \
-  --retry-lock 2h
-ExecStartPost=/usr/bin/restic check --read-data-subset=2%%
+ExecStart=/usr/local/bin/restic-prune.sh %f

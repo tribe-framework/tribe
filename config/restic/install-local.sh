@@ -4,7 +4,18 @@
 # and rest-server binary is at /usr/local/bin/rest-server.
 set -euo pipefail
 
-UNIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/systemd" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UNIT_DIR="$SCRIPT_DIR/systemd"
+
+if [ ! -x /usr/local/bin/rest-server ]; then
+  echo "ERROR: /usr/local/bin/rest-server not found." >&2
+  echo "Download the release for this architecture from" >&2
+  echo "  https://github.com/restic/rest-server/releases" >&2
+  echo "then: sudo install -m755 rest-server /usr/local/bin/rest-server" >&2
+  exit 1
+fi
+
+sudo install -m755 "$SCRIPT_DIR"/restic-prune.sh /usr/local/bin/restic-prune.sh
 
 sudo cp "$UNIT_DIR"/rest-server.service /etc/systemd/system/
 sudo cp "$UNIT_DIR"/restic-backup@.service /etc/systemd/system/
@@ -20,8 +31,16 @@ sudo mkdir -p /media/cityowl/WD-Internal/restic
 sudo systemctl daemon-reload
 sudo systemctl enable --now rest-server
 
-echo "Enable per-volume timers manually once rest-server is confirmed up, e.g.:"
-echo "  sudo systemctl enable --now restic-backup@beatroot.timer"
-echo "  sudo systemctl enable --now restic-backup@volume.timer"
-echo "  sudo systemctl enable --now restic-prune@beatroot-backup.timer"
-echo "  sudo systemctl enable --now restic-prune@volume-backup.timer"
+cat <<'MSG'
+
+Timers are named after the volume path, escaped by systemd-escape, so
+/mnt/postcode becomes the instance -mnt-postcode. Enable them once
+rest-server is confirmed up:
+
+  sudo systemctl enable --now "restic-backup@$(systemd-escape /mnt/postcode).timer"
+  sudo systemctl enable --now "restic-prune@$(systemd-escape /mnt/postcode).timer"
+
+  # and for any additional volume:
+  # sudo systemctl enable --now "restic-backup@$(systemd-escape /mnt/volume).timer"
+  # sudo systemctl enable --now "restic-prune@$(systemd-escape /mnt/volume).timer"
+MSG

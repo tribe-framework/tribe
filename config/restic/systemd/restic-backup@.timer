@@ -1,8 +1,8 @@
 [Unit]
-Description=Daily 4AM IST restic backup of %i
+Description=Daily 2AM IST restic backup of %f
 
 [Timer]
-OnCalendar=*-*-* 04:00:00 Asia/Kolkata
+OnCalendar=*-*-* 02:00:00 Asia/Kolkata
 Persistent=true
 
 [Install]
