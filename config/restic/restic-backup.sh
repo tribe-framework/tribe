@@ -32,7 +32,7 @@ restic snapshots >/dev/null 2>&1 || restic init
 
 exec restic backup "$SOURCE" \
   --one-file-system \
-  --exclude-file=/etc/restic/exclude.txt \
+  --exclude-file=./exclude.txt \
   --exclude-caches \
   --retry-lock 30m \
   --cleanup-cache \
