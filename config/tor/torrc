@@ -36,8 +36,3 @@ HiddenServiceVersion 3
 HiddenServiceDir /var/lib/tor/hidden_services/phpmyadmin
 HiddenServicePort 80 phpmyadmin:80
 HiddenServiceVersion 3
-
-# ─── Hidden service: FileBrowser (admin — Tor only) ───────────────────────────
-HiddenServiceDir /var/lib/tor/hidden_services/filebrowser
-HiddenServicePort 80 filebrowser:80
-HiddenServiceVersion 3

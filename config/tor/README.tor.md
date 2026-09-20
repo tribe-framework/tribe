@@ -30,7 +30,6 @@ Output:
   dist            http://ghi789...onion
   dist-php        http://jkl012...onion
   phpmyadmin      http://mno345...onion
-  filebrowser     http://pqr678...onion
 ```
 
 ## How it works
@@ -58,7 +57,6 @@ uploads/
     dist/hostname
     dist-php/hostname
     phpmyadmin/hostname      # admin — Tor only, no clearnet port
-    filebrowser/hostname     # admin — Tor only, no clearnet port
 docker-compose.yml           # base (unchanged)
 docker-compose.tor.yml       # Tor overlay
 ```

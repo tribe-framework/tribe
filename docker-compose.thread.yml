@@ -109,7 +109,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${TRIBE_PORT:-12000}:80"
+      - "${TRIBE_PORT:-13000}:80"
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -132,7 +132,7 @@ services:
     restart: unless-stopped
     <<: *shared_hosts
     ports:
-      - "${PHPMYADMIN_PORT:-12001}:80"
+      - "${PHPMYADMIN_PORT:-13001}:80"
     environment:
       PMA_HOST: shared-services
       PMA_PORT: ${SHARED_DB_PORT:-3306}
@@ -152,7 +152,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${JUNCTION_PORT:-12002}:80"
+      - "${JUNCTION_PORT:-13002}:80"
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -173,7 +173,7 @@ services:
     container_name: ${PROJECT_NAME}_caddy_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PORT:-12003}:80"
+      - "${DIST_PORT:-13003}:80"
     volumes:
       - ./uploads/sites/dist:/srv
       - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
@@ -193,7 +193,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${DIST_PHP_PORT:-12004}:80"
+      - "${DIST_PHP_PORT:-13004}:80"
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -214,13 +214,13 @@ services:
     container_name: ${PROJECT_NAME}_cronicle
     restart: unless-stopped
     ports:
-      - "${CRONICLE_PORT:-12007}:3012"
+      - "${CRONICLE_PORT:-13007}:3012"
     volumes:
       - ./uploads/cronicle/data:/opt/cronicle/data
       - ./uploads/cronicle/logs:/opt/cronicle/logs
       - ./uploads/cronicle/plugins:/opt/cronicle/plugins
     environment:
-      - CRONICLE_base_app_url=http://${BARE_URL:-localhost}:${CRONICLE_PORT:-12007}
+      - CRONICLE_base_app_url=http://${BARE_URL:-localhost}:${CRONICLE_PORT:-13007}
       - CRONICLE_secret_key=${CRONICLE_SECRET_KEY:-changeme_cronicle_key}
       - CRONICLE_log_dir=/opt/cronicle/logs
       - CRONICLE_log_keep_days=${CRONICLE_LOG_KEEP_DAYS:-30}
@@ -236,7 +236,7 @@ services:
     container_name: ${PROJECT_NAME}_centrifugo
     restart: unless-stopped
     ports:
-      - "${CENTRIFUGO_PORT:-12008}:8000"
+      - "${CENTRIFUGO_PORT:-13008}:8000"
     volumes:
       - ./uploads/centrifugo:/centrifugo/data
       - ./config/centrifugo/config.json:/centrifugo/data/config.json

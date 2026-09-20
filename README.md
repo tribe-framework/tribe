@@ -28,7 +28,6 @@ That's it. Tribe is running at `http://localhost:12000`.
 | Junction      | `12002` |
 | Dist (static) | `12003` |
 | Dist (PHP)    | `12004` |
-| FileBrowser   | `12005` |
 
 All ports are configurable in `.env`.
 
@@ -53,9 +52,8 @@ docker compose logs -f     # tail logs
 | **MySQL**       | Relational database storing all Tribe content and data               |
 | **phpMyAdmin**  | Web UI for browsing and managing MySQL databases                     |
 | **Caddy**       | Web server / reverse proxy — handles HTTP, routes to PHP-FPM         |
-| **FileBrowser** | Web UI for browsing and managing uploaded files                      |
-| **Loom**        | Multi-tenant mode — one shared infrastructure hosting many Threads   |
-| **Thread**      | A single Tribe + Junction instance inside a Loom setup               |
+| **Loom**        | Multi-tenant shared infrastructure hosting many adjacent Threads     |
+| **Thread**      | A single Tribe + Junction instance adjacent a Loom setup             |
 | **Tor**         | Overlay mode routing all traffic through `.onion` hidden services    |
 
 ---
@@ -84,19 +82,9 @@ uploads/               # All runtime data (gitignored)
   sites/
     dist/              # Static site files
     dist-php/          # PHP site files
-  threads/             # Per-thread uploads (Loom mode)
-  filebrowser/         # FileBrowser database
   tor/                 # .onion keys and hostnames
 
 logs/                  # Runtime logs (gitignored)
-  threads/             # Per-thread logs (Loom mode)
-
-threads/               # Generated thread configs (Loom mode)
-  .registry.json
-  <name>/
-    docker-compose.yml
-    .env
-    config/
 
 docker-compose.yml     # Standard single-project setup
 .env.sample            # Standard env template

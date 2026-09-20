@@ -6,6 +6,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
       MYSQL_ROOT_HOST: "%"
+    ## To activate loom, uncomment port lines below
+    #ports:
+    #  - "3306:3306"
     volumes:
       - ./uploads/mysql:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
@@ -57,6 +60,9 @@ services:
     restart: unless-stopped
     environment:
       - TIKA_OCR_STRATEGY=OCR_AND_TEXT_EXTRACTION
+    ## To activate loom, uncomment port lines below
+    #ports:
+    #  - "9998:9998"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9998/version || exit 1"]
       interval: 15s

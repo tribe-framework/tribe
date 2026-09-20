@@ -119,15 +119,6 @@ function checkNetwork(): array {
     ];
 }
 
-function checkFileBrowser(): array {
-    $project = rootProject();
-    $host    = $project . '_filebrowser';
-    $port    = 80;
-    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
-    if ($sock) { fclose($sock); return ['ok' => true, 'detail' => "FileBrowser reachable @ $host:$port"]; }
-    return ['ok' => false, 'detail' => "FileBrowser unreachable — $errstr ($errno)"];
-}
-
 function checkPhpMyAdmin(): array {
     $project = rootProject();
     $host    = $project . '_phpmyadmin';
@@ -249,7 +240,6 @@ $checks = [
     'Caddy (Dist)'     => checkCaddy('Caddy Dist',     $project . '_caddy_dist',     80),
     'Caddy (PHP Dist)' => checkCaddy('Caddy PHP Dist', $project . '_caddy_php_dist', 80),
     'phpMyAdmin'       => checkPhpMyAdmin(),
-    'FileBrowser'      => checkFileBrowser(),
     'Disk Space'       => checkDiskSpace(),
     'Writable Dirs'    => checkWritableDirs(),
 ];

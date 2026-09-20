@@ -16,7 +16,7 @@ set +a
 #   33   — www-data  (php-fpm inside tribeframework/tribe-core)
 #   999  — mysql     (mysql:9)
 #   1000 — typesense (typesense/typesense:30.1)
-#   0    — root      (caddy, filebrowser, cronicle, centrifugo — no special perms needed)
+#   0    — root      (caddy, cronicle, centrifugo — no special perms needed)
 #
 # Verify with: docker exec <container> id
 # If any UID differs on your host, adjust the values below.
@@ -29,7 +29,6 @@ mkdir -p \
     /uploads/threads \
     /uploads/sites/dist \
     /uploads/sites/dist-php \
-    /uploads/filebrowser \
     /uploads/cronicle/data \
     /uploads/cronicle/logs \
     /uploads/cronicle/plugins \
@@ -49,7 +48,7 @@ chown -R 1000:1000 /uploads/typesense 2>/dev/null || true
 
 # Directories that root-based services write to — leave www-data ownership,
 # root can always write regardless. No change needed for:
-#   /uploads/cronicle, /uploads/centrifugo, /uploads/filebrowser
+#   /uploads/cronicle, /uploads/centrifugo
 
 # General permissions for www-data-owned dirs:
 #   directories: 775 — owner+group rwx, others rx
@@ -145,40 +144,6 @@ PHPEOF
     chown 33:33 /uploads/sites/dist-php/index.php
     chmod 664 /uploads/sites/dist-php/index.php
     echo "✅ Default PHP site created!"
-fi
-
-# ── FileBrowser initialisation ─────────────────────────────────────────────────
-echo "🔧 Setting up FileBrowser..."
-
-if [ ! -f "/uploads/filebrowser/filebrowser.db" ]; then
-    echo "📥 Downloading FileBrowser binary..."
-    FILEBROWSER_VERSION="2.27.0"
-    cd /tmp
-    curl -fsSL "https://github.com/filebrowser/filebrowser/releases/download/v${FILEBROWSER_VERSION}/linux-amd64-filebrowser.tar.gz" \
-        -o filebrowser.tar.gz
-    tar -xzf filebrowser.tar.gz
-    chmod +x filebrowser
-
-    echo "🔨 Initialising FileBrowser database..."
-    ./filebrowser config init \
-        --database /uploads/filebrowser/filebrowser.db \
-        --root /uploads
-
-    echo "👤 Adding admin user..."
-    ./filebrowser users add admin "${FILEBROWSER_PASSWORD:-filepassword}" \
-        --database /uploads/filebrowser/filebrowser.db \
-        --perm.admin
-
-    rm -f filebrowser filebrowser.tar.gz
-    cd /workdir
-
-    # FileBrowser runs as root so it can own this itself, but keep consistent
-    chown 33:33 /uploads/filebrowser/filebrowser.db
-    chmod 664 /uploads/filebrowser/filebrowser.db
-
-    echo "✅ FileBrowser initialised!"
-else
-    echo "ℹ️  FileBrowser database already exists, skipping."
 fi
 
 echo ""

@@ -30,15 +30,13 @@ services:
           /var/lib/tor/hidden_services/junction
           /var/lib/tor/hidden_services/dist
           /var/lib/tor/hidden_services/dist-php
-          /var/lib/tor/hidden_services/phpmyadmin
-          /var/lib/tor/hidden_services/filebrowser &&
+          /var/lib/tor/hidden_services/phpmyadmin &&
         chmod 700
           /var/lib/tor/hidden_services/tribe
           /var/lib/tor/hidden_services/junction
           /var/lib/tor/hidden_services/dist
           /var/lib/tor/hidden_services/dist-php
-          /var/lib/tor/hidden_services/phpmyadmin
-          /var/lib/tor/hidden_services/filebrowser &&
+          /var/lib/tor/hidden_services/phpmyadmin &&
         chown -R tor:tor /var/lib/tor/hidden_services 2>/dev/null || true &&
         tor -f /etc/tor/torrc
       "
@@ -50,7 +48,7 @@ services:
 
   # ─── Remove ALL host port bindings ──────────────────────────────────────────
   # Each service override nulls out ports[]. Tor reaches them by container name
-  # on port 80 (Caddy) or 80 (phpMyAdmin/FileBrowser) inside the Docker network.
+  # on port 80 (Caddy) or 80 (phpMyAdmin) inside the Docker network.
 
   caddy_tribe:
     ports: []
@@ -65,7 +63,4 @@ services:
     ports: []
 
   phpmyadmin:
-    ports: []
-
-  filebrowser:
     ports: []

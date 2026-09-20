@@ -7,7 +7,7 @@
 #   ./tor-addresses.sh --wait   # block until all addresses are available
 # ══════════════════════════════════════════════════════════════════════════════
 
-SERVICES=(tribe junction dist dist-php phpmyadmin filebrowser)
+SERVICES=(tribe junction dist dist-php phpmyadmin)
 TOR_DIR="./uploads/tor"
 WAIT=false
 
@@ -42,7 +42,7 @@ done
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Admin services (phpMyAdmin, FileBrowser)"
+echo "  Admin services (phpMyAdmin)"
 echo "  are Tor-only — no clearnet port is exposed."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
