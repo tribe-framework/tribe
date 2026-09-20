@@ -1,0 +1,277 @@
+x-shared-hosts: &shared_hosts
+  extra_hosts:
+    - "shared-services:${SHARED_SERVICES_HOST:-host-gateway}"
+
+services:
+  setup:
+    image: alpine:3
+    container_name: ${PROJECT_NAME}_setup
+    env_file:
+      - .env
+    <<: *shared_hosts
+    volumes:
+      - ./config:/config
+      - ./applications:/applications
+      - ./uploads:/uploads
+      - ./logs:/logs
+      - .:/workdir
+    working_dir: /workdir
+    command: sh -c "apk add --no-cache curl unzip bash mysql-client && bash ./config/setup-thread.sh && touch /tmp/setup_complete && tail -f /dev/null"
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/setup_complete"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    networks:
+      - tribe_network
+
+  php_tribe:
+    image: tribeframework/tribe-core:v1.6
+    container_name: ${PROJECT_NAME}_php_tribe
+    restart: unless-stopped
+    env_file:
+      - .env
+    <<: *shared_hosts
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - DB_HOST=shared-services
+      - DB_PORT=${SHARED_DB_PORT:-3306}
+      - TIKA_HOST=shared-services
+      - TIKA_PORT=${SHARED_TIKA_PORT:-9998}
+    volumes:
+      - ./applications/tribe:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/log
+      - ./applications/tribe/index.php:/var/www/html/index.php
+    command: >
+      sh -c "composer install --no-interaction --optimize-autoloader &&
+           php-fpm
+      "
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  php_junction:
+    image: tribeframework/tribe-core:v1.6
+    container_name: ${PROJECT_NAME}_php_junction
+    restart: unless-stopped
+    env_file:
+      - .env
+    <<: *shared_hosts
+    environment:
+      - DB_HOST=shared-services
+      - DB_PORT=${SHARED_DB_PORT:-3306}
+    volumes:
+      - ./applications/junction/dist:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/log
+    command: >
+      sh -c "composer install --no-interaction --optimize-autoloader &&
+           php-fpm"
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  php_dist:
+    image: tribeframework/tribe-core:v1.6
+    container_name: ${PROJECT_NAME}_php_dist
+    restart: unless-stopped
+    env_file:
+      - .env
+    <<: *shared_hosts
+    environment:
+      - DB_HOST=shared-services
+      - DB_PORT=${SHARED_DB_PORT:-3306}
+    volumes:
+      - ./uploads/sites/dist-php:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/log
+    command: >
+      sh -c "if [ -f composer.json ]; then composer install --no-interaction --optimize-autoloader; fi &&
+           php-fpm"
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  caddy_tribe:
+    image: caddy:2-alpine
+    container_name: ${PROJECT_NAME}_caddy_tribe
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+    ports:
+      - "${TRIBE_PORT:-12000}:80"
+    volumes:
+      - ./applications/tribe:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./applications/tribe/index.php:/var/www/html/index.php
+      - ./config/tribe/Caddyfile:/etc/caddy/Caddyfile
+      - ./logs:/var/log/caddy
+      - tribe_caddy_data:/data
+      - tribe_caddy_config:/config
+    depends_on:
+      setup:
+        condition: service_healthy
+      php_tribe:
+        condition: service_started
+    networks:
+      - tribe_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: ${PROJECT_NAME}_phpmyadmin
+    restart: unless-stopped
+    <<: *shared_hosts
+    ports:
+      - "${PHPMYADMIN_PORT:-12001}:80"
+    environment:
+      PMA_HOST: shared-services
+      PMA_PORT: ${SHARED_DB_PORT:-3306}
+      UPLOAD_LIMIT: 2G
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  caddy_junction:
+    image: caddy:2-alpine
+    container_name: ${PROJECT_NAME}_caddy_junction
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+    ports:
+      - "${JUNCTION_PORT:-12002}:80"
+    volumes:
+      - ./applications/junction/dist:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./config/junction/Caddyfile:/etc/caddy/Caddyfile
+      - ./logs:/var/log/caddy
+      - junction_caddy_data:/data
+      - junction_caddy_config:/config
+    depends_on:
+      setup:
+        condition: service_healthy
+      php_junction:
+        condition: service_started
+    networks:
+      - tribe_network
+
+  caddy_dist:
+    image: caddy:2-alpine
+    container_name: ${PROJECT_NAME}_caddy_dist
+    restart: unless-stopped
+    ports:
+      - "${DIST_PORT:-12003}:80"
+    volumes:
+      - ./uploads/sites/dist:/srv
+      - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
+      - ./logs:/var/log/caddy
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  caddy_php_dist:
+    image: caddy:2-alpine
+    container_name: ${PROJECT_NAME}_caddy_php_dist
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+    ports:
+      - "${DIST_PHP_PORT:-12004}:80"
+    volumes:
+      - ./uploads/sites/dist-php:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile
+      - ./logs:/var/log/caddy
+      - dist_php_caddy_data:/data
+      - dist_php_caddy_config:/config
+    depends_on:
+      setup:
+        condition: service_healthy
+      php_dist:
+        condition: service_started
+    networks:
+      - tribe_network
+
+  cronicle:
+    image: soulteary/cronicle:latest
+    container_name: ${PROJECT_NAME}_cronicle
+    restart: unless-stopped
+    ports:
+      - "${CRONICLE_PORT:-12007}:3012"
+    volumes:
+      - ./uploads/cronicle/data:/opt/cronicle/data
+      - ./uploads/cronicle/logs:/opt/cronicle/logs
+      - ./uploads/cronicle/plugins:/opt/cronicle/plugins
+    environment:
+      - CRONICLE_base_app_url=http://${BARE_URL:-localhost}:${CRONICLE_PORT:-12007}
+      - CRONICLE_secret_key=${CRONICLE_SECRET_KEY:-changeme_cronicle_key}
+      - CRONICLE_log_dir=/opt/cronicle/logs
+      - CRONICLE_log_keep_days=${CRONICLE_LOG_KEEP_DAYS:-30}
+      - TZ=${DEFAULT_TIMEZONE:-Asia/Kolkata}
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+  centrifugo:
+    image: centrifugo/centrifugo:latest
+    container_name: ${PROJECT_NAME}_centrifugo
+    restart: unless-stopped
+    ports:
+      - "${CENTRIFUGO_PORT:-12008}:8000"
+    volumes:
+      - ./uploads/centrifugo:/centrifugo/data
+      - ./config/centrifugo/config.json:/centrifugo/data/config.json
+    command: centrifugo --config=/centrifugo/data/config.json
+    environment:
+      - CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY=${CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY:-changeme_centrifugo_secret}
+      - CENTRIFUGO_HTTP_API_KEY=${CENTRIFUGO_HTTP_API_KEY:-changeme_centrifugo_api_key}
+      - CENTRIFUGO_ADMIN=true
+      - CENTRIFUGO_ADMIN_PASSWORD=${CENTRIFUGO_ADMIN_PASSWORD:-changeme_admin_password}
+      - CENTRIFUGO_ADMIN_SECRET=${CENTRIFUGO_ADMIN_SECRET:-changeme_admin_secret}
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    depends_on:
+      setup:
+        condition: service_healthy
+    networks:
+      - tribe_network
+
+networks:
+  tribe_network:
+    driver: bridge
+    name: ${PROJECT_NAME}_network
+
+volumes:
+  junction_caddy_data:
+    name: ${PROJECT_NAME}_junction_caddy_data
+  junction_caddy_config:
+    name: ${PROJECT_NAME}_junction_caddy_config
+  tribe_caddy_data:
+    name: ${PROJECT_NAME}_tribe_caddy_data
+  tribe_caddy_config:
+    name: ${PROJECT_NAME}_tribe_caddy_config
+  dist_php_caddy_data:
+    name: ${PROJECT_NAME}_dist_php_caddy_data
+  dist_php_caddy_config:
+    name: ${PROJECT_NAME}_dist_php_caddy_config

@@ -106,21 +106,6 @@ docker-compose.yml     # Standard single-project setup
 
 ### Advanced Modes
 
-#### Loom — Multi-tenant hosting
-
-Loom lets you run hundreds of isolated Tribe + Junction instances (Threads) on one shared set of services (MySQL, Caddy, phpMyAdmin, FileBrowser).
-
-**To use Loom:**
-
-```bash
-# Manage Threads with loom.sh
-node loom create <name>    # provision and start a new Thread
-node loom list             # list all Threads with ports and status
-node loom destroy <name>   # stop containers and drop DB
-```
-
----
-
 #### Tor — Anonymous hidden services
 
 Tor mode layers `docker-compose.tor.yml` on top of the standard setup. All ports are removed from the host; services are reachable only via `.onion` addresses.
