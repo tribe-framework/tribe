@@ -227,9 +227,8 @@ networks:
   tribe_network:
     driver: bridge
     ## To activate loom, use loom's project name for network
-    name: ${PROJECT_NAME}_network
-    ## To activate loom, external: true, on both loom and all threads
-    ##external: true
+    name: ${LOOM_PROJECT_NAME}_network
+    external: true
 
 ##  for server with multiple dockers, manage IP manually
 #   ipam:
