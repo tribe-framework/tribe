@@ -130,19 +130,21 @@
     ];
     }
 
-    function checkFileBrowser(): array
+    // NOTE: These sidecar services (phpMyAdmin, Tika, Typesense, Centrifugo,
+    // Cronicle) are provisioned per-project, alongside this exact
+    // PROJECT_NAME — not under some inferred "root" project. rootProject()
+    // strips the last "_<segment>" whenever DB_USER is set, which incorrectly
+    // mangles project names that legitimately contain an underscore (e.g.
+    // "kojo_loom" becomes "kojo"). Use the raw PROJECT_NAME here instead,
+    // matching how the working MySQL/Caddy checks already build their hosts.
+    function servicesProject(): string
     {
-    $project = rootProject();
-    $host    = $project . '_filebrowser';
-    $port    = 80;
-    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
-    if ($sock) {fclose($sock);return ['ok' => true, 'detail' => "FileBrowser reachable @ $host:$port"];}
-    return ['ok' => false, 'detail' => "FileBrowser unreachable — $errstr ($errno)"];
+    return env('PROJECT_NAME', 'tribe');
     }
 
     function checkPhpMyAdmin(): array
     {
-    $project = rootProject();
+    $project = servicesProject();
     $host    = $project . '_phpmyadmin';
     $port    = 80;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -184,7 +186,7 @@
 
     function checkTika(): array
     {
-    $project = rootProject();
+    $project = servicesProject();
     $host    = $project . '_tika';
     $port    = 9998;
     $url     = "http://$host:$port/version";
@@ -207,7 +209,7 @@
 
     function checkTypesense(): array
     {
-    $project = rootProject();
+    $project = servicesProject();
     $host    = $project . '_typesense';
     $port    = 8108;
     $apiKey  = env('TYPESENSE_API_KEY', 'xyz');
@@ -236,7 +238,7 @@
 
     function checkCentrifugo(): array
     {
-    $project = rootProject();
+    $project = servicesProject();
     $host    = $project . '_centrifugo';
     $port    = 8000;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -249,7 +251,7 @@
 
     function checkCronicle(): array
     {
-    $project = rootProject();
+    $project = servicesProject();
     $host    = $project . '_cronicle';
     $port    = 3012;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
@@ -277,7 +279,6 @@
     'Caddy (Dist)'     => checkCaddy('Caddy Dist', $project . '_caddy_dist', 80),
     'Caddy (PHP Dist)' => checkCaddy('Caddy PHP Dist', $project . '_caddy_php_dist', 80),
     'phpMyAdmin'       => checkPhpMyAdmin(),
-    'FileBrowser'      => checkFileBrowser(),
     'Disk Space'       => checkDiskSpace(),
     'Writable Dirs'    => checkWritableDirs(),
     ];
