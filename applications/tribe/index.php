@@ -1,55 +1,74 @@
 <?php
-/**
+    /**
  * Tribe Framework - Service Health Dashboard
  * Displays the status of all services defined in docker-compose.yml
  */
 
-// Load .env variables if available
-function loadEnv(string $path): void {
-    if (!file_exists($path)) return;
+    function env(string $key, string $default = ''): string
+    {
+    return $_ENV[$key] ?? getenv($key) ?: $default;
+    }
+
+    // Load .env variables if available
+    function loadEnv(string $path): void
+    {
+    if (! file_exists($path)) {
+        return;
+    }
+
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        if (str_starts_with(trim($line), '#')) continue;
-        if (!str_contains($line, '=')) continue;
-        [$key, $value] = explode('=', $line, 2);
-        $key = trim($key);
-        $value = trim($value, " \t\n\r\0\x0B\"'");
-        if (!array_key_exists($key, $_ENV)) {
-            $_ENV[$key] = $value;
-            putenv("$key=$value");
+        if (str_starts_with(trim($line), '#')) {
+            continue;
         }
+
+        if (! str_contains($line, '=')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $line, 2);
+        $key           = trim($key);
+        $value         = trim($value, " \t\n\r\0\x0B\"'");
+        // Always overwrite: the .env file on disk is the source of truth for
+        // this container. Never let a stale/previous value block a fresh load.
+        $_ENV[$key] = $value;
+        putenv("$key=$value");
     }
-}
+    }
 
-loadEnv(__DIR__ . '/.env');
+    loadEnv(__DIR__ . '/.env');
 
-$projectName = env('PROJECT_NAME', 'tribe');
-if (str_contains($projectName, '_')) {
-    // Being served by a thread's php-fpm — redirect to correct port
-    $threadPort = env('TRIBE_PORT', '');
-    header("Location: http://{$_SERVER['HTTP_HOST']}:$threadPort/", true, 302);
-    exit;
-}
-
-function env(string $key, string $default = ''): string {
-    return $_ENV[$key] ?? getenv($key) ?: $default;
-}
-
-function rootProject(): string {
+    function rootProject(): string
+    {
     $full = env('PROJECT_NAME', 'tribe');
     // Thread .env always has DB_USER; root .env does not set it
     $isThread = env('DB_USER', '') !== '';
-    if (!$isThread) return $full;
+    if (! $isThread) {
+        return $full;
+    }
+
     // Thread PROJECT_NAME is "{root}_{threadname}"; root is everything before
     // the last underscore-delimited segment that looks like a thread name.
     // Simplest reliable approach: strip the last "_<segment>" from the name.
     $pos = strrpos($full, '_');
     return $pos !== false ? substr($full, 0, $pos) : $full;
-}
+    }
 
-// ── Check Functions ──────────────────────────────────────────────────────────
+    $projectName = env('PROJECT_NAME', 'tribe');
+    if (str_contains($projectName, '_') && env('DB_USER', '') === '') {
+    // Only redirect if this looks like an actual thread (root .env has no DB_USER).
+    // Being served by a thread's php-fpm — redirect to correct port
+    $threadPort = env('TRIBE_PORT', '');
+    if ($threadPort !== '') {
+        header("Location: http://" . preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']) . ":$threadPort/", true, 302);
+        exit;
+    }
+    }
 
-function checkMySQL(): array {
+    // ── Check Functions ──────────────────────────────────────────────────────────
+
+    function checkMySQL(): array
+    {
     $host = env('DB_HOST', 'mysql');
     $port = (int) env('DB_PORT', '3306');
     $db   = env('DB_NAME', '');
@@ -64,48 +83,40 @@ function checkMySQL(): array {
     try {
         $dsn = "mysql:host=$host;port=$port" . ($db !== '' ? ";dbname=$db" : '');
         $pdo = new PDO($dsn, $user, $pass, [
-            PDO::ATTR_TIMEOUT    => 3,
-            PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_TIMEOUT => 3,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
         $version = $pdo->query('SELECT VERSION()')->fetchColumn();
         return ['ok' => true, 'detail' => "MySQL $version @ $host:$port (user: $user)"];
     } catch (Throwable $e) {
         return ['ok' => false, 'detail' => $e->getMessage()];
     }
-}
+    }
 
-function checkPHPFPM(): array {
-    $sapi = php_sapi_name();
+    function checkPHPFPM(): array
+    {
+    $sapi    = php_sapi_name();
     $version = PHP_VERSION;
     if ($sapi === 'fpm-fcgi') {
         return ['ok' => true, 'detail' => "PHP $version via php-fpm (FPM/FastCGI)"];
     }
     return ['ok' => true, 'detail' => "PHP $version via $sapi"];
-}
+    }
 
-function checkCaddy(string $label, string $host, int $port): array {
+    function checkCaddy(string $label, string $host, int $port): array
+    {
     $sock = @fsockopen($host, $port, $errno, $errstr, 2);
     if ($sock) {
         fclose($sock);
         return ['ok' => true, 'detail' => "$label reachable @ $host:$port"];
     }
     return ['ok' => false, 'detail' => "$label unreachable @ $host:$port — $errstr ($errno)"];
-}
-
-// Shows the container's network interfaces — useful on multi-project servers
-// to confirm the custom IPAM subnet is active and which IP MySQL sees.
-function checkNetwork(): array {
-    $interfaces = @file('/proc/net/fib_trie', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $ips = [];
-    if ($interfaces) {
-        foreach ($interfaces as $line) {
-            if (preg_match('/32 host LOCAL/', $line)) {
-                // The IP is on the preceding line
-                continue;
-            }
-        }
     }
-    // Simpler: use hostname/gethostbyname
+
+    // Shows the container's network interfaces — useful on multi-project servers
+    // to confirm the custom IPAM subnet is active and which IP MySQL sees.
+    function checkNetwork(): array
+    {
     $hostname = gethostname();
     $ip       = gethostbyname($hostname);
     $rootProj = rootProject();
@@ -117,18 +128,30 @@ function checkNetwork(): array {
         'ok'     => true,
         'detail' => "Container IP: $ip | hostname: $hostname | context: $context",
     ];
-}
+    }
 
-function checkPhpMyAdmin(): array {
+    function checkFileBrowser(): array
+    {
+    $project = rootProject();
+    $host    = $project . '_filebrowser';
+    $port    = 80;
+    $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
+    if ($sock) {fclose($sock);return ['ok' => true, 'detail' => "FileBrowser reachable @ $host:$port"];}
+    return ['ok' => false, 'detail' => "FileBrowser unreachable — $errstr ($errno)"];
+    }
+
+    function checkPhpMyAdmin(): array
+    {
     $project = rootProject();
     $host    = $project . '_phpmyadmin';
     $port    = 80;
     $sock    = @fsockopen($host, $port, $errno, $errstr, 2);
-    if ($sock) { fclose($sock); return ['ok' => true, 'detail' => "phpMyAdmin reachable @ $host:$port"]; }
+    if ($sock) {fclose($sock);return ['ok' => true, 'detail' => "phpMyAdmin reachable @ $host:$port"];}
     return ['ok' => false, 'detail' => "phpMyAdmin unreachable — $errstr ($errno)"];
-}
+    }
 
-function checkDiskSpace(): array {
+    function checkDiskSpace(): array
+    {
     $free  = disk_free_space('/');
     $total = disk_total_space('/');
     $used  = $total - $free;
@@ -136,26 +159,37 @@ function checkDiskSpace(): array {
     $ok    = $pct < 90;
     $fmt   = fn($b) => round($b / 1073741824, 2) . ' GB';
     return ['ok' => $ok, 'detail' => "Used {$fmt($used)} of {$fmt($total)} ({$pct}%)"];
-}
-
-function checkWritableDirs(): array {
-    $dirs = ['/var/www/html/uploads', '/var/log'];
-    $bad = [];
-    foreach ($dirs as $d) {
-        if (is_dir($d) && !is_writable($d)) $bad[] = $d;
-        if (!is_dir($d)) $bad[] = "$d (missing)";
     }
-    if (empty($bad)) return ['ok' => true, 'detail' => 'uploads & logs directories writable'];
-    return ['ok' => false, 'detail' => 'Not writable: ' . implode(', ', $bad)];
-}
 
-function checkTika(): array {
+    function checkWritableDirs(): array
+    {
+    $dirs = ['/var/www/html/uploads', '/var/log'];
+    $bad  = [];
+    foreach ($dirs as $d) {
+        if (is_dir($d) && ! is_writable($d)) {
+            $bad[] = $d;
+        }
+
+        if (! is_dir($d)) {
+            $bad[] = "$d (missing)";
+        }
+
+    }
+    if (empty($bad)) {
+        return ['ok' => true, 'detail' => 'uploads & logs directories writable'];
+    }
+
+    return ['ok' => false, 'detail' => 'Not writable: ' . implode(', ', $bad)];
+    }
+
+    function checkTika(): array
+    {
     $project = rootProject();
     $host    = $project . '_tika';
     $port    = 9998;
     $url     = "http://$host:$port/version";
 
-    $ctx = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
+    $ctx  = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
     $body = @file_get_contents($url, false, $ctx);
 
     if ($body !== false && strlen(trim($body)) > 0) {
@@ -169,9 +203,10 @@ function checkTika(): array {
         return ['ok' => true, 'detail' => "Tika reachable @ $host:$port (version unavailable)"];
     }
     return ['ok' => false, 'detail' => "Tika unreachable @ $host:$port — $errstr ($errno)"];
-}
+    }
 
-function checkTypesense(): array {
+    function checkTypesense(): array
+    {
     $project = rootProject();
     $host    = $project . '_typesense';
     $port    = 8108;
@@ -197,9 +232,10 @@ function checkTypesense(): array {
     }
 
     return ['ok' => false, 'detail' => "Typesense unreachable @ $host:$port"];
-}
+    }
 
-function checkCentrifugo(): array {
+    function checkCentrifugo(): array
+    {
     $project = rootProject();
     $host    = $project . '_centrifugo';
     $port    = 8000;
@@ -209,9 +245,10 @@ function checkCentrifugo(): array {
         return ['ok' => true, 'detail' => "Centrifugo reachable @ $host:$port"];
     }
     return ['ok' => false, 'detail' => "Centrifugo unreachable @ $host:$port — $errstr ($errno)"];
-}
+    }
 
-function checkCronicle(): array {
+    function checkCronicle(): array
+    {
     $project = rootProject();
     $host    = $project . '_cronicle';
     $port    = 3012;
@@ -221,13 +258,13 @@ function checkCronicle(): array {
         return ['ok' => true, 'detail' => "Cronicle reachable @ $host:$port"];
     }
     return ['ok' => false, 'detail' => "Cronicle unreachable @ $host:$port — $errstr ($errno)"];
-}
+    }
 
-// ── Run All Checks ───────────────────────────────────────────────────────────
+    // ── Run All Checks ───────────────────────────────────────────────────────────
 
-$project = env('PROJECT_NAME', 'tribe');
+    $project = env('PROJECT_NAME', 'tribe');
 
-$checks = [
+    $checks = [
     'PHP-FPM'          => checkPHPFPM(),
     'Network'          => checkNetwork(),
     'MySQL'            => checkMySQL(),
@@ -235,26 +272,27 @@ $checks = [
     'Typesense'        => checkTypesense(),
     'Centrifugo'       => checkCentrifugo(),
     'Cronicle'         => checkCronicle(),
-    'Caddy (Tribe)'    => checkCaddy('Caddy Tribe',    $project . '_caddy_tribe',    80),
+    'Caddy (Tribe)'    => checkCaddy('Caddy Tribe', $project . '_caddy_tribe', 80),
     'Caddy (Junction)' => checkCaddy('Caddy Junction', $project . '_caddy_junction', 80),
-    'Caddy (Dist)'     => checkCaddy('Caddy Dist',     $project . '_caddy_dist',     80),
+    'Caddy (Dist)'     => checkCaddy('Caddy Dist', $project . '_caddy_dist', 80),
     'Caddy (PHP Dist)' => checkCaddy('Caddy PHP Dist', $project . '_caddy_php_dist', 80),
     'phpMyAdmin'       => checkPhpMyAdmin(),
+    'FileBrowser'      => checkFileBrowser(),
     'Disk Space'       => checkDiskSpace(),
     'Writable Dirs'    => checkWritableDirs(),
-];
+    ];
 
-$allOk    = array_reduce($checks, fn($c, $v) => $c && $v['ok'], true);
-$okCount  = count(array_filter($checks, fn($v) => $v['ok']));
-$total    = count($checks);
-$now      = date('Y-m-d H:i:s T');
+    $allOk   = array_reduce($checks, fn($c, $v) => $c && $v['ok'], true);
+    $okCount = count(array_filter($checks, fn($v) => $v['ok']));
+    $total   = count($checks);
+    $now     = date('Y-m-d H:i:s T');
 
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($project) ?> — Health</title>
+  <title><?php echo htmlspecialchars($project) ?> — Health</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 
@@ -325,18 +363,18 @@ $now      = date('Y-m-d H:i:s T');
 <body>
 
 <header>
-  <h1><?= htmlspecialchars(strtoupper($project)) ?> // SERVICE HEALTH</h1>
-  <p>Generated <?= $now ?> &nbsp;&middot;&nbsp; PHP <?= PHP_VERSION ?> &nbsp;&middot;&nbsp; <?= php_uname('n') ?></p>
+  <h1><?php echo htmlspecialchars(strtoupper($project)) ?> // SERVICE HEALTH</h1>
+  <p>Generated <?php echo $now ?> &nbsp;&middot;&nbsp; PHP <?php echo PHP_VERSION ?> &nbsp;&middot;&nbsp; <?php echo php_uname('n') ?></p>
 </header>
 
 <div class="summary">
   <?php if ($allOk): ?>
     <span class="status-all-ok">&#10003; ALL SYSTEMS OPERATIONAL</span>
-    &nbsp;&mdash;&nbsp; <?= $okCount ?>/<?= $total ?> checks passed
+    &nbsp;&mdash;&nbsp; <?php echo $okCount ?>/<?php echo $total ?> checks passed
   <?php else: ?>
     <span class="status-all-bad">&#x26A0; DEGRADED</span>
-    &nbsp;&mdash;&nbsp; <?= $okCount ?>/<?= $total ?> checks passed
-  <?php endif ?>
+    &nbsp;&mdash;&nbsp; <?php echo $okCount ?>/<?php echo $total ?> checks passed
+  <?php endif?>
 </div>
 
 <table>
@@ -350,22 +388,22 @@ $now      = date('Y-m-d H:i:s T');
   <tbody>
     <?php foreach ($checks as $name => $result): ?>
     <tr>
-      <td><?= htmlspecialchars($name) ?></td>
+      <td><?php echo htmlspecialchars($name) ?></td>
       <td>
         <?php if ($result['ok']): ?>
           <span class="badge badge-ok">OK</span>
         <?php else: ?>
           <span class="badge badge-err">FAIL</span>
-        <?php endif ?>
+        <?php endif?>
       </td>
-      <td class="detail"><?= htmlspecialchars($result['detail']) ?></td>
+      <td class="detail"><?php echo htmlspecialchars($result['detail']) ?></td>
     </tr>
-    <?php endforeach ?>
+    <?php endforeach?>
   </tbody>
 </table>
 
 <footer>
-  Tribe Framework &nbsp;&middot;&nbsp; <?= htmlspecialchars($project) ?> &nbsp;&middot;&nbsp; Auto-refresh:
+  Tribe Framework &nbsp;&middot;&nbsp; <?php echo htmlspecialchars($project) ?> &nbsp;&middot;&nbsp; Auto-refresh:
   <a href="" style="color:#000">reload</a>
 </footer>
 
