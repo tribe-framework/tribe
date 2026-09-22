@@ -1,22 +1,16 @@
-x-shared-hosts: &shared_hosts
-  extra_hosts:
-    - "shared-services:${SHARED_SERVICES_HOST:-host-gateway}"
-
 services:
   setup:
     image: alpine:3
     container_name: ${PROJECT_NAME}_setup
-    env_file:
-      - .env
-    <<: *shared_hosts
     volumes:
       - ./config:/config
       - ./applications:/applications
       - ./uploads:/uploads
       - ./logs:/logs
       - .:/workdir
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /workdir
-    command: sh -c "apk add --no-cache curl unzip bash mysql-client && bash ./config/setup-thread.sh && touch /tmp/setup_complete && tail -f /dev/null"
+    command: sh -c "apk add --no-cache curl unzip bash docker-cli && bash ./config/setup.sh && touch /tmp/setup_complete && tail -f /dev/null"
     healthcheck:
       test: ["CMD", "test", "-f", "/tmp/setup_complete"]
       interval: 5s
@@ -32,13 +26,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    <<: *shared_hosts
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
-      - DB_HOST=shared-services
-      - DB_PORT=${SHARED_DB_PORT:-3306}
-      - TIKA_HOST=shared-services
-      - TIKA_PORT=${SHARED_TIKA_PORT:-9998}
+      - TIKA_HOST=${TIKA_HOST}
+      - TIKA_PORT=9998
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -60,10 +51,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    <<: *shared_hosts
-    environment:
-      - DB_HOST=shared-services
-      - DB_PORT=${SHARED_DB_PORT:-3306}
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -83,10 +70,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    <<: *shared_hosts
-    environment:
-      - DB_HOST=shared-services
-      - DB_PORT=${SHARED_DB_PORT:-3306}
     volumes:
       - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -123,23 +106,6 @@ services:
         condition: service_healthy
       php_tribe:
         condition: service_started
-    networks:
-      - tribe_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5
-    container_name: ${PROJECT_NAME}_phpmyadmin
-    restart: unless-stopped
-    <<: *shared_hosts
-    ports:
-      - "${PHPMYADMIN_PORT:-13001}:80"
-    environment:
-      PMA_HOST: shared-services
-      PMA_PORT: ${SHARED_DB_PORT:-3306}
-      UPLOAD_LIMIT: 2G
-    depends_on:
-      setup:
-        condition: service_healthy
     networks:
       - tribe_network
 
@@ -261,6 +227,11 @@ networks:
   tribe_network:
     driver: bridge
     name: ${PROJECT_NAME}_network
+##  for server with multiple dockers, manage IP manually
+#   ipam:
+#     config:
+#       - subnet: 172.30.0.0/24
+#         gateway: 172.30.0.1
 
 volumes:
   junction_caddy_data:

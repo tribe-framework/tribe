@@ -83,7 +83,7 @@ services:
       - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
-      - TIKA_HOST=${PROJECT_NAME}_tika
+      - TIKA_HOST=${TIKA_HOST}
       - TIKA_PORT=9998
     volumes:
       - ./applications/tribe:/var/www/html
