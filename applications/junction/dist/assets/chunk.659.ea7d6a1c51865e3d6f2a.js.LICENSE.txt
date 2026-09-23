@@ -1,6 +1,6 @@
 /* @license
 Papa Parse
-v5.5.3
+v5.7.0
 https://github.com/mholt/PapaParse
 License: MIT
 */
@@ -15,14 +15,6 @@ License: MIT
   * Copyright 2011-2025 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
-
-/*!
- * @overview RSVP - a tiny implementation of Promises/A+.
- * @copyright Copyright (c) 2016 Yehuda Katz, Tom Dale, Stefan Penner and contributors
- * @license   Licensed under MIT license
- *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
- * @version   3.6.2
- */
 
 /*!
  * CodeX.Tooltips
@@ -183,4 +175,4 @@ License: MIT
  * @license MIT
  */
 
-//! pretty-print-json v3.0.7 ~~ https://pretty-print-json.js.org ~~ MIT License
+//! pretty-print-json v3.0.8 ~~ https://pretty-print-json.js.org ~~ MIT License
