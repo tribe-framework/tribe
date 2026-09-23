@@ -32,11 +32,13 @@ mkdir -p \
     /uploads/cronicle/data \
     /uploads/cronicle/logs \
     /uploads/cronicle/plugins \
-    /uploads/centrifugo
+    /uploads/centrifugo \
+    /uploads/plausible/data/tmp
 
 # Default: www-data owns everything (php-fpm needs read/write across uploads)
 chown -R 33:33 /uploads
 chown -R 33:33 /logs
+chown -R 999:65534 /uploads/plausible/data
 
 # MySQL data dir — mysql user (UID 999) must own it exclusively.
 # MySQL refuses to start if this dir is owned by anyone else or perms are too open.
