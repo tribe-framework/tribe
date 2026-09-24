@@ -12,7 +12,7 @@
 
 # HTTP configuration
 :80 {
-    root * /var/www/html
+    root * /var/www/html/uploads/sites/dist-php
     
     # Security headers (excluding HSTS for HTTP)
     header {
@@ -40,6 +40,18 @@
         path /uploads/mysql/*
     }
     respond @mysql_uploads 403
+
+    @uploads_file {
+        path /uploads/*
+        not path /uploads/mysql/* */.*
+        file {
+            root /var/www/html
+        }
+    }
+    handle @uploads_file {
+        root * /var/www/html
+        file_server
+    }
 
     # Handle uploads directory
     @uploads {

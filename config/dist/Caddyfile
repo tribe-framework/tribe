@@ -12,7 +12,7 @@
 
 :80 {
     # Root directory for single static site
-    root * /srv
+    root * /srv/sites/dist
     
     # Enable file server
     file_server {

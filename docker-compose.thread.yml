@@ -70,8 +70,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    working_dir: /var/www/html/uploads/sites/dist-php
     volumes:
-      - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
       - ./logs:/var/log
     command: >
@@ -141,7 +141,7 @@ services:
     ports:
       - "${DIST_PORT:-13003}:80"
     volumes:
-      - ./uploads/sites/dist:/srv
+      - ./uploads/sites:/srv/sites:ro
       - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
     depends_on:
@@ -161,7 +161,6 @@ services:
     ports:
       - "${DIST_PHP_PORT:-13004}:80"
     volumes:
-      - ./uploads/sites/dist-php:/var/www/html
       - ./uploads:/var/www/html/uploads
       - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile
       - ./logs:/var/log/caddy
