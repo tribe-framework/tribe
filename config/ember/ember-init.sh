@@ -12,7 +12,7 @@ if test -f "$FILE"; then
         mkdir -p "$DIRECTORY";  # Use -p to create parent directories if needed
         cd "$DIRECTORY" || exit; # Change to the directory, exit if it fails
         ember init;
-        yes | ember install ember-tribe;
+        yes | ember install ember-tribe@^2;
     else
         echo "A directory already exists at $DIRECTORY. You cannot overwrite existing application."
     fi

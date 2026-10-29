@@ -19,7 +19,7 @@ if (Test-Path $FILE) {
         ember init
 
         # Automatically confirm installation prompts
-        echo "y" | ember install ember-tribe
+        echo "y" | ember install ember-tribe@^2
     } else {
         Write-Host "A directory already exists at $DIRECTORY. You cannot overwrite existing application."
     }
