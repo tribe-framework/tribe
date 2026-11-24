@@ -92,7 +92,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${TRIBE_PORT:-13000}:80"
+      - "${BIND_ADDRESS:-0.0.0.0}:${TRIBE_PORT:-13000}:80"
     volumes:
       - ./applications/tribe:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -118,7 +118,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${JUNCTION_PORT:-13002}:80"
+      - "${BIND_ADDRESS:-0.0.0.0}:${JUNCTION_PORT:-13002}:80"
     volumes:
       - ./applications/junction/dist:/var/www/html
       - ./uploads:/var/www/html/uploads
@@ -139,7 +139,7 @@ services:
     container_name: ${PROJECT_NAME}_caddy_dist
     restart: unless-stopped
     ports:
-      - "${DIST_PORT:-13003}:80"
+      - "${BIND_ADDRESS:-0.0.0.0}:${DIST_PORT:-13003}:80"
     volumes:
       - ./uploads/sites:/srv/sites:ro
       - ./config/dist/Caddyfile:/etc/caddy/Caddyfile
@@ -159,7 +159,7 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
     ports:
-      - "${DIST_PHP_PORT:-13004}:80"
+      - "${BIND_ADDRESS:-0.0.0.0}:${DIST_PHP_PORT:-13004}:80"
     volumes:
       - ./uploads:/var/www/html/uploads
       - ./config/dist-php/Caddyfile:/etc/caddy/Caddyfile
