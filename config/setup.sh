@@ -63,6 +63,43 @@ find /uploads -type f \
     -not -path "/uploads/mysql*" \
     -exec chmod 664 {} +
 
+mkdir -p /applications/.versions /applications/junction/dist
+
+if [ ! -f /applications/junction/dist/index.php ]; then
+    echo "📦 Installing latest Junction release..."
+    JUNCTION_TMP=$(mktemp -d)
+    JUNCTION_TAG=$(curl -fsSI -o /dev/null -w '%{redirect_url}' https://github.com/tribe-framework/junction/releases/latest | sed -n 's#.*/releases/tag/##p')
+    if [ -n "$JUNCTION_TAG" ] \
+        && curl -fsSL -o "$JUNCTION_TMP/dist.zip" "https://github.com/tribe-framework/junction/releases/download/$JUNCTION_TAG/dist.zip" \
+        && unzip -q "$JUNCTION_TMP/dist.zip" -d "$JUNCTION_TMP/extracted"; then
+        JUNCTION_ROOT="$JUNCTION_TMP/extracted"
+        [ -f "$JUNCTION_ROOT/index.php" ] || JUNCTION_ROOT="$JUNCTION_TMP/extracted/dist"
+        if [ -f "$JUNCTION_ROOT/index.php" ]; then
+            cp -a "$JUNCTION_ROOT/." /applications/junction/dist/
+            mkdir -p /applications/.versions/junction
+            printf '{"tag":"%s","installed_at":%s}\n' "$JUNCTION_TAG" "$(date +%s)" > /applications/.versions/junction/installed.json
+            echo "✅ Junction $JUNCTION_TAG installed!"
+        else
+            echo "⚠️  dist.zip of Junction $JUNCTION_TAG has no index.php, skipping"
+        fi
+    else
+        echo "⚠️  Could not download the latest Junction release, skipping"
+    fi
+    rm -rf "$JUNCTION_TMP"
+fi
+
+chown -R 33:33 /applications/.versions
+chown 33:33 /applications/tribe
+if [ -d /applications/tribe/vendor ]; then
+    chown -R 33:33 /applications/tribe/vendor
+fi
+if [ -f /applications/tribe/composer.lock ]; then
+    chown 33:33 /applications/tribe/composer.lock
+fi
+if [ -d /applications/junction/dist ]; then
+    find /applications/junction/dist -path /applications/junction/dist/uploads -prune -o -exec chown 33:33 {} +
+fi
+
 echo "✅ File permissions set!"
 
 # ── Validate database connection ───────────────────────────────────────────────
