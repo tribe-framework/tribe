@@ -66,12 +66,12 @@ find /uploads -type f \
 mkdir -p /applications/.versions /applications/junction/dist
 
 if [ ! -f /applications/junction/dist/index.php ]; then
-    echo "📦 Installing latest Junction release..."
+    echo "📦 Installing latest Junction..."
     JUNCTION_TMP=$(mktemp -d)
-    JUNCTION_TAG=$(curl -fsSI -o /dev/null -w '%{redirect_url}' https://github.com/tribe-framework/junction/releases/latest | sed -n 's#.*/releases/tag/##p')
-    if [ -n "$JUNCTION_TAG" ] \
-        && curl -fsSL -o "$JUNCTION_TMP/dist.zip" "https://github.com/tribe-framework/junction/releases/download/$JUNCTION_TAG/dist.zip" \
-        && unzip -q "$JUNCTION_TMP/dist.zip" -d "$JUNCTION_TMP/extracted"; then
+    if ! curl -fsSL -o "$JUNCTION_TMP/dist.zip" https://github.com/tribe-framework/junction/raw/refs/heads/master/dist.zip; then
+        echo "⚠️  Could not download Junction's dist.zip from GitHub, skipping"
+    elif unzip -q "$JUNCTION_TMP/dist.zip" -d "$JUNCTION_TMP/extracted"; then
+        JUNCTION_TAG=$(sha256sum "$JUNCTION_TMP/dist.zip" | cut -c1-12)
         JUNCTION_ROOT="$JUNCTION_TMP/extracted"
         [ -f "$JUNCTION_ROOT/index.php" ] || JUNCTION_ROOT="$JUNCTION_TMP/extracted/dist"
         if [ -f "$JUNCTION_ROOT/index.php" ]; then
@@ -80,10 +80,10 @@ if [ ! -f /applications/junction/dist/index.php ]; then
             printf '{"tag":"%s","installed_at":%s}\n' "$JUNCTION_TAG" "$(date +%s)" > /applications/.versions/junction/installed.json
             echo "✅ Junction $JUNCTION_TAG installed!"
         else
-            echo "⚠️  dist.zip of Junction $JUNCTION_TAG has no index.php, skipping"
+            echo "⚠️  Junction's dist.zip has no index.php, skipping"
         fi
     else
-        echo "⚠️  Could not download the latest Junction release, skipping"
+        echo "⚠️  Could not unpack Junction's dist.zip, skipping"
     fi
     rm -rf "$JUNCTION_TMP"
 fi

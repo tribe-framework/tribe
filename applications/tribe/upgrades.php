@@ -1,12 +1,13 @@
 <?php
 
-const TRIBE_DIR      = __DIR__;
-const JUNCTION_DIST  = '/var/www/junction/dist';
-const VERSIONS_DIR   = '/var/www/versions';
-const JUNCTION_REPO  = 'tribe-framework/junction';
-const JUNCTION_ASSET = 'dist.zip';
-const PHP_CLI        = '/usr/local/bin/php';
-const COMPOSER_BIN   = '/usr/bin/composer';
+const TRIBE_DIR            = __DIR__;
+const JUNCTION_DIST        = '/var/www/junction/dist';
+const VERSIONS_DIR         = '/var/www/versions';
+const JUNCTION_ZIP_URL     = 'https://github.com/tribe-framework/junction/raw/refs/heads/master/dist.zip';
+const JUNCTION_HISTORY_URL = 'https://github.com/tribe-framework/junction/commits/master/dist.zip';
+const JUNCTION_ASSET       = 'dist.zip';
+const PHP_CLI              = '/usr/local/bin/php';
+const COMPOSER_BIN         = '/usr/bin/composer';
 
 const JUNCTION_KEEP_ON_UPGRADE = ['uploads', '.env', 'vendor', 'composer.lock', 'assets/css/custom.css', 'assets/js/custom.js'];
 const JUNCTION_KEEP_ON_RESTORE = ['uploads', '.env', 'assets/css/custom.css', 'assets/js/custom.js'];
@@ -158,7 +159,7 @@ function vendor_is_healthy(): bool
         return false;
     }
 
-    $probe = 'require "vendor/autoload.php"; exit(class_exists("Tribe\\\\Auth") && class_exists("Tribe\\\\API") && class_exists("Dotenv\\\\Dotenv") ? 0 : 3);';
+    $probe  = 'require "vendor/autoload.php"; exit(class_exists("Tribe\\\\Auth") && class_exists("Tribe\\\\API") && class_exists("Dotenv\\\\Dotenv") ? 0 : 3);';
     [$code] = run_command([PHP_CLI, '-r', $probe], TRIBE_DIR);
     return $code === 0;
 }
@@ -482,7 +483,7 @@ function http_get(string $url, string $accept, ?string $saveTo = null): string
 {
     $context = stream_context_create(['http' => [
         'method'          => 'GET',
-        'header'          => "User-Agent: tribe-version-upgrades\r\nAccept: $accept\r\n",
+        'header'          => "User-Agent: tribe-version-upgrades\r\nAccept: $accept\r\nCache-Control: no-cache\r\n",
         'timeout'         => 120,
         'follow_location' => 1,
         'max_redirects'   => 5,
@@ -522,31 +523,13 @@ function http_get(string $url, string $accept, ?string $saveTo = null): string
     return $saveTo;
 }
 
-function junction_latest_release(): array
+function download_junction(string $saveTo): array
 {
-    $release = json_decode(http_get('https://api.github.com/repos/' . JUNCTION_REPO . '/releases/latest', 'application/vnd.github+json'), true);
-    if (! is_array($release) || empty($release['tag_name'])) {
-        throw new UpgradeError('Could not read the latest Junction release.');
-    }
-
-    $asset = null;
-    foreach (($release['assets'] ?? []) as $candidate) {
-        if (($candidate['name'] ?? '') === JUNCTION_ASSET) {
-            $asset = $candidate;
-            break;
-        }
-    }
-
-    if ($asset === null) {
-        throw new UpgradeError('Release ' . $release['tag_name'] . ' has no ' . JUNCTION_ASSET . ' asset.');
-    }
+    http_get(JUNCTION_ZIP_URL, 'application/zip', $saveTo);
 
     return [
-        'tag'          => $release['tag_name'],
-        'name'         => $release['name'] ?: $release['tag_name'],
-        'published_at' => $release['published_at'] ?? null,
-        'html_url'     => $release['html_url'] ?? null,
-        'asset_url'    => $asset['browser_download_url'],
+        'tag'      => substr(hash_file('sha256', $saveTo), 0, 12),
+        'html_url' => JUNCTION_HISTORY_URL,
     ];
 }
 
@@ -613,17 +596,17 @@ function upgrade_junction(): array
 {
     require_junction_mounted();
 
-    $latest    = junction_latest_release();
     $installed = junction_installed()['tag'] ?? null;
-    if ($installed === $latest['tag']) {
-        throw new UpgradeError('Junction is already at ' . $latest['tag'] . '.');
-    }
 
     $work = VERSIONS_DIR . '/.work-' . bin2hex(random_bytes(4));
     make_dir($work);
 
     try {
-        $zipPath = http_get($latest['asset_url'], 'application/octet-stream', $work . '/' . JUNCTION_ASSET);
+        $zipPath = $work . '/' . JUNCTION_ASSET;
+        $latest  = download_junction($zipPath);
+        if ($installed === $latest['tag']) {
+            throw new UpgradeError('Junction is already at ' . $latest['tag'] . '.');
+        }
 
         $zip = new \ZipArchive();
         if ($zip->open($zipPath) !== true || ! $zip->extractTo($work . '/extracted')) {
@@ -847,11 +830,13 @@ function status(): array
 {
     $latest      = null;
     $latestError = null;
+    $probe       = tempnam(sys_get_temp_dir(), 'junction-');
     try {
-        $latest = junction_latest_release();
-        unset($latest['asset_url']);
+        $latest = download_junction($probe);
     } catch (\Throwable $e) {
         $latestError = $e->getMessage();
+    } finally {
+        @unlink($probe);
     }
 
     $ready = is_dir(VERSIONS_DIR) && is_writable(VERSIONS_DIR);
